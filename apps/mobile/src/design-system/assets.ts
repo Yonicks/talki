@@ -1,10 +1,12 @@
 /**
  * Real Talki art used by the design system's shell components and gallery —
- * "Use real Talki art from assets/v2/. No emoji placeholders."
- * (phase-05-plan.md work item 5). Copied from the repository-root
- * `assets/v2/` (the legacy app's own asset folder, untouched) into
- * `apps/mobile/assets/v2/` so Metro can bundle them; the legacy copies are
- * the source of truth and are never edited.
+ * no emoji placeholders. Production category strip art prefers
+ * `apps/mobile/assets/v3/` when a v3 file exists; remaining families still
+ * load from `apps/mobile/assets/v2/` (copied from repository-root
+ * `assets/v2/`, which is never edited in place).
+ *
+ * `apps/mobile/assets/v3/mocks/` holds visual references only — never load a
+ * mock screenshot as production UI (AGENTS.md landscape rule 4).
  */
 export const navIcons = {
   home: require('../../assets/v2/nav/talki-nav-home.png'),
@@ -33,6 +35,9 @@ export const practiceIcons = {
 
 export const brand = {
   headerLogo: require('../../assets/v2/brand/talki-header-logo.png'),
+  /** Wordmark + star with no tagline lockup — the lockup the v3 Home mock
+   *  shows as the centred top-bar logo (440×136). */
+  logoMark: require('../../assets/v2/brand/talki-logo-mark.png'),
   starMark: require('../../assets/v2/brand/talki-star-mark.png'),
 } as const;
 
@@ -104,31 +109,58 @@ export const practiceCardAssets = {
   combine: require('../../assets/v2/practice-menu/talki-practice-card-combine.png'),
 } as const;
 
+/**
+ * Category strip / theme icons. All ten built-ins use v3 glossy character art.
+ * Domain id `colors` maps to file `category_art.png` (צבעים וצורות).
+ */
 export const categoryIcons = {
-  animals: require('../../assets/v2/categories/talki-cat-icon-animals.png'),
-  food: require('../../assets/v2/categories/talki-cat-icon-food.png'),
-  colors: require('../../assets/v2/categories/talki-cat-icon-colors.png'),
-  home: require('../../assets/v2/categories/talki-cat-icon-home.png'),
-  family: require('../../assets/v2/categories/talki-cat-icon-family.png'),
-  body: require('../../assets/v2/categories/talki-cat-icon-body.png'),
-  actions: require('../../assets/v2/categories/talki-cat-icon-actions.png'),
-  numbers: require('../../assets/v2/categories/talki-cat-icon-numbers.png'),
-  outside: require('../../assets/v2/categories/talki-cat-icon-outside.png'),
-  emotions: require('../../assets/v2/categories/talki-cat-icon-emotions.png'),
+  animals: require('../../assets/v3/category_animals.png'),
+  food: require('../../assets/v3/category_food.png'),
+  colors: require('../../assets/v3/category_art.png'),
+  home: require('../../assets/v3/category_home.png'),
+  family: require('../../assets/v3/category_family.png'),
+  body: require('../../assets/v3/category_body.png'),
+  actions: require('../../assets/v3/category_actions.png'),
+  numbers: require('../../assets/v3/category_numbers.png'),
+  outside: require('../../assets/v3/category_outside.png'),
+  emotions: require('../../assets/v3/category_emotions.png'),
 } as const;
 
-/** Richer illustrated category art used only by the Home hero tile
- *  (`catHeroArt()`, index.html 2185-2188). The category grid keeps the
- *  smaller `categoryIcons` set. `mine` falls back to `brand.starMark`. */
+/** Home category-card art — same v3 sources as `categoryIcons`.
+ *  `mine` falls back to `brand.starMark` at the call site. */
 export const categoryArt = {
-  animals: require('../../assets/v2/categories/talki-cat-art-animals.webp'),
-  food: require('../../assets/v2/categories/talki-cat-art-food.webp'),
-  colors: require('../../assets/v2/categories/talki-cat-art-colors.webp'),
-  home: require('../../assets/v2/categories/talki-cat-art-home.webp'),
-  family: require('../../assets/v2/categories/talki-cat-art-family.webp'),
-  body: require('../../assets/v2/categories/talki-cat-art-body.webp'),
-  actions: require('../../assets/v2/categories/talki-cat-art-actions.webp'),
-  numbers: require('../../assets/v2/categories/talki-cat-art-numbers.webp'),
-  outside: require('../../assets/v2/categories/talki-cat-art-outside.webp'),
-  emotions: require('../../assets/v2/categories/talki-cat-art-emotions.webp'),
+  animals: require('../../assets/v3/category_animals.png'),
+  food: require('../../assets/v3/category_food.png'),
+  colors: require('../../assets/v3/category_art.png'),
+  home: require('../../assets/v3/category_home.png'),
+  family: require('../../assets/v3/category_family.png'),
+  body: require('../../assets/v3/category_body.png'),
+  actions: require('../../assets/v3/category_actions.png'),
+  numbers: require('../../assets/v3/category_numbers.png'),
+  outside: require('../../assets/v3/category_outside.png'),
+  emotions: require('../../assets/v3/category_emotions.png'),
 } as const;
+
+/**
+ * Scenic fills behind category-card character art. Cover-cropped into the
+ * card art panel — never stretched. Call sites cycle with
+ * `index % categoryCardBackgrounds.length` so every category (incl. mine)
+ * gets a tile without inventing extra art.
+ *
+ * These are 420×560 WebP derivatives of the committed 1086×1448 masters in
+ * `assets/v3/category_bg*.png` (same artwork, no crop, no recolour). Home
+ * paints eleven of them at ~82×99 dp; the masters are ~2 MB each, so
+ * shipping them into that box cost ~17 MB of decode on the app's first
+ * screen. The masters stay in the repository as the source of truth — see
+ * `docs/design/landscape/asset-manifest.md`.
+ */
+export const categoryCardBackgrounds = [
+  require('../../assets/v3/cards/card_bg1.webp'),
+  require('../../assets/v3/cards/card_bg2.webp'),
+  require('../../assets/v3/cards/card_bg3.webp'),
+  require('../../assets/v3/cards/card_bg4.webp'),
+  require('../../assets/v3/cards/card_bg5.webp'),
+  require('../../assets/v3/cards/card_bg6.webp'),
+  require('../../assets/v3/cards/card_bg7.webp'),
+  require('../../assets/v3/cards/card_bg8.webp'),
+] as const;

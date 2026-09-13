@@ -13,7 +13,8 @@ Status values:
 | Asset | Status | Purpose |
 |---|---|---|
 | `reference/talki-landscape-master.*` | REFERENCE (not committed, optional) | Original composite landscape mock — never supplied; absence is not a gate failure per `reference/README.md` |
-| `reference/home.png` | REFERENCE | Home crop (1448×1086) |
+| `reference/home.png` | REFERENCE | Home crop (1448×1086) — landscape Phase 16–20 target |
+| `apps/mobile/assets/v3/mocks/mock_home_mobile_v3.png` | REFERENCE | Newer Home visual target (v3). Composition/chrome inspiration only — never runtime UI |
 | `reference/games.png` | REFERENCE | Games hub crop (1672×941) |
 | `reference/practice.png` | REFERENCE | Practice hub crop (1448×1086) |
 
@@ -49,8 +50,17 @@ the synthetic `mine` (custom words) category.
 
 | Asset family | Status | Notes |
 |---|---|---|
-| Category icons (small) | EXISTING | `categoryIcons` — all 10 built-ins registered (`assets/v2/categories/talki-cat-icon-*.png`) |
-| Category hero art | EXISTING | `categoryArt` — all 10 built-ins registered (`assets/v2/categories/talki-cat-art-*.webp`) |
+| Category icons / strip art (v3) | EXISTING | All 10 built-ins use `apps/mobile/assets/v3/category_*.png` via `categoryIcons` + `categoryArt`. Domain **colors** ← file `category_art.png` |
+| Category scenic fills (v3) | EXISTING | Masters `assets/v3/category_bg1.png`…`bg8.png` (1086×1448, ~2 MB each). Home paints them behind the strip cards' character art and behind the hero thumbnail, exactly as the v3 mock draws them |
+| Category scenic fills — card derivatives | EXISTING (derived) | `assets/v3/cards/card_bg1.webp`…`bg8.webp` (420×560, ~45 KB each) — same artwork, downscaled only. `categoryCardBackgrounds` points here because Home draws eleven of them at ~82×99 dp and the masters cost ~17 MB of decode on the app's first screen. Regenerate from the masters if the masters change |
+| Home mascot | EXISTING | `assets/v2/home/talki-hero-star.webp` — the exact mascot the v3 mock draws |
+| Home brand lockup | EXISTING | `assets/v2/brand/talki-logo-mark.png` (440×136, wordmark + star, no tagline) — the exact lockup the v3 mock draws. `talki-header-logo.png` (with tagline) still serves `LandscapeTopBar` on other hubs |
+| Home hero title star | EXISTING | `assets/v2/brand/talki-star-mark.png` — the small character star beside the category title |
+| Missing-asset markup | REFERENCE | `docs/migration/screenshots/phase-30/mock-missing-assets.png` — the v3 Home mock with every DESIGN-BLOCKED slot below boxed and numbered |
+| Home profile/parent icon | **DESIGN-BLOCKED (substituted)** | The v3 mock draws a purple person+gear outline. No such asset exists; Home renders `assets/v2/icons/talki-ui-icon-settings.png` (blue gear) in that slot |
+| Home CTA play glyph | **DESIGN-BLOCKED (substituted)** | The v3 mock draws a solid play triangle in the CTA's white circle. `talki-ui-icon-play.png` is a blue-circled glyph, wrong inside a white circle, so the CTA uses the purple `talki-chevron-left.png` rotated 180° |
+| Home hero thumbnail art | **DESIGN-BLOCKED (substituted)** | The v3 mock's hero thumbnail is a bespoke heart+children scene with no repository equivalent. Home shows the current category's own `categoryArt` over a scenic fill instead |
+| Home world background | **DESIGN-BLOCKED (substituted)** | The v3 mock's background (tree hard left, river right, ferris wheel) is not a committed asset. Home keeps `assets/v2/landscape/talki-landscape-bg-home.png` (same world, tree centred) |
 | `mine` (custom words) art | EXISTING (fallback) | No dedicated art; falls back to `brand.starMark`, matching legacy behavior |
 
 ### Games

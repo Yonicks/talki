@@ -32,9 +32,30 @@ export const LANDSCAPE_BG_SOURCE = { width: 1672, height: 941 } as const;
  * (castle sits toward the long-edge end of the art).
  */
 export const LANDSCAPE_BG_FOCAL: Record<LandscapeWorldId, FocalPoint> = {
-  home: { x: 0.48, y: 0.42 },
+  home: { x: 0.92, y: 0.55 },
   games: { x: 0.55, y: 0.4 },
   practice: { x: 0.5, y: 0.42 },
+};
+
+/**
+ * How much tighter than a plain cover crop each world is framed (1 = cover).
+ *
+ * Home is the only world that needs more than cover. Its source art centres
+ * the hero tree and puts the bridge/river at the start edge, while the
+ * approved v3 composition reads with the tree filling the inline start, the
+ * castle toward the end, and the flowered meadow along the bottom. A 1.45×
+ * frame at the `home` focal point above lands that reading; a plain cover
+ * crop of the same file shows the tree canopy as a thin band across the top
+ * and gives the whole left third to a village the mock does not have.
+ *
+ * At 1.45× the visible window is ~1153 × 649 source pixels for an 844 × 390
+ * dp stage, i.e. still a downscale at 1× density and a mild upscale at 3×.
+ * Do not raise it further without new art.
+ */
+export const LANDSCAPE_BG_ZOOM: Record<LandscapeWorldId, number> = {
+  home: 1.45,
+  games: 1,
+  practice: 1,
 };
 
 /**
@@ -66,6 +87,14 @@ export function landscapeBgFocalFor(
   _deviceClass: DeviceClass
 ): FocalPoint {
   return LANDSCAPE_BG_FOCAL[world];
+}
+
+/** Registered zoom for a world (1 = plain cover). */
+export function landscapeBgZoomFor(
+  world: LandscapeWorldId,
+  _deviceClass: DeviceClass
+): number {
+  return LANDSCAPE_BG_ZOOM[world];
 }
 
 /**

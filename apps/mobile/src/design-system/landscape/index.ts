@@ -26,5 +26,23 @@ export { LandscapeCategoryStrip } from './LandscapeCategoryStrip';
 export { LandscapeHeroPanel } from './LandscapeHeroPanel';
 export { LandscapeProgress } from './LandscapeProgress';
 export { LandscapeTitle } from './LandscapeTitle';
+export { ProfileGlyph } from './ProfileGlyph';
 export { LandscapePageIndicator } from './LandscapePageIndicator';
 export { LandscapeWordGrid } from './LandscapeWordGrid';
+export {
+  CATEGORY_CARD_ASPECT,
+  HOME_BASE,
+  HOME_LAYOUT,
+  MAX_SCALE,
+  MOCK_PX_PER_DP,
+  WIDTH_RELIEF,
+  HERO_ROW_CENTER_FROM_END,
+  homeHeroInsetStart,
+  homeHeroPanelHeight,
+  homeHeroTop,
+  homeMetricsFor,
+  homeStripMetrics,
+  useHomeMetrics,
+  type HomeMetrics,
+  type HomeStripMetrics,
+} from './homeLayout';

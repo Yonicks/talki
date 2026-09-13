@@ -21,12 +21,13 @@ There is no portrait child layout to preserve.
 
 Visual reference order:
 
-1. `reference/home.png`
-2. `reference/games.png`
-3. `reference/practice.png`
-4. `reference/talki-landscape-master.*` (optional; not committed — see `reference/README.md`)
+1. `apps/mobile/assets/v3/mocks/mock_home_mobile_v3.png` — current Home composition target (v3)
+2. `reference/home.png` — prior landscape Home crop (still useful for shell history)
+3. `reference/games.png`
+4. `reference/practice.png`
+5. `reference/talki-landscape-master.*` (optional; not committed — see `reference/README.md`)
 
-The cropped images are easier for an agent to inspect per screen. The optional master, if ever added, would preserve the original composite reference supplied for this redesign; its absence is not a gate failure.
+The cropped images are easier for an agent to inspect per screen. The optional master, if ever added, would preserve the original composite reference supplied for this redesign; its absence is not a gate failure. The v3 Home mock is composition/chrome inspiration only — never embed it as runtime UI.
 
 These images define:
 

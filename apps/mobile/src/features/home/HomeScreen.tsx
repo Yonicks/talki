@@ -2,38 +2,66 @@ import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { ToastHost } from '@/components/shell';
-import { LandscapeScreen, landscapeTokens } from '@/design-system/landscape';
+import { landscapeBackgrounds } from '@/design-system/assets';
+import {
+  HOME_LAYOUT,
+  LandscapeScreen,
+  LandscapeWorldBackground,
+  homeHeroInsetStart,
+  homeHeroPanelHeight,
+  homeHeroTop,
+  homeStripMetrics,
+  useHomeMetrics,
+} from '@/design-system/landscape';
 import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
-import { categoryHref } from '@/domain/navigation/routes';
+import {
+  categoryHref,
+  gamesMenuHref,
+  practiceMenuHref,
+  rewardsHref,
+} from '@/domain/navigation/routes';
 import type { CategoryId } from '@/domain/types';
-import { LandscapeHubFrame } from '@/features/shell/LandscapeHubFrame';
 import { useGuardedPush } from '@/hooks/useGuardedPush';
+import { useGuardedReplace } from '@/hooks/useGuardedReplace';
 import { useParentBrand } from '@/hooks/useParentBrand';
 import { useSettingsStore } from '@/state/settingsStore';
 import { DevStorageProbe } from '@/testing/DevStorageProbe';
 import { testIds } from '@/testing/testIds';
 
 import { ContinueLearningHero } from './ContinueLearningHero';
-import { HomeCategoryStrip } from './HomeCategoryStrip';
+import { LandscapeCategoryCarousel } from './LandscapeCategoryCarousel';
+import { LandscapeHomeHeader } from './LandscapeHomeHeader';
 import { useHomeData } from './useHomeData';
 
 /**
- * Landscape Home hub (Phase 20).
+ * Landscape Home hub, composed to `assets/v3/mocks/mock_home_mobile_v3.png`.
  *
- * Composition (matches `docs/design/landscape/reference/home.png`):
- *   world background + top chrome + side nav (LandscapeHubFrame)
- *   welcome/progress hero (LandscapeHeroPanel via ContinueLearningHero)
- *   one-row category strip (horizontal scroll — all categories reachable)
+ * Three layers, exactly as the mock reads:
+ *   1. the full-bleed storybook world (edge to edge, behind everything);
+ *   2. the art-directed stage — top chrome, mascot + continue-learning card;
+ *   3. the category carousel along the bottom.
  *
- * UX invention vs portrait Home: the former practice/games rows are folded
- * into Phase 19 side-nav hub entry (Practice / Games). Featured shortcuts
- * remain reachable from those hubs; Home itself no longer hosts a vertical
- * practice/games stack so the landscape viewport stays single-screen.
+ * The stage *fills* the safe viewport (`useHomeMetrics()`): sizes come from
+ * one uniform scale off the mock's 900 × 390 dp canvas, while the header is
+ * anchored to the top edge, the carousel to the bottom edge, and the hero
+ * row centred in the band between them. See `homeLayout.ts` for why the
+ * composition is anchored rather than letterboxed. Placement inside the
+ * stage is absolute on purpose: this is a hand-composed game screen, not a
+ * list.
+ *
+ * The stage is sized from `usableHeight`, which already excludes the
+ * reserved ad strip (`useLandscapeLayout()`), so the banner sits *beneath*
+ * the composition and the composition simply occupies what is left.
+ *
+ * Home does not use `LandscapeHubFrame`: that frame's full-height side-nav
+ * lanes are what the mock replaces with the carousel arrows. Practice and
+ * Games stay reachable from the header (see `LandscapeHomeHeader`).
  */
 export function HomeScreen() {
   const push = useGuardedPush();
+  const replace = useGuardedReplace();
   const layout = useLandscapeLayout();
-  const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
+  const metrics = useHomeMetrics();
   const data = useHomeData();
   const { settings, toggleMusic } = useSettingsStore();
   const parent = useParentBrand();
@@ -49,37 +77,116 @@ export function HomeScreen() {
     return <LandscapeScreen testID={testIds.home.root}>{null}</LandscapeScreen>;
   }
 
+  const heroIndex = data.hero ? data.categories.findIndex((c) => c.id === data.hero!.id) : 0;
+  const strip = homeStripMetrics(metrics);
+  const heroRowWidth = metrics.s(HOME_LAYOUT.hero.rowWidth);
+  const heroTop = homeHeroTop(metrics, strip, homeHeroPanelHeight(metrics));
+  const heroInsetStart = homeHeroInsetStart(metrics, heroRowWidth);
+
   return (
-    <LandscapeHubFrame
-      hub="home"
-      testID={testIds.home.root}
-      points={data.points}
-      musicOn={settings.music}
-      onToggleMusic={() => void toggleMusic()}
-      onBrandLongPress={parent.onBrandLongPress}
-      onBrandShortPress={parent.onBrandShortPress}
-    >
-      <ToastHost message={parent.toast} onHide={parent.dismissToast} testID={testIds.parent.toast} />
-      <View style={[styles.body, { gap: tokens.gap }]}>
-        {data.hero ? (
-          <ContinueLearningHero
-            category={data.hero}
-            learned={data.heroLearned}
+    <LandscapeScreen testID={testIds.home.root} edgesHandledByShell>
+      <LandscapeWorldBackground
+        source={landscapeBackgrounds.home}
+        world="home"
+        deviceClass={layout.deviceClass}
+        testID={`${testIds.home.root}-bg`}
+      />
+
+      <View
+        pointerEvents="box-none"
+        style={[
+          styles.safe,
+          {
+            paddingTop: layout.safeInsets.top,
+            paddingBottom: layout.safeInsets.bottom,
+            // Physical OS safe-area edges — a notch sits on a physical side
+            // regardless of text direction.
+            // eslint-disable-next-line no-restricted-syntax
+            paddingLeft: layout.safeInsets.left,
+            // eslint-disable-next-line no-restricted-syntax
+            paddingRight: layout.safeInsets.right,
+          },
+        ]}
+      >
+        <View
+          testID={testIds.home.stage}
+          pointerEvents="box-none"
+          style={styles.stage}
+        >
+          <LandscapeHomeHeader
+            metrics={metrics}
             points={data.points}
-            onContinue={() => openCategory(data.hero!.id)}
+            musicOn={settings.music}
+            onToggleMusic={() => void toggleMusic()}
+            onPointsPress={() => push(rewardsHref)}
+            onPracticePress={() => replace(practiceMenuHref)}
+            onGamesPress={() => replace(gamesMenuHref)}
+            onBrandLongPress={parent.onBrandLongPress}
+            onBrandShortPress={parent.onBrandShortPress}
           />
-        ) : null}
-        <HomeCategoryStrip categories={data.categories} onOpen={openCategory} />
+
+          {data.hero ? (
+            <View
+              pointerEvents="box-none"
+              style={[
+                styles.heroSlot,
+                {
+                  top: heroTop,
+                  insetInlineStart: heroInsetStart,
+                },
+              ]}
+            >
+              <ContinueLearningHero
+                category={data.hero}
+                learned={data.heroLearned}
+                points={data.points}
+                metrics={metrics}
+                backgroundIndex={heroIndex < 0 ? 0 : heroIndex}
+                onContinue={() => openCategory(data.hero!.id)}
+              />
+            </View>
+          ) : null}
+
+          <LandscapeCategoryCarousel
+            metrics={metrics}
+            categories={data.categories}
+            onOpen={openCategory}
+          />
+        </View>
+      </View>
+
+      <ToastHost message={parent.toast} onHide={parent.dismissToast} testID={testIds.parent.toast} />
+
+      {/* Dev/native-only Maestro persistence hook — renders nothing on web or
+          in a production build. Parked in a corner so it can never sit in the
+          middle of the approved composition (see the current-state
+          screenshot this redesign replaces). */}
+      <View pointerEvents="box-none" style={styles.devProbe}>
         <DevStorageProbe />
       </View>
-    </LandscapeHubFrame>
+    </LandscapeScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
+  safe: {
+    ...StyleSheet.absoluteFill,
+    overflow: 'hidden',
+  },
+  /** Fills the safe box: the composition is anchored, never letterboxed. */
+  stage: {
     flex: 1,
-    minHeight: 0,
-    justifyContent: 'space-between',
+    position: 'relative',
+  },
+  heroSlot: {
+    position: 'absolute',
+    zIndex: 20,
+  },
+  devProbe: {
+    position: 'absolute',
+    bottom: 0,
+    insetInlineStart: 0,
+    opacity: 0.35,
+    zIndex: 1,
   },
 });

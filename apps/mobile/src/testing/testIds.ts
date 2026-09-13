@@ -23,6 +23,8 @@ export const testIds = {
    *  through hubs instead. */
   home: {
     root: 'home-root',
+    /** The art-directed game stage — everything above the ad strip. */
+    stage: 'home-stage',
     hero: 'home-hero',
     heroContinue: 'home-hero-continue',
     /** Reuses top-bar points — Home does not render a second,

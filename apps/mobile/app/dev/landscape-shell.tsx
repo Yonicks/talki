@@ -123,6 +123,7 @@ function HomeFrame({ musicOn, onToggleMusic }: { musicOn: boolean; onToggleMusic
           progressLabel="8/10"
           ctaLabel="המשך ללמוד"
           mascot={homeAssets.heroStar}
+          thumbnail={categoryIcons.emotions}
         />
         <LandscapeCategoryStrip testID={testIds.landscapeShell.strip}>
           {FIXTURE_CATEGORIES.map((c) => (

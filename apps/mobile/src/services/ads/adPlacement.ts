@@ -5,7 +5,16 @@
  * Pure functions so unit tests and UI share one decision table.
  */
 
-/** Hub / parent surfaces that may reserve a bottom banner strip. */
+/**
+ * Hub / parent surfaces that may reserve a bottom banner strip.
+ *
+ * Home (`/`) is included: the v3 Home composition is measured against the
+ * *usable* viewport (`useLandscapeLayout().usableHeight` already subtracts
+ * the reserved banner strip), so the banner sits beneath the stage rather
+ * than over it and the stage simply scales into what is left. The strip is
+ * reserved from first render, so a late-loading banner never shifts the
+ * composition.
+ */
 export const BANNER_ELIGIBLE_EXACT_PATHS = [
   '/',
   '/games',

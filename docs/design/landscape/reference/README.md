@@ -2,14 +2,18 @@
 
 This directory is the canonical location for the landscape redesign mocks.
 
-Before Phase 16 is executed, add these image files here:
+Committed here:
 
 - `talki-landscape-master.jpg` — optional original composite containing Games, Practice, and Home.
-- `home.png` — crop of the Home mock.
+- `home.png` — crop of the Home mock (landscape Phase 16–20 target).
 - `games.png` — crop of the Games mock.
 - `practice.png` — crop of the Practice mock.
 
-The source for these files is the approved landscape composite supplied when the landscape redesign program was created.
+Newer Home visual target (v3), stored with production assets but **reference-only**:
+
+- `apps/mobile/assets/v3/mocks/mock_home_mobile_v3.png`
+
+The original crops came from the approved landscape composite for the redesign program. The v3 mock is the current Home composition inspiration; it does not replace Games/Practice references.
 
 ## Important
 
