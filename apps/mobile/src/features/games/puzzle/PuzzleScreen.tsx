@@ -245,7 +245,7 @@ function PuzzlePlay({
             const node = e.target as unknown as {
               measureInWindow?: (cb: (x: number, y: number) => void) => void;
             };
-            node.measureInWindow?.((x, y) => {
+            node?.measureInWindow?.((x, y) => {
               boardOrigin.current = { x, y };
             });
           }}

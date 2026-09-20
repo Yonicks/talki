@@ -39,13 +39,6 @@ const ANIMALS_12 = [
   'סוּס', 'תַּרְנְגוֹלֶת', 'כִּבְשָׂה', 'קוֹף', 'חֲזִיר', 'צְפַרְדֵּעַ',
 ];
 
-function box(el) {
-  if (!el) return null;
-  const r = el.getBoundingClientRect();
-  const n = (v) => Math.round(v * 10) / 10;
-  return { x: n(r.x), y: n(r.y), w: n(r.width), h: n(r.height) };
-}
-
 async function shoot(browser, vp) {
   const ctx = await browser.newContext({
     viewport: { width: vp.w, height: vp.h + AD_PX },

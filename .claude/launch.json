@@ -9,8 +9,8 @@
     },
     {
       "name": "talki-mobile-web",
-      "runtimeExecutable": "bash",
-      "runtimeArgs": ["-lc", "cd apps/mobile && npm run web"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "web", "--workspace=mobile"],
       "port": 8081
     }
   ]

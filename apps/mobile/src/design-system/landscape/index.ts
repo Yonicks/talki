@@ -26,7 +26,9 @@ export { LandscapeCategoryStrip } from './LandscapeCategoryStrip';
 export { LandscapeHeroPanel } from './LandscapeHeroPanel';
 export { LandscapeProgress } from './LandscapeProgress';
 export { LandscapeTitle } from './LandscapeTitle';
+export { LandscapeTouchSurface } from './LandscapeTouchSurface';
 export { ProfileGlyph } from './ProfileGlyph';
+export { homeMock } from './homeColors';
 export { LandscapePageIndicator } from './LandscapePageIndicator';
 export { LandscapeWordGrid } from './LandscapeWordGrid';
 export {

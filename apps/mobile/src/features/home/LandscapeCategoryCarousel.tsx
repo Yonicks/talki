@@ -114,7 +114,6 @@ export function LandscapeCategoryCarousel({
         {
           top: strip.top,
           height: strip.cardHeight,
-          paddingInline: strip.padInline,
           gap: strip.arrowGap,
         },
       ]}
@@ -125,10 +124,12 @@ export function LandscapeCategoryCarousel({
         rotation={forwardChevronRotation()}
         box={arrow}
         chevron={chevron}
+        lift={s(c.arrowLift)}
+        nudge={(isRTL() ? 1 : -1) * s(c.chevronNudge)}
         onPress={() => page(-1)}
       />
 
-      <View style={styles.strip}>
+      <View style={[styles.strip, { width: strip.stripWidth }]}>
         <ScrollView
           ref={scroller}
           testID={testIds.home.sectionCategories}
@@ -160,6 +161,8 @@ export function LandscapeCategoryCarousel({
         rotation={forwardChevronRotation() === '0deg' ? '180deg' : '0deg'}
         box={arrow}
         chevron={chevron}
+        lift={s(c.arrowLift)}
+        nudge={(isRTL() ? -1 : 1) * s(c.chevronNudge)}
         onPress={() => page(1)}
       />
     </View>
@@ -175,6 +178,8 @@ function CarouselArrow({
   rotation,
   box,
   chevron,
+  lift,
+  nudge,
   onPress,
 }: {
   testID: string;
@@ -182,6 +187,11 @@ function CarouselArrow({
   rotation: string;
   box: { width: number; height: number; borderRadius: number };
   chevron: { width: number; height: number };
+  /** dp the circle sits above the card row's centre line (the mock's). */
+  lift: number;
+  /** dp the chevron sits toward the physical right (negative = left): the mock
+   *  offsets it in the direction it points, so it reads optically centred. */
+  nudge: number;
   onPress: () => void;
 }) {
   return (
@@ -190,12 +200,12 @@ function CarouselArrow({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={label}
-      style={({ pressed }) => [styles.arrow, shadowCard, box, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.arrow, shadowCard, box, { top: -lift }, pressed && styles.pressed]}
     >
       <Image
         source={uiIcons.chevron}
         accessibilityIgnoresInvertColors
-        style={[chevron, { transform: [{ rotate: rotation }] }]}
+        style={[chevron, { transform: [{ translateX: nudge }, { rotate: rotation }] }]}
         resizeMode="contain"
       />
     </Pressable>
@@ -209,10 +219,12 @@ const styles = StyleSheet.create({
     insetInlineEnd: 0,
     flexDirection: 'row',
     alignItems: 'center',
+    // Arrow · strip · arrow is one group, centred: on a wider phone the spare
+    // width is calm margin on both sides, never a clipped extra card.
+    justifyContent: 'center',
     zIndex: 30,
   },
   strip: {
-    flex: 1,
     minWidth: 0,
     alignSelf: 'stretch',
   },

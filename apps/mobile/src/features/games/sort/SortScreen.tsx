@@ -166,7 +166,7 @@ function SortPlay({ session, seed }: { session: GameSession; seed?: number }) {
         ]}
         onLayout={(e) => {
           const t = e.target as unknown as { measureInWindow?: (cb: (x: number, y: number) => void) => void };
-          t.measureInWindow?.((x, y) => {
+          t?.measureInWindow?.((x, y) => {
             boardOrigin.current = { x, y };
           });
         }}
@@ -198,10 +198,11 @@ function SortPlay({ session, seed }: { session: GameSession; seed?: number }) {
               onLayout={(e) => {
                 const { width, height } = e.nativeEvent.layout;
                 // Layout event x/y are relative to the boxes row — record board-local via window.
+                // `target` is undefined if the row unmounts before its layout event lands.
                 const node = e.target as unknown as {
                   measureInWindow?: (cb: (wx: number, wy: number, w: number, h: number) => void) => void;
                 };
-                node.measureInWindow?.((wx, wy, w, h) => {
+                node?.measureInWindow?.((wx, wy, w, h) => {
                   boxLayouts.current[box.id] = {
                     x: wx - boardOrigin.current.x,
                     y: wy - boardOrigin.current.y,

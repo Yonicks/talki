@@ -18,7 +18,6 @@ import { openApp } from './_helpers';
 const AD_PX = 50;
 
 type StorageBridge = { set<T>(key: string, value: T): Promise<void> };
-type RouterBridge = { push: (path: string) => void };
 
 /** First twelve `animals` words — 12 points, 12/26 learned, 8 to the next star. */
 const ANIMALS_12 = [
