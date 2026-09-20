@@ -38,3 +38,7 @@ Do not automatically begin the next phase.
 - Never remove existing functionality simply because a mock omits it.
 - Current source code is behavioral truth.
 - Committed landscape references are visual truth.
+
+## Token efficiency
+
+Always apply @docs/token-efficiency.md. It changes how context is spent, never which phase gates or validations apply.

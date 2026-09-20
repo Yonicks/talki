@@ -1,0 +1,8 @@
+---
+description: Token efficiency - how to spend context on every task
+alwaysApply: true
+---
+
+Follow @docs/token-efficiency.md (`docs/token-efficiency.md`) on every task.
+
+It changes how context is spent (session length, tool output, images, edits), never which phase gates, validations or reports apply.
