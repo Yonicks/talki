@@ -171,5 +171,21 @@ default branch.) Commits made with `GITHUB_TOKEN` do not start other workflows,
 so afterwards re-run `Mobile` on the branch. Not yet run — it needs GitHub, so its
 first run is the real test; the job's report artifact holds the diffs if it fails.
 
+### CI layout after the slim-down (owner decision, 2026-09-20)
+
+The full tier (8 viewports × 161 tests, 544 pixel baselines) ran 33+ minutes on a PR
+without finishing, and its baselines go stale on every redesign. Coverage was moved,
+not deleted:
+
+| Trigger | What runs | Script |
+|---|---|---|
+| pull request / push | functional tests on 3 viewports (compact-phone, landscape-932, tablet-16-10), no pixel-diff; then main-flow screenshots on Pixel 9 + iPhone 17 Pro (10 screens, uploaded as the `main-flow-screenshots` artifact) | `npm run e2e:pr`, `device-sweep.mjs flows` |
+| nightly (02:00 UTC, default branch) | functional tests on all 8 viewports | `npm run e2e:functional` |
+| manual "Run workflow" with `visual` | all 8 viewports **with** pixel-diff baselines | `npm run e2e` |
+
+The legacy PWA suite (`test-and-deploy.yml`, ~13 min) is skipped on PRs that only touch
+`apps/mobile`, `docs`, or agent config. `update-e2e-baselines.yml` is unchanged; it only
+matters when the manual `visual` run is wanted again.
+
 Run E2E against the exported bundle, not Metro: `npm run export:web && npx
 playwright test` (the dev bundle never reaches `load` inside 30 s).

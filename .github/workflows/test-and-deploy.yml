@@ -5,6 +5,17 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+    # This suite (~13 min) covers the legacy root PWA only. PRs that touch
+    # nothing it covers skip it; push-to-master and manual runs are unaffected.
+    paths-ignore:
+      - 'apps/mobile/**'
+      - 'docs/**'
+      - '.cursor/**'
+      - '.claude/**'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - '.github/workflows/mobile.yml'
+      - '.github/workflows/update-e2e-baselines.yml'
   workflow_dispatch:
 
 # Allow the deploy job to publish to GitHub Pages

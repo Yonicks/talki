@@ -13,6 +13,7 @@
  * every ad-eligible screen is measured with the banner slot present.
  *
  *   node tools/home-fidelity/device-sweep.mjs home   # Home only, with layout checks
+ *   node tools/home-fidelity/device-sweep.mjs flows  # main flows, Pixel 9 + iPhone 17 Pro (what CI uploads)
  *   node tools/home-fidelity/device-sweep.mjs all    # every screen
  *
  * Output: artifacts/device/<device>/<screen>.png and artifacts/device/report.json
@@ -61,6 +62,9 @@ const SCREENS = [
   { name: 'practice-pairs', path: '/practice/pairs?catId=animals&seed=42' },
   { name: 'practice-combine', path: '/practice/combine?catId=animals&seed=42' },
 ];
+
+/** Main flows: the hubs, one category, and one game / practice activity each. */
+const FLOWS = ['home', 'category', 'cards', 'games', 'game-quiz', 'game-memory', 'practice', 'practice-cloze', 'rewards', 'parent'];
 
 async function openDevice(browser, dev) {
   const d = dev.descriptor;
@@ -130,13 +134,13 @@ async function pushRoute(page, p) {
 
 const browser = await chromium.launch();
 const report = {};
-for (const dev of DEVICES) {
+for (const dev of mode === 'flows' ? DEVICES.slice(0, 2) : DEVICES) {
   const { ctx, page } = await openDevice(browser, dev);
   const dir = path.join(OUT, dev.name);
   mkdirSync(dir, { recursive: true });
   report[dev.name] = { viewport: dev.viewport, dsf: dev.descriptor.deviceScaleFactor, screens: {} };
 
-  const screens = mode === 'all' ? SCREENS : SCREENS.slice(0, 1);
+  const screens = mode === 'all' ? SCREENS : mode === 'flows' ? SCREENS.filter((s) => FLOWS.includes(s.name)) : SCREENS.slice(0, 1);
   for (const sc of screens) {
     if (sc.name !== 'home') {
       await pushRoute(page, sc.path);
@@ -172,7 +176,7 @@ for (const [name, r] of Object.entries(report)) {
     console.log(`  air (css px): header→hero ${h.gapHeaderToHero}  hero→strip ${h.gapHeroToStrip}  strip→ad ${h.gapCardsToAd}  arrows→ad ${h.gapStripToAd}`);
     console.log(`  doc scroll x=${h.scrollX} y=${h.scrollY}`);
   }
-  if (mode === 'all') {
+  if (mode === 'all' || mode === 'flows') {
     const bad = Object.entries(r.screens).filter(([, e]) => e.overflow.x || e.overflow.y).map(([n]) => n);
     console.log(`  screens captured: ${Object.keys(r.screens).length}   with document scroll: ${bad.length ? bad.join(', ') : 'none'}`);
   }

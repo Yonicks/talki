@@ -11,7 +11,20 @@ on:
     paths:
       - 'apps/mobile/**'
       - '.github/workflows/mobile.yml'
+  schedule:
+    - cron: '0 2 * * *'
   workflow_dispatch:
+    inputs:
+      visual:
+        description: All 8 viewports WITH pixel-diff baselines (only meaningful after they were regenerated on Linux)
+        type: boolean
+        default: false
+
+# What runs where (docs/migration/android-home-pixel-qa.md, "CI"):
+#   pull_request / push  functional tests on 3 viewports (one per device class), no pixel-diff,
+#                        plus main-flow screenshots on Pixel 9 + iPhone 17 Pro as an artifact
+#   nightly              functional tests on all 8 viewports
+#   manual + `visual`    all 8 viewports with pixel-diff baselines
 
 concurrency:
   group: mobile-${{ github.ref }}
@@ -51,8 +64,37 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: E2E tests (Tier 2)
+      - name: E2E tests (Tier 2) — 3 viewports, functional
+        if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+        run: npm run e2e:pr
+
+      - name: E2E tests (Tier 2) — 8 viewports, functional
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.visual) }}
+        run: npm run e2e:functional
+
+      - name: E2E tests (Tier 2) — 8 viewports + pixel-diff
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.visual }}
         run: npm run e2e
+
+      # Evidence, not a gate (a broken screen fails the E2E step above). Runs after
+      # E2E so its server can never collide with Playwright's own on port 8081.
+      - name: Main-flow screenshots (Pixel 9, iPhone 17 Pro)
+        if: ${{ !cancelled() && (github.event_name == 'pull_request' || github.event_name == 'push') }}
+        continue-on-error: true
+        run: |
+          npx expo serve --port 8081 > serve.log 2>&1 &
+          for _ in $(seq 1 60); do curl -sf http://localhost:8081 > /dev/null && break; sleep 1; done
+          node tools/home-fidelity/device-sweep.mjs flows
+          pkill -f "expo serve" || true
+
+      - name: Upload main-flow screenshots
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: main-flow-screenshots
+          path: apps/mobile/artifacts/device/
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Upload Playwright report
         if: always()
