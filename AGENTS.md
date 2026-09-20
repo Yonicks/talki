@@ -179,6 +179,18 @@ Historical reports are evidence and should remain historical.
 
 ---
 
+# Token efficiency
+
+Read `docs/token-efficiency.md` once at the start of every session. It changes how context is spent, never which gates, validations or reports apply. The short version:
+
+- One goal per session. Start a new one when the task changes or context gets large; write state to a repo doc first.
+- Never dump whole files or unbounded command output. Search, read line ranges, cap output (`| tail -n 40`).
+- Numbers before pixels: use the fidelity-rig reports; view only small crops or a contact sheet, never the same image twice.
+- Targeted edits, not whole-file rewrites. Reuse `apps/mobile/tools/home-fidelity/`; don't write new scripts.
+- Every iterative task has a stop test and a round cap. At the cap, report and stop.
+
+---
+
 # Reference locations
 
 - Landscape design contract: `docs/design/landscape/README.md`
@@ -187,3 +199,4 @@ Historical reports are evidence and should remain historical.
 - Landscape assets: `docs/design/landscape/asset-manifest.md`
 - Landscape roadmap: `docs/migration/landscape-roadmap.md`
 - Shared landscape prompt rules: `docs/migration/prompts/_landscape-shared.md`
+- Token efficiency: `docs/token-efficiency.md`
