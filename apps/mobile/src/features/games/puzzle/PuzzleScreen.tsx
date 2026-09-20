@@ -135,6 +135,7 @@ function PuzzlePlay({
   /** Slot rects in board-local coordinates (Phase 25). */
   const layouts = useRef<Record<string, Omit<SlotRect, 'id' | 'filled'>>>({});
   const boardOrigin = useRef({ x: 0, y: 0 });
+  const [slotMax, setSlotMax] = useState(0);
   const [state, dispatch] = useReducer(puzzleReducer, undefined, () =>
     initialPuzzle(category, stats, settings, layout.usableHeight, layout.usableWidth, boards, seed),
   );
@@ -245,12 +246,18 @@ function PuzzlePlay({
             const node = e.target as unknown as {
               measureInWindow?: (cb: (x: number, y: number) => void) => void;
             };
-            node.measureInWindow?.((x, y) => {
+            node?.measureInWindow?.((x, y) => {
               boardOrigin.current = { x, y };
             });
           }}
         >
-          <View style={[styles.slots, { gap: Math.max(6, tokens.gap - 2) }]}>
+          <View
+            style={[styles.slots, { gap: Math.max(6, tokens.gap - 2) }]}
+            // Slots are square and grow with the row's width; cap them by the height
+            // this row really gets, or on a short phone they run off the stage and
+            // sit under the guide line.
+            onLayout={(e) => setSlotMax(Math.floor(e.nativeEvent.layout.height))}
+          >
             {state.slots.map((id) => {
               const piece = state.pieces.find((p) => p.id === id)!;
               return (
@@ -260,6 +267,7 @@ function PuzzlePlay({
                   hinted={state.hint === id}
                   niqqud={settings.niqqud}
                   minSize={pieceMin}
+                  maxSize={slotMax > 0 ? Math.max(slotMax, pieceMin) : undefined}
                   onPress={() => onSlot(id)}
                   onLayoutBox={(box) => {
                     // Convert window coords → board-local for hit testing.

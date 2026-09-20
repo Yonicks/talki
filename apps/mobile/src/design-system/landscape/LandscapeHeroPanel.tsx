@@ -1,7 +1,7 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import {
   Image,
-  Pressable,
   StyleSheet,
   View,
   type ImageSourcePropType,
@@ -10,10 +10,13 @@ import {
 } from 'react-native';
 
 import { TalkiText } from '@/design-system/components';
-import { shadowCard, shadowFloating } from '@/design-system/theme/shadows';
-import { v2, v3 } from '@/design-system/theme/colors';
-import { HOME_LAYOUT, homeHeroPanelHeight, useHomeMetrics, type HomeMetrics } from './homeLayout';
+import { shadowCard, shadowFloating, shadowSm } from '@/design-system/theme/shadows';
+import { fontFamily } from '@/design-system/theme/typography';
+import { v3 } from '@/design-system/theme/colors';
+import { homeMock } from './homeColors';
+import { HOME_LAYOUT, useHomeMetrics, type HomeMetrics } from './homeLayout';
 import { LandscapeProgress } from './LandscapeProgress';
+import { LandscapeTouchSurface } from './LandscapeTouchSurface';
 
 export interface LandscapeHeroPanelProps {
   eyebrow?: string;
@@ -44,7 +47,7 @@ export interface LandscapeHeroPanelProps {
  * The v3 Home hero: the yellow mascot standing on the scenic side of a large
  * white "continue learning" card. Every dimension comes from
  * `HOME_LAYOUT.hero` / `HOME_LAYOUT.mascot`, i.e. straight from the approved
- * mock (see `features/home/homeLayout.ts` for the measurement table).
+ * mock (see `homeLayout.ts`, where each number is written as mock pixels).
  *
  * The whole element is one fixed-proportion row box so the caller can place
  * it as a single unit; the mascot and the card are positioned inside it
@@ -75,12 +78,18 @@ export function LandscapeHeroPanel({
 }: LandscapeHeroPanelProps) {
   const fallback = useHomeMetrics();
   const m = metrics ?? fallback;
-  const { s, touch } = m;
+  const { s } = m;
   const h = HOME_LAYOUT.hero;
   const resolvedCtaTestID = ctaTestID ?? (testID ? `${testID}-cta` : undefined);
-
-  const copyWidth = s(h.width) - 2 * s(h.padding) - s(h.thumbWidth) - s(h.columnGap);
-  const panelHeight = homeHeroPanelHeight(m);
+  const panelHeight = s(h.height);
+  // The mock's returning card is a fixed stack; the fresh welcome has longer
+  // copy and no progress row, so its subtitle may take two lines.
+  const roomy = progress === undefined;
+  // Title shrinks (down to `TITLE_FLOOR` of the mock size) rather than spilling
+  // out of the card: "רגשות" keeps the mock's 44 dp, "צבעים וצורות" does not.
+  const titleRoom =
+    s(h.copyWidth) - (titleMark ? s(h.titleStarSize) + s(h.titleGap) : 0) - s(h.titleGroupShift);
+  const titleSize = fitTextSize(title, s(h.titleSize), titleRoom, TITLE_FLOOR);
 
   return (
     <View
@@ -105,27 +114,30 @@ export function LandscapeHeroPanel({
       ) : null}
 
       <View
+        testID={testID ? `${testID}-panel` : undefined}
         style={[
           styles.panel,
           shadowFloating,
           {
-            top: s(h.top),
             width: s(h.width),
-            minHeight: panelHeight,
+            height: panelHeight,
             borderRadius: s(h.radius),
-            padding: s(h.padding),
+            paddingInlineStart: s(h.padInlineStart),
+            paddingInlineEnd: s(h.padInlineEnd),
             gap: s(h.columnGap),
           },
         ]}
       >
         {thumbnail ? (
           <View
+            testID={testID ? `${testID}-thumb` : undefined}
             style={[
               styles.thumbFrame,
-              shadowCard,
+              shadowSm,
               {
                 width: s(h.thumbWidth),
                 height: s(h.thumbHeight),
+                marginTop: s(h.thumbTop),
                 borderRadius: s(h.thumbRadius),
                 padding: s(h.thumbFrame),
               },
@@ -150,53 +162,106 @@ export function LandscapeHeroPanel({
           </View>
         ) : null}
 
-        <View style={[styles.copyCol, { width: copyWidth, marginTop: s(h.padTop) }]}>
-          {eyebrow ? (
-            <TalkiText
-              weight="semibold"
-              align="center"
-              color={v3.textHeading}
-              style={{ fontSize: s(h.eyebrowSize), lineHeight: s(h.eyebrowLine) }}
-            >
-              {eyebrow}
-            </TalkiText>
-          ) : null}
-
-          <View style={[styles.titleRow, { marginTop: s(h.gapTitle), height: s(h.titleLine), gap: s(6) }]}>
-            {titleMark ? (
-              <Image
-                source={titleMark}
-                accessibilityIgnoresInvertColors
-                style={{ width: s(h.titleStarSize), height: s(h.titleStarSize) }}
-                resizeMode="contain"
-              />
+        <View
+          style={[
+            styles.copyCol,
+            {
+              width: s(h.copyWidth),
+              marginTop: s(h.padTop),
+              height: s(h.height - h.padTop - h.padBottom),
+              // The returning card is a fixed stack drawn top-down; the fresh
+              // welcome (no eyebrow / progress) is centred in the same space.
+              justifyContent: progress !== undefined ? 'flex-start' : 'center',
+            },
+          ]}
+        >
+          <View
+            style={{
+              width: s(h.textBlockWidth),
+              marginInlineStart: s(h.textBlockInset),
+              alignItems: 'center',
+            }}
+          >
+            {eyebrow ? (
+              <TalkiText
+                weight="bold"
+                align="center"
+                color={homeMock.ink}
+                style={{
+                  fontFamily: fontFamily.heading.extrabold,
+                  fontSize: s(h.eyebrowSize),
+                  lineHeight: s(h.eyebrowBox),
+                  height: s(h.eyebrowBox),
+                  marginTop: -s(h.eyebrowLift),
+                  // Centred text: end padding (physical left in RTL) nudges it right.
+                  paddingInlineEnd: s(h.eyebrowShift),
+                }}
+              >
+                {eyebrow}
+              </TalkiText>
             ) : null}
-            <TalkiText
-              weight="extrabold"
-              align="center"
-              color={v3.purple900}
-              numberOfLines={1}
-              style={{ fontSize: s(h.titleSize), lineHeight: s(h.titleLine) }}
-            >
-              {title}
-            </TalkiText>
-          </View>
 
-          {subtitle ? (
-            <TalkiText
-              weight="bold"
-              align="center"
-              color={v3.textHeading}
-              numberOfLines={1}
-              style={{
-                marginTop: s(h.gapSubtitle),
-                fontSize: s(h.subtitleSize),
-                lineHeight: s(h.subtitleLine),
-              }}
+            <View
+              style={[
+                styles.titleRow,
+                { marginTop: s(h.gapEyebrowTitle), height: s(h.titleRow), gap: s(h.titleGap), paddingInlineEnd: s(h.titleGroupShift) },
+              ]}
             >
-              {subtitle}
-            </TalkiText>
-          ) : null}
+              {titleMark ? (
+                // The mark's artwork has transparent padding, so it is drawn in a
+                // larger box centred on a slot of the mock's *visible* size.
+                <View style={{ width: s(h.titleStarSize), height: s(h.titleStarSize) }}>
+                  <Image
+                    source={titleMark}
+                    accessibilityIgnoresInvertColors
+                    style={{
+                      position: 'absolute',
+                      width: s(h.titleStarBox),
+                      height: s(h.titleStarBox),
+                      top: (s(h.titleStarSize) - s(h.titleStarBox)) / 2,
+                      insetInlineStart: (s(h.titleStarSize) - s(h.titleStarBox)) / 2,
+                    }}
+                    resizeMode="contain"
+                  />
+                </View>
+              ) : null}
+              <TalkiText
+                weight="extrabold"
+                align="center"
+                color={homeMock.ink}
+                numberOfLines={1}
+                style={{
+                  fontFamily: fontFamily.heading.bold,
+                  fontSize: titleSize,
+                  lineHeight: titleSize * 1.2,
+                  marginTop: s(h.titleTextDrop),
+                }}
+              >
+                {title}
+              </TalkiText>
+            </View>
+
+            {subtitle ? (
+              <TalkiText
+                weight="bold"
+                align="center"
+                color={homeMock.ink}
+                numberOfLines={roomy ? 2 : 1}
+                style={{
+                  fontFamily: fontFamily.heading.extrabold,
+                  marginTop: s(h.gapTitleSubtitle),
+                  fontSize: s(h.subtitleSize),
+                  lineHeight: s(h.subtitleBox),
+                  // One fixed line in the mock's stack; up to two when roomy.
+                  height: roomy ? undefined : s(h.subtitleBox),
+                  // Start padding (physical right in RTL) nudges it left.
+                  paddingInlineStart: s(h.subtitleShift),
+                }}
+              >
+                {subtitle}
+              </TalkiText>
+            ) : null}
+          </View>
 
           {progress !== undefined ? (
             <LandscapeProgress
@@ -205,52 +270,71 @@ export function LandscapeHeroPanel({
               layout="inline"
               height={s(h.progressTrackHeight)}
               pillHeight={s(h.progressPillHeight)}
+              pillWidth={s(h.progressPillWidth)}
+              padCount={s(h.progressPadCount)}
+              padTrack={s(h.progressPadTrack)}
+              gap={s(h.progressGap)}
               labelSize={s(h.progressLabelSize)}
-              style={{ marginTop: s(h.gapProgress) }}
+              style={{ marginTop: s(h.gapSubtitleProgress), alignSelf: 'flex-start', marginInlineStart: s(h.progressPillInset) }}
             />
           ) : null}
 
           {children}
 
           {ctaLabel ? (
-            <Pressable
-              testID={resolvedCtaTestID}
-              onPress={onCtaPress}
-              accessibilityRole="button"
-              accessibilityLabel={ctaLabel}
-              style={({ pressed }) => [
-                styles.cta,
-                shadowCard,
-                {
-                  marginTop: s(h.gapCta),
-                  height: touch(h.ctaHeight),
-                  paddingInline: s(6),
-                },
-                pressed && styles.pressed,
-              ]}
-            >
-              <TalkiText
-                weight="extrabold"
-                align="center"
-                color="#fff"
-                numberOfLines={1}
-                style={[styles.ctaLabel, { fontSize: s(h.ctaLabelSize) }]}
+            <View style={{ marginTop: s(h.gapProgressCta) }}>
+              <LandscapeTouchSurface
+                testID={resolvedCtaTestID}
+                accessibilityLabel={ctaLabel}
+                onPress={onCtaPress}
+                width={s(h.copyWidth)}
+                height={s(h.ctaHeight)}
+                borderRadius={s(h.ctaHeight) / 2}
+                // The disc sits 2 px in from the rim at top/bottom but ~4.5 px in
+                // at its own end: padding on the disc's side of the row.
+                surfaceStyle={[styles.cta, shadowCard, { paddingInlineEnd: s(h.ctaPlayInset) }]}
               >
-                {ctaLabel}
-              </TalkiText>
-              <View
-                style={[
-                  styles.ctaIconWrap,
-                  {
-                    width: s(h.ctaPlaySize),
-                    height: s(h.ctaPlaySize),
-                    borderRadius: s(h.ctaPlaySize) / 2,
-                  },
-                ]}
-              >
-                <PlayTriangle size={s(h.ctaPlaySize) * 0.44} />
-              </View>
-            </Pressable>
+                <LinearGradient
+                  colors={[homeMock.ctaTop, homeMock.ctaBottom]}
+                  style={StyleSheet.absoluteFill}
+                />
+                <View pointerEvents="none" style={[styles.ctaGloss, { height: s(1.2), insetInline: s(22) }]} />
+                <TalkiText
+                  weight="extrabold"
+                  align="center"
+                  color="#fff"
+                  numberOfLines={1}
+                  style={[
+                    styles.ctaLabel,
+                    {
+                      fontFamily: fontFamily.heading.medium,
+                      fontSize: s(h.ctaLabelSize),
+                      lineHeight: s(h.ctaLabelSize * 1.3),
+                      // The mock sits the label slightly left of the free space
+                      // between the disc and the CTA's end (start padding =
+                      // physical right in RTL).
+                      paddingInlineStart: s(h.ctaLabelShift),
+                      paddingTop: s(h.ctaLabelDrop),
+                    },
+                  ]}
+                >
+                  {ctaLabel}
+                </TalkiText>
+                <View
+                  style={[
+                    styles.ctaIconWrap,
+                    shadowSm,
+                    {
+                      width: s(h.ctaPlaySize),
+                      height: s(h.ctaPlaySize),
+                      borderRadius: s(h.ctaPlaySize) / 2,
+                    },
+                  ]}
+                >
+                  <PlayTriangle size={s(h.ctaPlaySize) * 0.4} />
+                </View>
+              </LandscapeTouchSurface>
+            </View>
           ) : null}
         </View>
       </View>
@@ -274,8 +358,7 @@ function PlayTriangle({ size }: { size: number }) {
         // points the same way in every text direction.
         // eslint-disable-next-line no-restricted-syntax
         borderLeftWidth: size,
-        // eslint-disable-next-line no-restricted-syntax
-        borderLeftColor: v3.purple600,
+        borderLeftColor: homeMock.play,
         borderTopWidth: size * 0.6,
         borderTopColor: 'transparent',
         borderBottomWidth: size * 0.6,
@@ -284,6 +367,22 @@ function PlayTriangle({ size }: { size: number }) {
       }}
     />
   );
+}
+
+/** Mean advance of Rubik Bold's Hebrew, in em (measured off "רגשות" at 44 dp). */
+const TITLE_ADVANCE = 0.56;
+/** Smallest a long hero title may shrink to, as a fraction of the mock size. */
+const TITLE_FLOOR = 0.45;
+
+/**
+ * Largest size at which `text` still fits one line of `room` dp.
+ * `adjustsFontSizeToFit` is native-only (react-native-web ignores it), so the
+ * fit is derived arithmetically and works on every platform.
+ */
+function fitTextSize(text: string, base: number, room: number, floor: number): number {
+  if (room <= 0) return base;
+  const needed = room / Math.max(1, text.length * TITLE_ADVANCE);
+  return Math.max(base * floor, Math.min(base, needed));
 }
 
 /** `talki-hero-star.webp` is 640 × 618 edge-to-edge (no transparent margin). */
@@ -300,18 +399,18 @@ const styles = StyleSheet.create({
   },
   panel: {
     position: 'absolute',
+    top: 0,
     insetInlineStart: 0,
     zIndex: 2,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: v3.surfaceSoft,
-    borderWidth: 2,
-    borderColor: '#fff',
+    backgroundColor: homeMock.surface,
     flexShrink: 0,
   },
   thumbFrame: {
     backgroundColor: '#fff',
-    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(60, 40, 110, 0.08)',
     flexShrink: 0,
   },
   thumbClip: {
@@ -332,6 +431,7 @@ const styles = StyleSheet.create({
   },
   copyCol: {
     flexShrink: 0,
+    justifyContent: 'center',
   },
   titleRow: {
     flexDirection: 'row',
@@ -339,12 +439,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cta: {
-    borderRadius: 999,
-    backgroundColor: v3.purple600,
-    borderWidth: 2,
-    borderColor: v2.grapeDark,
+    // Soft rim like the mock: a firm dark edge only along the bottom, a faint
+    // one at the ends, and none on top where the gloss line sits.
+    borderTopWidth: 0,
+    borderBottomWidth: 1.6,
+    borderStartWidth: 1,
+    borderEndWidth: 1,
+    borderColor: homeMock.ctaRimSide,
+    borderBottomColor: homeMock.ctaRim,
     flexDirection: 'row',
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  ctaGloss: {
+    position: 'absolute',
+    top: 1,
+    borderRadius: 999,
+    backgroundColor: homeMock.ctaHighlight,
+    opacity: 0.4,
   },
   ctaIconWrap: {
     backgroundColor: '#fff',
@@ -355,5 +467,4 @@ const styles = StyleSheet.create({
   ctaLabel: {
     flex: 1,
   },
-  pressed: { transform: [{ translateY: 2 }] },
 });

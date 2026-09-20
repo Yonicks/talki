@@ -3,8 +3,10 @@ import { Image, Pressable, StyleSheet, View, type ImageSourcePropType } from 're
 
 import { TalkiText } from '@/design-system/components';
 import { shadowCard } from '@/design-system/theme/shadows';
+import { fontFamily } from '@/design-system/theme/typography';
 import { v3 } from '@/design-system/theme/colors';
 import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
+import { homeMock } from './homeColors';
 import { HOME_LAYOUT } from './homeLayout';
 import { landscapeTokens } from './tokens';
 
@@ -25,8 +27,9 @@ export interface LandscapeCategoryCardProps {
 /**
  * Category strip card, drawn to the v3 Home mock: a white rounded frame, a
  * scenic photo filling the whole interior, the category's character art on
- * top of it, and a white rounded label pill floating over the artwork's
- * lower edge (not a separate footer band).
+ * top of it, and a white label that runs the full inner width and sits flush
+ * on the inner bottom edge — it merges into the frame below it, separated
+ * only by a hairline, rather than floating above a strip of artwork.
  */
 export function LandscapeCategoryCard({
   title,
@@ -48,6 +51,7 @@ export function LandscapeCategoryCard({
   const pad = c.cardPadding * unit;
   const radius = c.cardRadius * unit;
   const labelHeight = c.labelHeight * unit;
+  const innerRadius = radius - pad;
   const fontSize = fitLabelSize(title, labelSize ?? c.labelSize * unit, w - 2 * pad - pad * 1.2);
 
   return (
@@ -63,7 +67,7 @@ export function LandscapeCategoryCard({
         pressed && styles.pressed,
       ]}
     >
-      <View style={[styles.art, { borderRadius: radius - pad }]}>
+      <View style={[styles.art, { borderRadius: innerRadius }]}>
         {background ? (
           <ExpoImage
             source={background}
@@ -92,10 +96,10 @@ export function LandscapeCategoryCard({
             styles.label,
             {
               height: labelHeight,
-              borderRadius: labelHeight / 2,
-              insetInlineStart: pad,
-              insetInlineEnd: pad,
-              bottom: pad,
+              borderTopStartRadius: labelHeight / 2,
+              borderTopEndRadius: labelHeight / 2,
+              borderBottomStartRadius: innerRadius,
+              borderBottomEndRadius: innerRadius,
               paddingInline: pad * 0.6,
             },
           ]}
@@ -103,10 +107,10 @@ export function LandscapeCategoryCard({
           <TalkiText
             weight="extrabold"
             align="center"
-            color={v3.purple900}
+            color={homeMock.ink}
             numberOfLines={1}
             adjustsFontSizeToFit
-            style={{ fontSize }}
+            style={{ fontFamily: fontFamily.heading.extrabold, fontSize }}
           >
             {title}
           </TalkiText>
@@ -161,7 +165,12 @@ const styles = StyleSheet.create({
   },
   label: {
     position: 'absolute',
+    insetInlineStart: 0,
+    insetInlineEnd: 0,
+    bottom: 0,
     backgroundColor: '#fff',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: homeMock.labelEdge,
     alignItems: 'center',
     justifyContent: 'center',
   },

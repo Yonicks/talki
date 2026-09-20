@@ -44,3 +44,6 @@ yarn-error.*
 /test-results
 /playwright-report
 /playwright/.cache
+
+# scratch output of tools/home-fidelity (captures, diffs, device sweeps)
+/artifacts

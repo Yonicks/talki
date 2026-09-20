@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { ToastHost } from '@/components/shell';
@@ -29,6 +29,7 @@ import { DevStorageProbe } from '@/testing/DevStorageProbe';
 import { testIds } from '@/testing/testIds';
 
 import { ContinueLearningHero } from './ContinueLearningHero';
+import { orderHomeCategories } from './homeCategoryOrder';
 import { LandscapeCategoryCarousel } from './LandscapeCategoryCarousel';
 import { LandscapeHomeHeader } from './LandscapeHomeHeader';
 import { useHomeData } from './useHomeData';
@@ -73,11 +74,13 @@ export function HomeScreen() {
     [push],
   );
 
+  const categories = useMemo(() => orderHomeCategories(data.categories), [data.categories]);
+
   if (!data.ready) {
     return <LandscapeScreen testID={testIds.home.root}>{null}</LandscapeScreen>;
   }
 
-  const heroIndex = data.hero ? data.categories.findIndex((c) => c.id === data.hero!.id) : 0;
+  const heroIndex = data.hero ? categories.findIndex((c) => c.id === data.hero!.id) : 0;
   const strip = homeStripMetrics(metrics);
   const heroRowWidth = metrics.s(HOME_LAYOUT.hero.rowWidth);
   const heroTop = homeHeroTop(metrics, strip, homeHeroPanelHeight(metrics));
@@ -149,7 +152,7 @@ export function HomeScreen() {
 
           <LandscapeCategoryCarousel
             metrics={metrics}
-            categories={data.categories}
+            categories={categories}
             onOpen={openCategory}
           />
         </View>

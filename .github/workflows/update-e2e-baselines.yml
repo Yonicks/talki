@@ -1,0 +1,125 @@
+name: Update E2E baselines
+
+# Regenerates the Playwright screenshot baselines on GitHub's Linux runner, the
+# same OS and browser build the "Mobile" workflow compares against, then commits
+# them to the branch. Windows/macOS PNGs cannot match Linux text rendering, so
+# baselines must be made here (or in the matching Playwright Docker image).
+#
+# Two ways to run it:
+#   1. PR label  — add the label `update-e2e-baselines` to a pull request. Works
+#      from a PR branch; the label is removed afterwards so it can be re-applied.
+#   2. Actions tab -> "Update E2E baselines" -> Run workflow, on a non-default
+#      branch. (GitHub only lists dispatchable workflows that exist on the
+#      default branch, so this route works once this file has been merged.)
+#
+# The job first regenerates every baseline, then re-runs the full suite WITHOUT
+# updating, exactly as "Mobile" does, and only commits if that run is green.
+# Commits made with GITHUB_TOKEN do not start other workflows: after it finishes,
+# re-run "Mobile" on the branch (Actions -> Mobile -> Run workflow, or re-run the
+# PR check) to see the result.
+
+on:
+  pull_request:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      verify:
+        description: Re-run the suite without updating before committing (recommended)
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-e2e-baselines-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Regenerate baselines on Linux
+    # Same-repo PRs only (fork PRs get a read-only token); never the default branch.
+    if: >-
+      (github.event_name == 'workflow_dispatch'
+        && github.ref_name != github.event.repository.default_branch)
+      || (github.event_name == 'pull_request'
+        && github.event.label.name == 'update-e2e-baselines'
+        && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      BRANCH: ${{ github.head_ref || github.ref_name }}
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13'
+          cache: npm
+
+      - name: Install dependencies
+        working-directory: .
+        run: npm ci
+
+      - name: Export web bundle
+        run: npm run export:web
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # Failing tests other than screenshot mismatches are reported by the verify
+      # step below; here we only want fresh baselines written.
+      - name: Regenerate baselines
+        id: update
+        continue-on-error: true
+        run: npx playwright test --update-snapshots=all --reporter=line
+
+      - name: Verify (full suite, no update, as CI runs it)
+        id: verify
+        # `inputs` is empty on the label trigger, and null == false in expressions,
+        # so test the event explicitly instead of `inputs.verify != false`.
+        if: ${{ !cancelled() && (github.event_name != 'workflow_dispatch' || inputs.verify) }}
+        env:
+          CI: 'true'
+        run: npx playwright test
+
+      - name: Commit baselines
+        id: commit
+        if: ${{ !cancelled() && steps.verify.outcome != 'failure' }}
+        working-directory: .
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- apps/mobile/tests/e2e/__screenshots__
+          if git diff --cached --quiet; then
+            echo "Baselines already match; nothing to commit."
+          else
+            git commit -m "Regenerate E2E screenshot baselines on Linux" \
+              -m "Made by the Update E2E baselines workflow (run ${{ github.run_id }})."
+            git push origin "HEAD:${BRANCH}"
+            echo "Pushed $(git diff --name-only HEAD~1 HEAD | wc -l) changed baseline file(s)."
+          fi
+
+      - name: Remove trigger label
+        if: ${{ always() && github.event_name == 'pull_request' }}
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr edit ${{ github.event.pull_request.number }} --remove-label update-e2e-baselines
+
+      - name: Upload Playwright report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-baselines-playwright-report
+          path: |
+            apps/mobile/playwright-report/
+            apps/mobile/test-results/
+          if-no-files-found: ignore
+          retention-days: 14

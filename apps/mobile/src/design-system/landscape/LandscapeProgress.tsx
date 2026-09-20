@@ -1,7 +1,11 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { TalkiText } from '@/design-system/components';
+import { shadowSm } from '@/design-system/theme/shadows';
 import { v2, v3 } from '@/design-system/theme/colors';
+import { fontFamily } from '@/design-system/theme/typography';
+import { homeMock } from './homeColors';
 
 export type LandscapeProgressLayout = 'below' | 'inline';
 
@@ -20,6 +24,16 @@ export interface LandscapeProgressProps {
   height?: number;
   /** `inline` only — outer white pill height (dp). */
   pillHeight?: number;
+  /** `inline` only — outer white pill width (dp); omit to fill the parent. */
+  pillWidth?: number;
+  /** `inline` only — padding (dp) left of the count / right of the track (the
+   *  row is physically left-to-right, so these are not logical start/end). */
+  padCount?: number;
+  padTrack?: number;
+  /** `inline` only — gap (dp) between the count and the track. */
+  gap?: number;
+  /** `inline` only — fixed width (dp) of the count's box; omit to size to the text. */
+  labelWidth?: number;
   labelSize?: number;
   testID?: string;
   style?: StyleProp<ViewStyle>;
@@ -40,6 +54,11 @@ export function LandscapeProgress({
   layout = 'below',
   height,
   pillHeight,
+  pillWidth,
+  padCount,
+  padTrack,
+  gap,
+  labelWidth,
   labelSize,
   testID,
   style,
@@ -53,11 +72,16 @@ export function LandscapeProgress({
         testID={testID}
         style={[
           styles.pill,
+          shadowSm,
           {
             height: pillHeight ?? trackHeight + 14,
+            width: pillWidth,
             borderRadius: 999,
-            paddingInline: trackHeight * 0.6,
-            gap: trackHeight * 0.8,
+            // Row is physically LTR (row-reverse under RTL): the count side is
+            // the physical left = inline end, the track side the right.
+            paddingInlineEnd: padCount ?? trackHeight * 0.6,
+            paddingInlineStart: padTrack ?? trackHeight * 0.6,
+            gap: gap ?? trackHeight * 0.8,
           },
           style,
         ]}
@@ -65,22 +89,27 @@ export function LandscapeProgress({
         {label ? (
           <TalkiText
             weight="extrabold"
-            color={v3.purple900}
-            style={{ fontSize: labelSize ?? 13, writingDirection: 'ltr' }}
+            color={homeMock.ink}
+            style={{
+              fontFamily: fontFamily.heading.extrabold,
+              fontSize: labelSize ?? 13,
+              lineHeight: (labelSize ?? 13) * 1.3,
+              width: labelWidth,
+              writingDirection: 'ltr',
+            }}
           >
             {label}
           </TalkiText>
         ) : null}
         <View
-          style={[
-            styles.track,
-            styles.inlineTrack,
-            { height: trackHeight },
-          ]}
+          style={[styles.track, styles.inlineTrack, { height: trackHeight }]}
           accessibilityRole="progressbar"
           accessibilityValue={{ min: 0, max: 100, now: Math.round(clamped * 100) }}
         >
-          <View style={[styles.fill, { width: `${clamped * 100}%` }]} />
+          <LinearGradient
+            colors={[homeMock.fillTop, homeMock.fillBottom]}
+            style={[styles.fill, { width: `${clamped * 100}%` }]}
+          />
         </View>
       </View>
     );
@@ -93,7 +122,7 @@ export function LandscapeProgress({
         accessibilityRole="progressbar"
         accessibilityValue={{ min: 0, max: 100, now: Math.round(clamped * 100) }}
       >
-        <View style={[styles.fill, { width: `${clamped * 100}%` }]} />
+        <View style={[styles.fill, styles.flatFill, { width: `${clamped * 100}%` }]} />
       </View>
       {label ? (
         <TalkiText weight="bold" color={v3.textSecondary} style={styles.label}>
@@ -112,7 +141,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     alignItems: 'center',
     backgroundColor: '#fff',
-    overflow: 'hidden',
   },
   track: {
     borderRadius: 999,
@@ -124,13 +152,15 @@ const styles = StyleSheet.create({
   inlineTrack: {
     flex: 1,
     flexDirection: 'row-reverse',
-    backgroundColor: v3.track,
-    borderColor: v3.borderSoft,
+    backgroundColor: homeMock.track,
+    borderWidth: 0,
+    borderTopWidth: 1,
+    borderTopColor: homeMock.trackEdge,
   },
   fill: {
     height: '100%',
     borderRadius: 999,
-    backgroundColor: v3.purple600,
   },
+  flatFill: { backgroundColor: v3.purple600 },
   label: { fontSize: 12, alignSelf: 'flex-end' },
 });
