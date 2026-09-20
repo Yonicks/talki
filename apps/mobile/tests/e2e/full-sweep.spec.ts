@@ -15,6 +15,12 @@ interface SweepScreen {
   name: string;
   path: string;
   root: string;
+  /** Freeze the screen's own animation so its screenshot is deterministic. */
+  reduceMotion?: boolean;
+  /** testId prefix of moving, randomly spawned elements: masked in the screenshot and
+   *  exempt from the covered-by audit (they overlap by design). Everything else is
+   *  still baselined and audited. */
+  transientPrefix?: string;
 }
 
 /**
@@ -34,7 +40,9 @@ const SCREENS: SweepScreen[] = [
   { name: 'missing', path: '/game/missing?catId=animals&seed=42', root: testIds.missing.root },
   { name: 'match', path: '/game/match?catId=animals&seed=42', root: testIds.match.root },
   { name: 'speech', path: '/game/speech?catId=animals&seed=42', root: testIds.speech.unsupported },
-  { name: 'bubbles', path: '/game/bubbles?catId=animals&seed=42', root: testIds.bubbles.root },
+  // Bubbles float on a JS-driven loop that CSS-animation freezing cannot stop, so two
+  // runs differ by a few percent of pixels; the app's reduced-motion mode holds them still.
+  { name: 'bubbles', path: '/game/bubbles?catId=animals&seed=42', root: testIds.bubbles.root, reduceMotion: true, transientPrefix: 'bubbles-bubble-' },
   { name: 'sounds', path: '/game/sounds?catId=animals&seed=42', root: testIds.sounds.root },
   { name: 'count', path: '/game/count?catId=animals&seed=42', root: testIds.count.root },
   { name: 'sort', path: '/game/sort?catId=animals&seed=42', root: testIds.sort.root },
@@ -109,6 +117,7 @@ test.describe('Phase 14 full sweep', () => {
       });
       page.on('pageerror', (err) => pageErrors.push(String(err)));
 
+      if (screen.reduceMotion) await page.emulateMedia({ reducedMotion: 'reduce' });
       await openApp(page);
       if (screen.path !== '/') {
         await pushRoute(page, screen.path);
@@ -121,13 +130,18 @@ test.describe('Phase 14 full sweep', () => {
       await assertNoOverflow(page);
       await assertRtl(page, screen.root);
       await captureMatrix(page, '14', screen.name);
-      await expect(page).toHaveScreenshot(`${screen.name}.png`);
+      const transient = screen.transientPrefix
+        ? [page.locator(`[data-testid^="${screen.transientPrefix}"]`)]
+        : [];
+      await expect(page).toHaveScreenshot(`${screen.name}.png`, { mask: transient });
 
       const scope = await idsInside(page, screen.root);
       const touch = (await auditTouchTargets(page)).filter((v) => scope.has(v.testId));
       expect(touch, JSON.stringify(touch)).toHaveLength(0);
 
-      const reach = await auditReachability(page, screen.root);
+      const reach = (await auditReachability(page, screen.root)).filter(
+        (v) => !screen.transientPrefix || !v.testId.startsWith(screen.transientPrefix),
+      );
       expect(reach, JSON.stringify(reach)).toHaveLength(0);
     });
   }
