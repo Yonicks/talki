@@ -9,6 +9,7 @@ import {
   type LandscapeWorldId,
 } from './backgrounds';
 import type { DeviceClass } from '../responsive/breakpoints';
+import { physicalInline } from '../rtl/logical';
 
 export interface LandscapeWorldBackgroundProps {
   source: ImageSourcePropType;
@@ -52,6 +53,10 @@ export function LandscapeWorldBackground({
   const point = focal ?? landscapeBgFocalFor(world, deviceClass);
   const z = Math.max(1, zoom ?? landscapeBgZoomFor(world, deviceClass));
   const over = (z - 1) * 100;
+  // Physical bitmap pan, not an RTL layout offset — the world does not
+  // mirror with text direction. The box is `z × 100%` wide, so a left offset
+  // of `-over·x` leaves a right offset of `-over·(1 − x)`.
+  const pan = physicalInline(`${-over * point.x}%`, `${-over * (1 - point.x)}%`);
   return (
     <View testID={testID} pointerEvents="none" style={[styles.fill, style]}>
       <Image
@@ -61,10 +66,7 @@ export function LandscapeWorldBackground({
           {
             width: `${z * 100}%`,
             height: `${z * 100}%`,
-            // Physical bitmap pan, not an RTL layout offset — the world does
-            // not mirror with text direction.
-            // eslint-disable-next-line no-restricted-syntax
-            left: `${-over * point.x}%`,
+            insetInlineStart: pan.start as `${number}%`,
             top: `${-over * point.y}%`,
           },
         ]}

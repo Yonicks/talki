@@ -135,6 +135,34 @@ iOS safe-area insets (Chromium cannot emulate them).
 Every other screen, on both devices: `screenshots/android-home/all-screens-*`.
 Backlog: [android-pages-plan.md](android-pages-plan.md).
 
+## Native Android parity (Android Studio vs Chrome)
+
+Chrome was matched first; a native build (`expo run:android` / Android Studio)
+still drew Home differently. Causes found in code, and fixes (2026-09-25):
+
+| Native-only difference | Effect on Home | Fix |
+|---|---|---|
+| Android ignores `shadow*` and draws `elevation` as a hard grey Material shadow (and elevation re-orders siblings) | Header buttons, hero card, CTA, cards and arrows looked heavy/dark | `theme/shadows.ts` is now `boxShadow` strings (RN draws them natively; RNW passes them to CSS). Strings equal what RNW generated before, so web is pixel-identical |
+| RN native reads `left`/`right`/`paddingLeft`/`borderLeftWidth` as start/end under RTL (`swapLeftAndRightInRTL`); react-native-web keeps them physical | Background panned to the opposite end of the world art; play ▶ drawn as ◀; notch padding on the wrong side | `physicalInline(left, right)` in `rtl/logical.ts` expresses a physical side as the logical edge that lands on it. Used by `LandscapeWorldBackground`, `HomeScreen`, `LandscapeWorldShell`, `PlayTriangle` |
+| `I18nManager.forceRTL()` only applies after a restart | A fresh install opened mirrored (LTR) once | `expo-localization` plugin `{ supportsRTL, forcesRTL }`: RTL is set natively before JS runs |
+| Status bar + navigation bar are visible in landscape (edge-to-edge) | Stage pushed down and shrunk vs the full-screen Chrome stage | `expo-status-bar` + `expo-navigation-bar` plugins `hidden: true` (from launch) and `<StatusBar hidden />` / `<NavigationBar hidden />` in `app/_layout.tsx` (swipe reveals them) |
+
+Checked, same on both engines: text line boxes (Android's `CustomLineHeightSpan`
+uses CSS half-leading), fonts (same bundled TTFs), `insetInline*`/`gap`/
+`aspectRatio`, transforms (physical everywhere), RTL horizontal `ScrollView`.
+
+Still native-only by design: a display cutout (camera hole) is kept out of the
+stage via safe-area insets; the real adaptive banner may be a few dp taller
+than the 50 px the rig reserves.
+
+Validation: web capture before/after is pixel-identical (0 px differ);
+`expo prebuild` output checked (`ExpoLocalization_forcesRTL=true`,
+`expoStatusBarHidden`, `expoNavigationBarHidden`). Not run: an Android
+emulator/device build (no KVM or Android SDK in the cloud container).
+**After pulling, run `npm install` then `npx expo prebuild --clean`** (or
+`npx expo run:android`) so the android project Android Studio opens has the new
+native modules and config.
+
 ## CI
 
 Green locally: `tsc`, `eslint` (0 errors, 0 warnings), Vitest (**5,579 tests**,

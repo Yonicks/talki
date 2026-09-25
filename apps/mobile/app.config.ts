@@ -64,6 +64,17 @@ const config: ExpoConfig = {
     'expo-image',
     'expo-sqlite',
     'expo-font',
+    /* Hebrew-only app: RTL from the first launch. `I18nManager.forceRTL()`
+       (rtl/forceRTL.ts) only applies after a restart, so a fresh install
+       used to open mirrored (LTR) once; this sets it natively before JS runs. */
+    ['expo-localization', { supportsRTL: true, forcesRTL: true }],
+    /* Immersive landscape, like the Chrome/mock stage: no status bar strip
+       eating the top of the composition, from the very first frame. The root
+       layout keeps it hidden at runtime (app/_layout.tsx). */
+    ['expo-status-bar', { hidden: true, style: 'dark' }],
+    /* System navigation bar hidden (swipe to reveal) so the landscape stage
+       gets the full screen, as in the mock. Runtime side: app/_layout.tsx. */
+    ['expo-navigation-bar', { hidden: true, style: 'dark' }],
     [
       'expo-splash-screen',
       {

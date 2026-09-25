@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { radii } from '../theme/radii';
-import { shadowCard } from '../theme/shadows';
+import { shadowCard, shadowNone } from '../theme/shadows';
 import { v2 } from '../theme/colors';
 
 export interface TalkiCardProps {
@@ -47,7 +47,6 @@ const styles = StyleSheet.create({
   },
   pressed: {
     transform: [{ translateY: 4 }],
-    shadowOpacity: 0,
-    elevation: 0,
+    ...shadowNone,
   },
 });

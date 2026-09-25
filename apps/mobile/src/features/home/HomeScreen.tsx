@@ -14,6 +14,7 @@ import {
   useHomeMetrics,
 } from '@/design-system/landscape';
 import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
+import { physicalInline } from '@/design-system/rtl/logical';
 import {
   categoryHref,
   gamesMenuHref,
@@ -102,12 +103,10 @@ export function HomeScreen() {
           {
             paddingTop: layout.safeInsets.top,
             paddingBottom: layout.safeInsets.bottom,
-            // Physical OS safe-area edges — a notch sits on a physical side
-            // regardless of text direction.
-            // eslint-disable-next-line no-restricted-syntax
-            paddingLeft: layout.safeInsets.left,
-            // eslint-disable-next-line no-restricted-syntax
-            paddingRight: layout.safeInsets.right,
+            // Physical OS safe-area edges (a notch sits on a physical side
+            // regardless of text direction), as logical edges — see physicalInline.
+            paddingInlineStart: physicalInline(layout.safeInsets.left, layout.safeInsets.right).start,
+            paddingInlineEnd: physicalInline(layout.safeInsets.left, layout.safeInsets.right).end,
           },
         ]}
       >

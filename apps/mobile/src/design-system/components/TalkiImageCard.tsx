@@ -2,7 +2,7 @@ import { Image, Pressable, StyleSheet, View, type ImageSourcePropType } from 're
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { radii } from '../theme/radii';
-import { shadowCard } from '../theme/shadows';
+import { shadowCard, shadowNone } from '../theme/shadows';
 import { v2 } from '../theme/colors';
 import { TalkiText } from './TalkiText';
 
@@ -58,8 +58,7 @@ const styles = StyleSheet.create({
   },
   pressed: {
     transform: [{ translateY: 4 }],
-    shadowOpacity: 0,
-    elevation: 0,
+    ...shadowNone,
   },
   chip: {
     width: 72,

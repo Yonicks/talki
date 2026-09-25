@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Stack, useGlobalSearchParams, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { NavigationBar } from 'expo-navigation-bar';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -110,7 +111,10 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <StatusBar style="dark" />
+        {/* Immersive landscape (app.config.ts sets the same at launch): the
+            stage gets the whole screen, as in Chrome and the mock. */}
+        <StatusBar style="dark" hidden />
+        <NavigationBar style="dark" hidden />
         <View style={{ flex: 1 }}>
           <View style={{ flex: 1 }}>
             <Stack screenOptions={{ headerShown: false }} />

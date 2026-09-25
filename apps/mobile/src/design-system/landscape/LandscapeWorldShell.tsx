@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
 
 import { useLandscapeLayout } from '../responsive/useLandscapeLayout';
+import { physicalInline } from '../rtl/logical';
 import type { FocalPoint, LandscapeWorldId } from './backgrounds';
 import { LandscapeScreen } from './LandscapeScreen';
 import { LandscapeWorldBackground } from './LandscapeWorldBackground';
@@ -78,12 +79,10 @@ export function LandscapeWorldShell({
           {
             paddingTop: layout.safeInsets.top,
             paddingBottom: layout.safeInsets.bottom,
-            // Physical safe-area edges — notch/home-indicator sit on physical
-            // sides regardless of RTL text direction.
-            // eslint-disable-next-line no-restricted-syntax
-            paddingLeft: layout.safeInsets.left,
-            // eslint-disable-next-line no-restricted-syntax
-            paddingRight: layout.safeInsets.right,
+            // Physical OS safe-area edges (a notch sits on a physical side
+            // regardless of text direction), as logical edges — see physicalInline.
+            paddingInlineStart: physicalInline(layout.safeInsets.left, layout.safeInsets.right).start,
+            paddingInlineEnd: physicalInline(layout.safeInsets.left, layout.safeInsets.right).end,
           },
         ]}
       >

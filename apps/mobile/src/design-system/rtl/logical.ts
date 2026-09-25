@@ -24,6 +24,21 @@ export function isRTL(): boolean {
   return true;
 }
 
+/**
+ * A *physical* left/right pair (an OS safe-area inset, a bitmap pan, a shape
+ * that must point one way) expressed as the logical inline edges that land
+ * on those sides.
+ *
+ * Never write the physical props (`left`, `paddingLeft`, `borderLeftWidth`…)
+ * for this: native React Native reads them as start/end under RTL
+ * (`I18nManager.swapLeftAndRightInRTL`, on by default) while
+ * react-native-web keeps them physical, so the same style renders mirrored
+ * on Android/iOS versus Chrome. Logical edges resolve the same on both.
+ */
+export function physicalInline<T>(left: T, right: T): { start: T; end: T } {
+  return isRTL() ? { start: right, end: left } : { start: left, end: right };
+}
+
 /** For the rare case a component computes a numeric transform (e.g. a
  *  chevron rotation or a swipe-direction sign) that has no `start`/`end`
  *  style prop equivalent. Returns 1 in LTR, -1 in RTL, so `direction() * dx`

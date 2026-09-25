@@ -12,6 +12,7 @@ import {
 import { TalkiText } from '@/design-system/components';
 import { shadowCard, shadowFloating, shadowSm } from '@/design-system/theme/shadows';
 import { fontFamily } from '@/design-system/theme/typography';
+import { physicalInline } from '@/design-system/rtl/logical';
 import { v3 } from '@/design-system/theme/colors';
 import { homeMock } from './homeColors';
 import { HOME_LAYOUT, useHomeMetrics, type HomeMetrics } from './homeLayout';
@@ -349,16 +350,19 @@ export function LandscapeHeroPanel({
  * for it read as a "next" caret, not "play".
  */
 function PlayTriangle({ size }: { size: number }) {
+  // Physical triangle geometry, not an RTL layout edge: the play mark points
+  // right in every text direction and on every renderer (see physicalInline).
+  const width = physicalInline(size, 0);
+  const color = physicalInline(homeMock.play, 'transparent');
   return (
     <View
       style={{
         width: 0,
         height: 0,
-        // Physical triangle geometry, not an RTL layout edge: the play mark
-        // points the same way in every text direction.
-        // eslint-disable-next-line no-restricted-syntax
-        borderLeftWidth: size,
-        borderLeftColor: homeMock.play,
+        borderStartWidth: width.start,
+        borderEndWidth: width.end,
+        borderStartColor: color.start,
+        borderEndColor: color.end,
         borderTopWidth: size * 0.6,
         borderTopColor: 'transparent',
         borderBottomWidth: size * 0.6,
