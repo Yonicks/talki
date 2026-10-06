@@ -29,7 +29,7 @@ export interface BubbleSpawnLayout {
 export function bubbleSpawnLayout(rnd: () => number, stage: BubbleStageBounds): BubbleSpawnLayout {
   const w = Math.max(1, stage.width);
   const h = Math.max(1, stage.height);
-  const maxByHeight = Math.max(48, h * 0.55);
+  const maxByHeight = Math.max(48, Math.min(h * 0.55, h - 32));
   const maxByWidth = Math.max(48, w * 0.3);
   const sizeMax = Math.min(stage.sizeMax, maxByHeight, maxByWidth);
   const sizeMin = Math.min(Math.max(48, stage.sizeMin), sizeMax);
@@ -41,8 +41,10 @@ export function bubbleSpawnLayout(rnd: () => number, stage: BubbleStageBounds): 
   const start = 2 + rnd() * Math.max(0, maxStart - 2);
 
   // Drift must not push the bubble past the stage edges at mid-rise.
-  const maxDrift = Math.max(0, (w - size) / 2);
-  const drift = (rnd() * 2 - 1) * Math.min(30, maxDrift);
+  const left = (start / 100) * w;
+  const driftMin = -Math.min(30, Math.max(0, left - 2));
+  const driftMax = Math.min(30, Math.max(0, w - size - left - 2));
+  const drift = driftMin + rnd() * (driftMax - driftMin);
   const duration = 8 + rnd() * 4;
 
   return { size, start, drift, duration };

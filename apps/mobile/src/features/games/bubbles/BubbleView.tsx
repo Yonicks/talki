@@ -137,7 +137,7 @@ function NativeRisingBubble({
 const styles = StyleSheet.create({
   abs: {
     position: 'absolute',
-    bottom: 8,
+    bottom: 16,
   },
   bubble: {
     borderRadius: 999,

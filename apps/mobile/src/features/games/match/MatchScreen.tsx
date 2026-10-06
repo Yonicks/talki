@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { TalkiText } from '@/design-system/components';
 import { landscapeTokens } from '@/design-system/landscape';
@@ -153,7 +153,16 @@ function MatchPlay({
         <TalkiText align="center" color={v3.textSecondary} style={{ fontSize: tokens.subtitleSize }}>
           לוחצים על מילה, ואז על התמונה שמתאימה לה
         </TalkiText>
-        <View style={[styles.cols, { gap: tokens.gap }]}>
+        <ScrollView
+          testID="match-scroll"
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+        >
+        <View style={[styles.cols, {
+          gap: tokens.gap,
+          minHeight: state.words.length * tokens.matchRowMinHeight +
+            Math.max(0, state.words.length - 1) * Math.max(6, tokens.gap - 2),
+        }]}>
           <View style={[styles.col, { gap: Math.max(6, tokens.gap - 2) }]}>
             {state.words.map((it, index) => {
               const done = state.matched.includes(it.word);
@@ -207,6 +216,7 @@ function MatchPlay({
             })}
           </View>
         </View>
+        </ScrollView>
       </View>
     </GameShell>
   );
@@ -221,6 +231,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flex: 1,
     minHeight: 0,
+  },
+  scroll: {
+    flex: 1,
+    minHeight: 0,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 4,
   },
   col: {
     flex: 1,

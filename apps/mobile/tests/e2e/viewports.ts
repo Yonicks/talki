@@ -26,6 +26,8 @@ export interface Viewport {
 export const VIEWPORTS: Viewport[] = [
   { name: 'compact-phone', width: 667, height: 375 },
   { name: 'compact-android-phone', width: 740, height: 360 },
+  { name: 'pixel-9', width: 808, height: 360 },
+  { name: 'iphone-17-pro', width: 874, height: 402 },
   { name: 'landscape-844', width: 844, height: 390 },
   { name: 'landscape-932', width: 932, height: 430 },
   { name: 'tablet-4-3', width: 1024, height: 768 },

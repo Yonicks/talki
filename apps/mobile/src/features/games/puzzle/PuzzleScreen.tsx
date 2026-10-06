@@ -136,6 +136,7 @@ function PuzzlePlay({
   const layouts = useRef<Record<string, Omit<SlotRect, 'id' | 'filled'>>>({});
   const boardOrigin = useRef({ x: 0, y: 0 });
   const [slotMax, setSlotMax] = useState(0);
+  const [trayMax, setTrayMax] = useState(0);
   const [state, dispatch] = useReducer(puzzleReducer, undefined, () =>
     initialPuzzle(category, stats, settings, layout.usableHeight, layout.usableWidth, boards, seed),
   );
@@ -266,8 +267,8 @@ function PuzzlePlay({
                   piece={piece}
                   hinted={state.hint === id}
                   niqqud={settings.niqqud}
-                  minSize={pieceMin}
-                  maxSize={slotMax > 0 ? Math.max(slotMax, pieceMin) : undefined}
+                  minSize={slotMax > 0 ? Math.max(48, Math.min(slotMax, pieceMin)) : pieceMin}
+                  maxSize={slotMax > 0 ? Math.max(48, slotMax) : pieceMin}
                   onPress={() => onSlot(id)}
                   onLayoutBox={(box) => {
                     // Convert window coords → board-local for hit testing.
@@ -285,7 +286,10 @@ function PuzzlePlay({
           <TalkiText testID={testIds.puzzle.guide} align="center" color={v3.textSecondary} style={{ fontSize: tokens.subtitleSize }}>
             {guide}
           </TalkiText>
-          <View style={[styles.tray, { gap: Math.max(6, tokens.gap - 2) }]}>
+          <View
+            style={[styles.tray, { gap: Math.max(6, tokens.gap - 2) }]}
+            onLayout={(e) => setTrayMax(Math.floor(e.nativeEvent.layout.height))}
+          >
             {state.tray.map((id) => {
               const piece = state.pieces.find((p) => p.id === id)!;
               return (
@@ -295,7 +299,7 @@ function PuzzlePlay({
                   selected={state.sel === id}
                   nudge={demo?.id === id}
                   niqqud={settings.niqqud}
-                  minSize={pieceMin}
+                  minSize={trayMax > 0 ? Math.max(48, Math.min(trayMax, pieceMin)) : pieceMin}
                   onTap={() => {
                     session.audio.secondaryTap();
                     dispatch({ type: 'SELECT', id });
@@ -319,14 +323,18 @@ const styles = StyleSheet.create({
     paddingBlock: 4,
   },
   slots: {
+    flex: 1,
+    minHeight: 48,
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 1,
   },
   tray: {
+    flex: 1,
+    minHeight: 48,
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   },

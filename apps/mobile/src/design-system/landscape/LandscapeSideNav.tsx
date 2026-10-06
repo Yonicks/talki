@@ -50,7 +50,7 @@ export function LandscapeSideNav({
       accessibilityLabel={label}
       style={({ pressed }) => [
         styles.wrap,
-        { minWidth: size, minHeight: size + 20 },
+        { width: tokens.sideNavLane, minWidth: size, minHeight: size + 20 },
         pressed && styles.pressed,
       ]}
     >
@@ -85,8 +85,9 @@ const styles = StyleSheet.create({
   icon: { width: 22, height: 22 },
   label: {
     fontSize: 11,
+    lineHeight: 14,
     textAlign: 'center',
-    maxWidth: 72,
+    width: '100%',
   },
   pressed: {
     transform: [{ translateY: 2 }],

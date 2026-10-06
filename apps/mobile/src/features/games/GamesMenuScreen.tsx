@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { ToastHost } from '@/components/shell';
 import {
   LandscapeActivityCard,
   LandscapeActivityGrid,
   LandscapePageIndicator,
-  LandscapeTitle,
   landscapeTokens,
 } from '@/design-system/landscape';
 import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
@@ -23,7 +22,7 @@ import { useProgressStore } from '@/state/progressStore';
 import { useSettingsStore } from '@/state/settingsStore';
 import { testIds } from '@/testing/testIds';
 
-import { GameCatChipRow } from './GameCatChipRow';
+import { HubCategoryHeader } from './HubCategoryHeader';
 
 const GAMES_SUBTITLE = 'בואו נשחק, נחשוב ונלמד ביחד';
 
@@ -84,10 +83,13 @@ export function GamesMenuScreen() {
       onBrandLongPress={parent.onBrandLongPress}
       onBrandShortPress={parent.onBrandShortPress}
       titleSlot={
-        <LandscapeTitle
+        <HubCategoryHeader
           testID={testIds.gamesMenu.title}
           title="משחקים"
           subtitle={GAMES_SUBTITLE}
+          chips={chips}
+          current={currentChip}
+          onSelect={setActiveChip}
         />
       }
       auxiliary={
@@ -101,22 +103,6 @@ export function GamesMenuScreen() {
     >
       <ToastHost message={parent.toast} onHide={parent.dismissToast} testID={testIds.parent.toast} />
       <View style={[styles.body, { gap: tokens.gap }]}>
-        {chips ? (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.chipScroll}
-            style={styles.chipStrip}
-          >
-            <GameCatChipRow
-              chips={chips}
-              current={currentChip}
-              onSelect={(id) => setActiveChip(id)}
-              nowrap
-            />
-          </ScrollView>
-        ) : null}
-
         <View style={styles.gridHost} testID={testIds.gamesMenu.grid}>
           <View style={styles.page} testID={testIds.gamesMenu.page(pageIndex)}>
             <LandscapeActivityGrid>
@@ -142,16 +128,6 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     minHeight: 0,
-  },
-  chipStrip: {
-    flexGrow: 0,
-    flexShrink: 0,
-    maxHeight: 56,
-  },
-  chipScroll: {
-    alignItems: 'center',
-    paddingInline: 2,
-    flexDirection: 'row',
   },
   gridHost: {
     flex: 1,

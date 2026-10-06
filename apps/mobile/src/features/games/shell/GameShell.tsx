@@ -117,7 +117,7 @@ export function GameShell({
             <GameChips chips={chips} chipTestIDs={chipTestIDs} gap={Math.max(6, tokens.gap - 2)} />
           </View>
         )}
-        <View style={styles.body}>{showDone ? <DoneCard result={result} onReplay={onReplay} onHome={onHome} /> : children}</View>
+        <View testID="game-play-area" style={styles.body}>{showDone ? <DoneCard result={result} onReplay={onReplay} onHome={onHome} /> : children}</View>
       </View>
       <ToastHost message={toast} onHide={onDismissToast} testID="game-toast" />
       <ToastHost message={parent.toast} onHide={parent.dismissToast} testID={testIds.parent.toast} />

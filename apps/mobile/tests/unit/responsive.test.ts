@@ -29,6 +29,8 @@ import { VIEWPORTS } from '../e2e/viewports';
 const EXPECTED_CLASS_BY_VIEWPORT: Record<string, DeviceClass> = {
   'compact-phone': 'compactPhone',
   'compact-android-phone': 'compactPhone',
+  'pixel-9': 'compactPhone',
+  'iphone-17-pro': 'phone',
   'landscape-844': 'phone',
   'landscape-932': 'phone',
   'tablet-4-3': 'tablet',
