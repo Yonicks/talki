@@ -55,6 +55,16 @@ for (const [game, prefix] of [['puzzle', 'puzzle-'], ['sort', 'sort-box-'], ['co
       : page.locator(`[data-testid^="${prefix}"]`);
     await expect(targets.first()).toBeVisible();
     await contained(targets, page.getByTestId('game-play-area'), game === 'count' ? 8 : 0);
+    if (game === 'sort') {
+      const word = await page.getByTestId('sort-word-label').boundingBox();
+      expect(word).not.toBeNull();
+      for (const target of await targets.all()) {
+        const box = await target.boundingBox();
+        const overlaps = word!.x < box!.x + box!.width && word!.x + word!.width > box!.x &&
+          word!.y < box!.y + box!.height && word!.y + word!.height > box!.y;
+        expect(overlaps, 'word must not overlap a sorting box').toBe(false);
+      }
+    }
     await page.screenshot({ path: test.info().outputPath(`${game}.png`) });
   });
 }

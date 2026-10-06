@@ -175,7 +175,7 @@ function SortPlay({ session, seed }: { session: GameSession; seed?: number }) {
           <View style={styles.art}>
             <WordArt word={state.it} size="80%" />
           </View>
-          <TalkiText style={{ fontSize: tokens.gameTitleSize + 6 }}>{display(state.it.word, niqqud)}</TalkiText>
+          <TalkiText testID="sort-word-label" style={{ fontSize: tokens.gameTitleSize + 6 }}>{display(state.it.word, niqqud)}</TalkiText>
           <TalkiText align="center" color={v3.textSecondary} style={{ fontSize: tokens.subtitleSize }}>
             לאיזו קופסה זה שייך?
           </TalkiText>

@@ -37,10 +37,30 @@ This is a follow-up to Phase 29's existing NO-GO, not native cutover.
 
 ## Validation
 
-Local typecheck and lint: PASS. Full unit/web-export checks and remote Chromium
-checks: pending at this checkpoint. No successful browser run is claimed yet.
-The initial partial-checkout unit failures were missing assets/fixtures, not
-evidence of a passing full regression.
+| Check | Result |
+|---|---|
+| `npm run mobile:typecheck` | PASS |
+| `npm run mobile:lint` | PASS |
+| `npm run mobile:test` | PASS — 54 files, 5,585 tests |
+| `npm run mobile:export` | PASS |
+| Phone layout regression in CI | PASS — 14 checks, Pixel 9 + iPhone 17 Pro |
+| Full functional browser regression | Pending |
+| `npm run doctor --workspace=mobile` | FAIL — 19/21 checks |
+
+Initial unit failures came from missing assets/fixtures in the partial checkout.
+After restoring them, the complete unit suite passed. Generated registries
+were restored; no empty registry or test weakening is included in the change.
+
+First browser evidence run:
+`https://github.com/Yonicks/talki/actions/runs/37543925991`.
+The follow-up also uses each phone's user agent, touch and device scale factor,
+with landscape screen dimensions; it preserves phone screenshots separately
+from the full suite's output. Final results and evidence will be appended below.
+
+Expo Doctor flags competing static/dynamic app configuration and 18 SDK package
+patch-version mismatches in the unchanged configuration/dependencies. These
+remain release follow-ups, rather than being silently waived by a passing
+web build. Maximum browser validation rounds for this follow-up: three.
 
 Local browser execution is blocked: Chrome failed creating its process socket
 (`Operation not permitted`); connected browser creation timed out. Android

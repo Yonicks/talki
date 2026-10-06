@@ -65,7 +65,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Phone layout regressions (Pixel 9, iPhone 17 Pro)
-        run: npx playwright test android-playability.spec.ts --ignore-snapshots --project=pixel-9 --project=iphone-17-pro
+        run: npx playwright test android-playability.spec.ts --ignore-snapshots --project=pixel-9 --project=iphone-17-pro --output=artifacts/phone-layout
 
       - name: E2E tests (Tier 2) — 3 viewports, functional
         if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
@@ -112,7 +112,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: phone-layout-evidence
-          path: apps/mobile/test-results/
+          path: apps/mobile/artifacts/phone-layout/
           if-no-files-found: ignore
           retention-days: 14
 
