@@ -46,18 +46,31 @@ This is a follow-up to Phase 29's existing NO-GO, not native cutover.
 | `npm run mobile:test` | PASS — 54 files, 5,585 tests |
 | `npm run mobile:export` | PASS |
 | Phone layout regression in CI | PASS — 14 checks, Pixel 9 + iPhone 17 Pro |
-| Full functional browser regression | Pending |
+| Full functional browser regression | PASS — 582 passed, 3 skipped, three viewports |
 | `npm run doctor --workspace=mobile` | FAIL — 19/21 checks |
 
 Initial unit failures came from missing assets/fixtures in the partial checkout.
 After restoring them, the complete unit suite passed. Generated registries
 were restored; no empty registry or test weakening is included in the change.
 
-First browser evidence run:
-`https://github.com/Yonicks/talki/actions/runs/37543925991`.
-The follow-up also uses each phone's user agent, touch and device scale factor,
-with landscape screen dimensions; it preserves phone screenshots separately
-from the full suite's output. Final results and evidence will be appended below.
+Validated code commit: `4c7b20b28d51b1a4352df8c33cbc03cf9d4dd0bb`.
+Final CI run: [37544863153](https://github.com/Yonicks/talki/actions/runs/37544863153),
+all required steps successful, including main-flow screenshot capture. The
+phone tests use Chromium with each device's user agent, touch and device scale
+factor, and landscape screen dimensions. This is browser emulation.
+
+Reviewed all 14 phone layout screenshots. Six hub cards fit above the reserved
+ad strip; Match's last row is reachable by internal scrolling; Puzzle, Sort
+and Count controls fit the play area; bubble spawn has bottom clearance.
+The screenshots use existing production artwork. No pixel-diff baseline or
+native hardware approval is asserted. The full functional suite reports three
+skips; no failing or flaky tests were reported.
+
+Evidence: `phone-layout-evidence` artifact 11450173209,
+`main-flow-screenshots` artifact 11450337939. Contact sheets:
+
+- [Pixel 9](screenshots/android-playability/pixel-9.jpg)
+- [iPhone 17 Pro](screenshots/android-playability/iphone-17-pro.jpg)
 
 Expo Doctor flags competing static/dynamic app configuration and 18 SDK package
 patch-version mismatches in the unchanged configuration/dependencies. These
