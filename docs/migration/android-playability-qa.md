@@ -26,7 +26,9 @@ This is a follow-up to Phase 29's existing NO-GO, not native cutover.
   dimensions. Existing tap and drag interactions remain in place.
 - Sort gives its artwork the remaining space above the word/instruction.
 - Count gains bottom clearance. Bubbles gain a 16 dp bottom inset and horizontal
-  drift respects the actual distance to each stage edge.
+  drift respects the actual distance to each stage edge. Native horizontal
+  motion uses the shared RTL direction sign so logical spawn coordinates and
+  physical transforms stay consistent.
 - Games/Practice share an inline title/category header; phone subtitles are
   omitted to recover card height. Every category remains available in the
   horizontal selector; game paging and all six practice modes remain intact.

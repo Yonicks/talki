@@ -4,6 +4,7 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from '
 
 import { TalkiText } from '@/design-system/components';
 import { useTalkiReducedMotion } from '@/design-system/motion';
+import { directionSign } from '@/design-system/rtl/logical';
 import { display } from '@/domain/vocabulary/niqqud';
 import { testIds } from '@/testing/testIds';
 
@@ -95,7 +96,7 @@ function NativeRisingBubble({
       duration: bubble.duration * 1000,
       easing: Easing.linear,
     });
-    tx.value = withTiming(bubble.drift, {
+    tx.value = withTiming(bubble.drift * directionSign(), {
       duration: bubble.duration * 1000,
       easing: Easing.linear,
     });
