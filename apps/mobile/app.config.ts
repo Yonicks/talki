@@ -51,10 +51,6 @@ const config: ExpoConfig = {
     predictiveBackGestureEnabled: false,
     permissions: ['android.permission.RECORD_AUDIO', 'android.permission.CAMERA'],
   },
-  androidStatusBar: {
-    barStyle: 'dark-content',
-    backgroundColor: '#FFF8EA',
-  },
   web: {
     favicon: './assets/favicon.png',
     bundler: 'metro',

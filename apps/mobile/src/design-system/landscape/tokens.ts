@@ -21,10 +21,10 @@ const GAP: Record<DeviceClass, number> = {
 };
 
 const PAD_INLINE: Record<DeviceClass, number> = {
-  compactPhone: 10,
-  phone: 14,
-  tablet: 20,
-  largeTablet: 28,
+  compactPhone: 6,
+  phone: 8,
+  tablet: 12,
+  largeTablet: 18,
 };
 
 const PAD_BLOCK: Record<DeviceClass, number> = {
@@ -129,10 +129,10 @@ const WORD_GRID_ROWS: Record<DeviceClass, number> = {
 };
 
 const WORD_ART: Record<DeviceClass, number> = {
-  compactPhone: 40,
-  phone: 48,
-  tablet: 56,
-  largeTablet: 64,
+  compactPhone: 44,
+  phone: 52,
+  tablet: 64,
+  largeTablet: 72,
 };
 
 const WORD_LABEL: Record<DeviceClass, number> = {

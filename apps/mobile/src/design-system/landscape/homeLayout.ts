@@ -57,9 +57,9 @@ export const HOME_LAYOUT = {
   // between the header bottom (y120) and the strip top (y548): (120+548)/2=334.
   heroBias: px(4),
   strip: {
-    bottomGap: px(67.5), cardWidth: px(191.5), cardHeight: px(238), cardRadius: px(32),
+    cardWidth: px(191.5), cardHeight: px(238), cardRadius: px(32),
     cardPadding: px(9.5), labelHeight: px(50), labelSize: 15,
-    gap: px(7.5), gapMin: 4, gapMax: px(12), arrowSize: px(104), arrowGap: px(11),
+    gap: px(7.5), arrowSize: px(104), arrowGap: px(11),
     arrowLift: px(4), chevronHeight: px(59), chevronNudge: px(5), padInline: px(21), visibleCards: 8,
   },
 } as const;
@@ -93,6 +93,9 @@ export interface HomeStripMetrics {
   stripWidth: number;
   cardWidth: number; cardHeight: number; gap: number; perPage: number; top: number;
 }
+/** Flat (unscaled) clearance kept between the card row and the ad strip below it. */
+const STRIP_BOTTOM_AIR = 8;
+
 export function homeStripMetrics(metrics: HomeMetrics): HomeStripMetrics {
   const { s, touch } = metrics;
   const c = HOME_LAYOUT.strip;
@@ -100,20 +103,22 @@ export function homeStripMetrics(metrics: HomeMetrics): HomeStripMetrics {
   const padInline = s(c.padInline);
   const arrowGap = s(c.arrowGap);
   const innerWidth = Math.max(0, metrics.stageWidth - 2 * (padInline + arrowSize + arrowGap));
-  const gapMin = s(c.gapMin);
-  const cardWidth = Math.max(LANDSCAPE_MIN_TOUCH,
-    Math.min(s(c.cardWidth), (innerWidth - (c.visibleCards - 1) * gapMin) / c.visibleCards));
-  const gap = Math.min(s(c.gapMax), Math.max(gapMin,
-    (innerWidth - c.visibleCards * cardWidth) / (c.visibleCards - 1)));
-  const cardHeight = Math.min(s(c.cardHeight), cardWidth / CATEGORY_CARD_ASPECT);
+  const gap = s(c.gap);
+  // Cards fill innerWidth exactly at a fixed (mock-scaled) gap, rather than
+  // capping at the mock's own card size: on the mock's own 900×416.55 canvas
+  // this is identical to the mock measurement (no slack to fill there), but
+  // on a wider-than-mock viewport the cards grow to reach both arrows with
+  // no leftover side margin, instead of leaving it as unused space.
+  const cardWidth = Math.max(LANDSCAPE_MIN_TOUCH, (innerWidth - (c.visibleCards - 1) * gap) / c.visibleCards);
+  const cardHeight = cardWidth / CATEGORY_CARD_ASPECT;
   const perPage = c.visibleCards;
   const stripWidth = perPage * cardWidth + (perPage - 1) * gap;
   return {
     arrowSize, padInline, arrowGap, innerWidth,
-    stripWidth: round2(Math.min(innerWidth, stripWidth)),
+    stripWidth: round2(stripWidth),
     cardWidth: round2(cardWidth), cardHeight: round2(cardHeight), gap: round2(gap),
     perPage,
-    top: round2(metrics.stageHeight - s(c.bottomGap) - cardHeight),
+    top: round2(metrics.stageHeight - cardHeight - STRIP_BOTTOM_AIR),
   };
 }
 

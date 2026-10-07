@@ -43,16 +43,12 @@ export function WordTile({ word, index, niqqudEnabled, learned, onPress }: WordT
         pressed && styles.pressed,
       ]}
     >
-      <View style={styles.speaker}>
+      <View style={styles.speakerBadge}>
         <Image source={uiIcons.speaker} style={styles.speakerIcon} resizeMode="contain" />
       </View>
-      {word.photo ? (
-        <Image source={{ uri: word.photo }} style={{ width: art, height: art }} resizeMode="contain" />
-      ) : wordImage(word) ? (
-        <Image source={wordImage(word)} style={{ width: art, height: art }} resizeMode="contain" />
-      ) : (
-        <TalkiText style={[styles.emoji, { fontSize: Math.round(art * 0.85) }]}>{word.emoji}</TalkiText>
-      )}
+      {/* Label before art: RTL row auto-mirrors child order (first child
+          lands at the physical right), so this reads label-right /
+          icon-left, matching the mock's horizontal word pill. */}
       <TalkiText
         weight="extrabold"
         align="center"
@@ -61,6 +57,13 @@ export function WordTile({ word, index, niqqudEnabled, learned, onPress }: WordT
       >
         {label}
       </TalkiText>
+      {word.photo ? (
+        <Image source={{ uri: word.photo }} style={{ width: art, height: art }} resizeMode="contain" />
+      ) : wordImage(word) ? (
+        <Image source={wordImage(word)} style={{ width: art, height: art }} resizeMode="contain" />
+      ) : (
+        <TalkiText style={[styles.emoji, { fontSize: Math.round(art * 0.85) }]}>{word.emoji}</TalkiText>
+      )}
       {learned ? (
         <View style={styles.badge}>
           <TalkiPill label="★" color={v3.gold500} />
@@ -75,10 +78,12 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: LANDSCAPE_MIN_TOUCH,
     minHeight: LANDSCAPE_MIN_TOUCH,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    padding: 6,
+    gap: 8,
+    paddingInline: 10,
+    paddingBlock: 6,
     borderRadius: radii.card,
     borderWidth: 3,
     borderColor: v2.line,
@@ -91,23 +96,31 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   label: {
-    paddingInline: 2,
+    flexShrink: 1,
   },
   badge: {
     position: 'absolute',
     insetInlineEnd: 4,
     top: 4,
   },
-  speaker: {
+  /** Floating circular chip, top corner — the mock's prominent speaker
+   *  badge in place of the old flat inline glyph. */
+  speakerBadge: {
     position: 'absolute',
-    insetInlineStart: 4,
-    top: 4,
-    width: 18,
-    height: 18,
-    opacity: 0.55,
+    insetInlineStart: -6,
+    top: -6,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: v3.purple100,
+    borderWidth: 1.5,
+    borderColor: v2.paper,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
   },
   speakerIcon: {
-    width: '100%',
-    height: '100%',
+    width: 14,
+    height: 14,
   },
 });

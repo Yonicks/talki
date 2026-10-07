@@ -53,6 +53,10 @@ export function LandscapeCategoryCard({
   const labelHeight = c.labelHeight * unit;
   const innerRadius = radius - pad;
   const fontSize = fitLabelSize(title, labelSize ?? c.labelSize * unit, w - 2 * pad - pad * 1.2);
+  // Explicit px, not width:'96%' + aspectRatio: Yoga on Android (Fabric)
+  // can skip the aspectRatio pass on first layout and collapse this to
+  // zero height, leaving only the background scenic fill visible.
+  const imageSize = (w - 2 * pad) * 0.96;
 
   return (
     <Pressable
@@ -85,7 +89,7 @@ export function LandscapeCategoryCard({
           <Image
             source={image}
             accessibilityIgnoresInvertColors
-            style={[styles.image, { marginBottom: labelHeight * 0.55 }]}
+            style={{ width: imageSize, height: imageSize, marginBottom: labelHeight * 0.55 }}
             resizeMode="contain"
           />
         ) : (
@@ -155,8 +159,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: v3.blue100,
   },
-  /** Square art in a portrait card — sized off the card width, as the mock draws it. */
-  image: { width: '96%', aspectRatio: 1 },
   placeholder: {
     width: '60%',
     height: '60%',
