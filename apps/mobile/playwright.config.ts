@@ -32,8 +32,10 @@ export default defineConfig({
   projects: VIEWPORTS.map(({ name, width, height }) => ({
     name,
     use: {
-      ...devices['Desktop Chrome'],
+      ...devices[name === 'pixel-9' ? 'Pixel 9' : name === 'iphone-17-pro' ? 'iPhone 17 Pro' : 'Desktop Chrome'],
+      browserName: 'chromium' as const,
       viewport: { width, height },
+      screen: { width, height },
       isMobile: isPhoneViewport(width, height),
       hasTouch: isPhoneViewport(width, height),
     },

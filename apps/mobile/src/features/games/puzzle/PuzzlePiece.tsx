@@ -138,14 +138,14 @@ export function PuzzlePiece({
           style={[
             styles.piece,
             shadowSm,
-            { minWidth: minSize, minHeight: minSize },
+            { width: minSize, height: minSize },
             piece.placed && styles.placed,
             selected && styles.sel,
             nudge && styles.nudge,
           ]}
         >
-          <WordArt word={piece.it} size="64%" />
-          <TalkiText align="center">{display(piece.it.word, niqqud)}</TalkiText>
+          <WordArt word={piece.it} size={minSize * 0.45} />
+          <TalkiText align="center" numberOfLines={1} style={{ fontSize: 12 }}>{display(piece.it.word, niqqud)}</TalkiText>
         </Pressable>
       </Animated.View>
     </GestureDetector>
@@ -154,7 +154,7 @@ export function PuzzlePiece({
 
 const styles = StyleSheet.create({
   piece: {
-    padding: 8,
+    padding: 4,
     borderRadius: radii.card,
     backgroundColor: v3.surface,
     alignItems: 'center',

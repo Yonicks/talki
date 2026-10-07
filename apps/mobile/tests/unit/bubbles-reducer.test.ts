@@ -51,6 +51,9 @@ describe('bubbles reducer', () => {
         expect(layout.size).toBeGreaterThanOrEqual(48);
         expect(layout.size).toBeLessThanOrEqual(Math.min(stage.sizeMax, stage.height * 0.55) + 0.01);
         expect(bubbleFitsStage(layout.start, layout.size, stage.width)).toBe(true);
+        const left = layout.start / 100 * stage.width;
+        expect(left + layout.drift).toBeGreaterThanOrEqual(0);
+        expect(left + layout.drift + layout.size).toBeLessThanOrEqual(stage.width);
       }
     }
   });

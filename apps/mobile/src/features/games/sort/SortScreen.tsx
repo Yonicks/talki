@@ -171,9 +171,11 @@ function SortPlay({ session, seed }: { session: GameSession; seed?: number }) {
           });
         }}
       >
-        <View style={[styles.prompt, { gap: Math.max(4, tokens.gap - 4), flex: split ? 1 : undefined }]}>
-          <WordArt word={state.it} size={split ? '70%' : '88%'} />
-          <TalkiText style={{ fontSize: tokens.gameTitleSize + 6 }}>{display(state.it.word, niqqud)}</TalkiText>
+        <View style={[styles.prompt, { gap: Math.max(4, tokens.gap - 4), flex: 1 }]}>
+          <View style={styles.art}>
+            <WordArt word={state.it} size="80%" />
+          </View>
+          <TalkiText testID="sort-word-label" style={{ fontSize: tokens.gameTitleSize + 6 }}>{display(state.it.word, niqqud)}</TalkiText>
           <TalkiText align="center" color={v3.textSecondary} style={{ fontSize: tokens.subtitleSize }}>
             לאיזו קופסה זה שייך?
           </TalkiText>
@@ -236,6 +238,7 @@ function SortPlay({ session, seed }: { session: GameSession; seed?: number }) {
 const styles = StyleSheet.create({
   board: { flex: 1, minHeight: 0, paddingBlock: 4, alignItems: 'stretch' },
   prompt: { alignItems: 'center', justifyContent: 'center', flexGrow: 1, minHeight: 0 },
+  art: { flex: 1, width: '100%', minHeight: 0, alignItems: 'center', justifyContent: 'center' },
   boxes: { justifyContent: 'center', flexShrink: 0 },
   box: {
     borderRadius: radii.card,

@@ -209,7 +209,7 @@ function CountPlay({
 }
 
 const styles = StyleSheet.create({
-  board: { flex: 1, minHeight: 0, paddingBlock: 4 },
+  board: { flex: 1, minHeight: 0, paddingTop: 4, paddingBottom: 12 },
   stage: {
     flexDirection: 'row',
     flexWrap: 'nowrap',
