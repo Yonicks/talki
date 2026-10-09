@@ -19,7 +19,7 @@ export const uiIcons = {
   close: require('../../assets/v2/icons/talki-ui-icon-close.png'),
   music: require('../../assets/v2/icons/talki-ui-icon-music.png'),
   speaker: require('../../assets/v2/icons/talki-ui-icon-speaker.png'),
-  star: require('../../assets/v2/icons/talki-ui-icon-star.png'),
+  star: require('../../assets/v3/brand/talki-star.png'),
   gift: require('../../assets/v2/icons/talki-ui-icon-gift.png'),
   chevron: require('../../assets/v2/icons/talki-chevron-left.png'),
   settings: require('../../assets/v2/icons/talki-ui-icon-settings.png'),
@@ -33,13 +33,17 @@ export const practiceIcons = {
   cloze: require('../../assets/v2/icons/talki-speech-pause.png'),
 } as const;
 
+/** v3 brand art (`assets/v3/brand/`): the "Talki + star" lockup, the wordmark
+ *  alone (for places that already show the star), and the face-star. All are
+ *  cropped to their opaque bounds, so these aspects are the true artwork. */
 export const brand = {
-  headerLogo: require('../../assets/v2/brand/talki-header-logo.png'),
-  /** Wordmark + star with no tagline lockup — the lockup the v3 Home mock
-   *  shows as the centred top-bar logo (440×136). */
-  logoMark: require('../../assets/v2/brand/talki-logo-mark.png'),
-  starMark: require('../../assets/v2/brand/talki-star-mark.png'),
+  headerLogo: require('../../assets/v3/brand/talki-logo.png'),
+  logoMark: require('../../assets/v3/brand/talki-logo.png'),
+  starMark: require('../../assets/v3/brand/talki-star.png'),
 } as const;
+
+/** width / height of the brand art above (1000 × 315 and 1000 × 333 px). */
+export const brandAspect = { lockup: 1000 / 315, wordmark: 1000 / 333 } as const;
 
 /** Ten built-in categories' icon art (index.html `.cat-card .hero-chip img`
  *  equivalent). `mine` (custom words) has no dedicated icon in legacy either
@@ -55,7 +59,7 @@ export const introAssets = {
   sparklePurple: require('../../assets/v2/effects/talki-particle-star-purple.png'),
   sparkleGreen: require('../../assets/v2/effects/talki-particle-star-green.png'),
   sparkleSmall: require('../../assets/v2/effects/talki-particle-star-small.png'),
-  wordmark: require('../../assets/v2/brand/talki-logo-mark.png'),
+  wordmark: require('../../assets/v3/brand/talki-wordmark.png'),
 } as const;
 
 /** Home hero art (Phase 7). `talki-home-hero-mockup.png`'s newer intent —

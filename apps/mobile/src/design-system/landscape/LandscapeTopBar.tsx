@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  logo: { width: 110, height: 36 },
+  logo: { width: 124, height: 39 },
   utils: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -63,6 +63,7 @@
     "maestro:device-qa": "PATH=\"$HOME/.maestro/bin:$PATH\" maestro test .maestro/device-qa.yaml",
     "maestro:full": "PATH=\"$HOME/.maestro/bin:$PATH\" maestro test .maestro/full-regression.yaml",
     "doctor": "expo-doctor",
+    "screenshots": "node tools/home-fidelity/screenshots.mjs",
     "export:web": "expo export --platform web"
   },
   "private": true,

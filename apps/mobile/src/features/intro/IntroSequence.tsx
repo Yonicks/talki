@@ -8,6 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { brandAspect } from '@/design-system/assets';
 import { TalkiText } from '@/design-system/components';
 import { REDUCED_MOTION_INTRO_HOLD_MS, useTalkiReducedMotion } from '@/design-system/motion';
 import { v3 } from '@/design-system/theme/colors';
@@ -156,7 +157,7 @@ export function IntroSequence({ onComplete, testID }: IntroSequenceProps) {
   // viewports, per the responsive module's contract.
   const mascotSize = clamp(width * 0.32, 118, 196);
   const wordmarkWidth = clamp(width * 0.54, 178, 318);
-  const wordmarkHeight = wordmarkWidth * (136 / 440);
+  const wordmarkHeight = wordmarkWidth / brandAspect.wordmark;
   const sparkleRadius = clamp(Math.min(width, height) * 0.14, 30, 70);
   const sparkleSize = clamp(Math.min(width, height) * 0.035, 8, 20);
 

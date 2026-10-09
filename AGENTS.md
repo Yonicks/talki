@@ -179,6 +179,19 @@ Historical reports are evidence and should remain historical.
 
 ---
 
+# Screenshots before merging to master
+
+Before every merge to `master` (and before the commit that carries it), refresh the two published screenshot sets and commit them with the merge:
+
+1. Start Metro (`npm run mobile:web`) and boot the Android emulator with the dev client. Close other heavy apps first.
+2. Run `npm run screenshots`. It captures one screenshot of every screen in Chrome (Pixel 9) and on the Android emulator, and writes one compressed `.webp` per screen to `docs/screenshots/chrome/` and `docs/screenshots/android/`.
+3. Look at the Android set once (a contact sheet is enough) for blank pictures or the dev "warnings" toast; re-run if either shows.
+4. Commit `docs/screenshots/` with the merge.
+
+Only the latest set is kept: the script overwrites the files and deletes stale ones. Never add per-version, dated or per-viewport copies, and never commit `apps/mobile/artifacts/`. If a set cannot be produced (no emulator), say so in the merge; do not merge with stale screenshots silently.
+
+---
+
 # Token efficiency
 
 Read `docs/token-efficiency.md` once at the start of every session. It changes how context is spent, never which gates, validations or reports apply. The short version:

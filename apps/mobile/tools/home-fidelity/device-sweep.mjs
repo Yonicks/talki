@@ -21,6 +21,7 @@
 import { chromium, devices } from 'playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { SCREENS } from './screens.mjs';
 
 const mode = process.argv[2] ?? 'home';
 const base = process.env.TALKI_URL ?? 'http://localhost:8081';
@@ -38,30 +39,8 @@ const DEVICES = [
 const EMOTIONS_8 = ['שְׂמֵחָה', 'עֲצוּבָה', 'כּוֹעֶסֶת', 'מְפֻחֶדֶת', 'עֲיֵפָה', 'מֻפְתַּעַת', 'אוֹהֶבֶת', 'מִתְבַּיֶּשֶׁת'];
 const ANIMALS_4 = ['כֶּלֶב', 'חָתוּל', 'פָּרָה', 'אַרְיֵה'];
 
-const SCREENS = [
-  { name: 'home', path: '/', root: 'home-root' },
-  { name: 'games', path: '/games', root: 'games-menu-root' },
-  { name: 'practice', path: '/practice', root: 'practice-menu-root' },
-  { name: 'rewards', path: '/rewards', root: 'stickers-root' },
-  { name: 'parent', path: '/parent?seed=42', root: 'parent-root' },
-  { name: 'category', path: '/category/animals', root: 'category-root' },
-  { name: 'cards', path: '/cards/animals', root: 'cards-root' },
-  { name: 'game-quiz', path: '/game/quiz?catId=animals&seed=42' },
-  { name: 'game-memory', path: '/game/memory?catId=animals&seed=42' },
-  { name: 'game-missing', path: '/game/missing?catId=animals&seed=42' },
-  { name: 'game-match', path: '/game/match?catId=animals&seed=42' },
-  { name: 'game-bubbles', path: '/game/bubbles?catId=animals&seed=42' },
-  { name: 'game-sounds', path: '/game/sounds?catId=animals&seed=42' },
-  { name: 'game-count', path: '/game/count?catId=animals&seed=42' },
-  { name: 'game-sort', path: '/game/sort?catId=animals&seed=42' },
-  { name: 'game-puzzle', path: '/game/puzzle?catId=home&seed=42' },
-  { name: 'practice-focus', path: '/practice/focus?catId=animals&seed=42' },
-  { name: 'practice-cloze', path: '/practice/cloze?catId=animals&seed=42' },
-  { name: 'practice-temptation', path: '/practice/temptation?catId=animals&seed=42' },
-  { name: 'practice-receptive', path: '/practice/receptive?catId=animals&seed=42' },
-  { name: 'practice-pairs', path: '/practice/pairs?catId=animals&seed=42' },
-  { name: 'practice-combine', path: '/practice/combine?catId=animals&seed=42' },
-];
+/** TALKI_DEVICES=pixel-9 (comma list) limits the sweep to those devices. */
+const ONLY_DEVICES = process.env.TALKI_DEVICES?.split(',').filter(Boolean);
 
 /** Main flows: the hubs, one category, and one game / practice activity each. */
 const FLOWS = ['home', 'category', 'cards', 'games', 'game-quiz', 'game-memory', 'practice', 'practice-cloze', 'rewards', 'parent'];
@@ -134,7 +113,8 @@ async function pushRoute(page, p) {
 
 const browser = await chromium.launch();
 const report = {};
-for (const dev of mode === 'flows' ? DEVICES.slice(0, 2) : DEVICES) {
+const sweepDevices = (mode === 'flows' ? DEVICES.slice(0, 2) : DEVICES).filter((d) => !ONLY_DEVICES || ONLY_DEVICES.includes(d.name));
+for (const dev of sweepDevices) {
   const { ctx, page } = await openDevice(browser, dev);
   const dir = path.join(OUT, dev.name);
   mkdirSync(dir, { recursive: true });

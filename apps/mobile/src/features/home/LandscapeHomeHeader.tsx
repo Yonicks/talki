@@ -1,6 +1,6 @@
 import { Image, StyleSheet, View, type ImageSourcePropType } from 'react-native';
 
-import { brand, navIcons, practiceIcons, uiIcons } from '@/design-system/assets';
+import { brand, brandAspect, navIcons, practiceIcons, uiIcons } from '@/design-system/assets';
 import { TalkiText } from '@/design-system/components';
 import {
   HOME_LAYOUT,
@@ -215,8 +215,8 @@ export function LandscapeHomeHeader({
   );
 }
 
-/** `talki-logo-mark.png` is 440 × 136 with no transparent padding. */
-const LOGO_ASPECT = 440 / 136;
+/** `talki-logo.png` is cropped to its opaque bounds, so its aspect is the lockup's. */
+const LOGO_ASPECT = brandAspect.lockup;
 
 function HeaderIconButton({
   testID,
