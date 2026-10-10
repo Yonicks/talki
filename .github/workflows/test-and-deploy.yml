@@ -106,9 +106,41 @@ jobs:
           sed -i "s/const VERSION = '.*'/const VERSION = 'talki-${GITHUB_SHA::7}'/" sw.js
           grep "const VERSION" sw.js
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Landscape React Native/Expo rebuild (apps/mobile), published alongside
+      # the legacy root app at a subpath for preview — it is not a cutover.
+      # The legacy app at the root is untouched (AGENTS.md: it must stay
+      # intact until an explicit release cutover phase).
+      - name: Export landscape web build
+        env:
+          TALKI_WEB_BASE_URL: /talki/landscape
+        run: npm run mobile:export
+
+      - name: Stage the Pages site
+        # A clean staging dir, not the full checkout — `npm ci` above put
+        # node_modules on disk, which must never end up in the artifact.
+        # The uploaded artifact root IS https://yonicks.github.io/talki/
+        # (Pages adds the /talki/ repo-name prefix itself), so the landscape
+        # build goes under _site/landscape to land at .../talki/landscape/,
+        # matching TALKI_WEB_BASE_URL above.
+        run: |
+          mkdir -p _site
+          cp index.html manifest.json sw.js privacy.html _site/
+          cp -r icons splash assets _site/
+          mkdir -p _site/landscape
+          cp -r apps/mobile/dist/. _site/landscape/
+          touch _site/.nojekyll
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

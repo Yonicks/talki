@@ -103,6 +103,9 @@ const config: ExpoConfig = {
   ],
   experiments: {
     typedRoutes: true,
+    // Set only for the GitHub Pages web export, which is hosted at a
+    // subpath rather than the origin root (.github/workflows/test-and-deploy.yml).
+    baseUrl: process.env.TALKI_WEB_BASE_URL,
   },
   extra: {
     splashBackground: '#FFF6E4',
