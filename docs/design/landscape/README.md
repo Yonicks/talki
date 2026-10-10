@@ -19,15 +19,22 @@ There is no portrait child layout to preserve.
 
 ## Source of truth
 
+`reference/` is the single canonical location for every landscape mock — see
+`reference/README.md` for the full list and the naming rule (one current
+`<screen>.png` per screen, never two files that could both read as latest).
+
 Visual reference order:
 
-1. `apps/mobile/assets/v3/mocks/mock_home_mobile_v3.png` — current Home composition target (v3)
-2. `reference/home.png` — prior landscape Home crop (still useful for shell history)
-3. `reference/games.png`
-4. `reference/practice.png`
-5. `reference/talki-landscape-master.*` (optional; not committed — see `reference/README.md`)
+1. `reference/home.png` — current Home composition target (v3)
+2. `reference/home-pixel-source.png` — the edge-to-edge pixel-measurement source `homeLayout.ts` is built from
+3. `reference/home-historical.png` — prior landscape Home crop (still useful for shell history)
+4. `reference/games.png`
+5. `reference/practice.png`
+6. `reference/talki-landscape-master.*` (optional; not committed — see `reference/README.md`)
 
-The cropped images are easier for an agent to inspect per screen. The optional master, if ever added, would preserve the original composite reference supplied for this redesign; its absence is not a gate failure. The v3 Home mock is composition/chrome inspiration only — never embed it as runtime UI.
+No other screen has a mock yet — every individual game, every practice activity, Cards, Category, Parent, and Rewards. When one is supplied, it is committed to `reference/` as `<screen>.png`, named to match `tools/home-fidelity/screens.mjs`'s screen ids.
+
+The cropped images are easier for an agent to inspect per screen. The optional master, if ever added, would preserve the original composite reference supplied for this redesign; its absence is not a gate failure. The Home mock is composition/chrome inspiration only — never embed it as runtime UI.
 
 These images define:
 

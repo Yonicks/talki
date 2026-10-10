@@ -1,7 +1,7 @@
 # Android Home — pixel-parity QA
 
 Target: the supplied **1843 × 853** edge-to-edge mock
-(`apps/mobile/assets/v3/mocks/mock_home_android_1843x853.png`), on an Android
+(`docs/design/landscape/reference/home-pixel-source.png`), on an Android
 landscape screen with the ad strip underneath. Branch `codex/android-home-mock-parity`
 (PR #6). Status: **UI chrome matched to ±1–4 px; illustrations are art-blocked.**
 

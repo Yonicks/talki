@@ -13,8 +13,9 @@ Status values:
 | Asset | Status | Purpose |
 |---|---|---|
 | `reference/talki-landscape-master.*` | REFERENCE (not committed, optional) | Original composite landscape mock — never supplied; absence is not a gate failure per `reference/README.md` |
-| `reference/home.png` | REFERENCE | Home crop (1448×1086) — landscape Phase 16–20 target |
-| `apps/mobile/assets/v3/mocks/mock_home_mobile_v3.png` | REFERENCE | Newer Home visual target (v3). Composition/chrome inspiration only — never runtime UI |
+| `reference/home.png` | REFERENCE | Current Home visual target (v3, 1846×852). Composition/chrome inspiration only — never runtime UI |
+| `reference/home-pixel-source.png` | REFERENCE | Edge-to-edge pixel-measurement source (1843×853) `homeLayout.ts` is built from — load-bearing for code, not just inspiration |
+| `reference/home-historical.png` | REFERENCE | Prior Home crop (1448×1086) — landscape Phase 16–20 target, superseded by `home.png` but kept for history |
 | `reference/games.png` | REFERENCE | Games hub crop (1672×941) |
 | `reference/practice.png` | REFERENCE | Practice hub crop (1448×1086) |
 

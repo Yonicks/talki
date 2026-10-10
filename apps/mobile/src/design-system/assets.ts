@@ -5,8 +5,8 @@
  * load from `apps/mobile/assets/v2/` (copied from repository-root
  * `assets/v2/`, which is never edited in place).
  *
- * `apps/mobile/assets/v3/mocks/` holds visual references only — never load a
- * mock screenshot as production UI (AGENTS.md landscape rule 4).
+ * Mocks live in `docs/design/landscape/reference/`, not here — visual
+ * references only, never loaded as production UI (AGENTS.md landscape rule 4).
  */
 export const navIcons = {
   home: require('../../assets/v2/nav/talki-nav-home.png'),

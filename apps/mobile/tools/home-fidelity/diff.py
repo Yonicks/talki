@@ -3,7 +3,7 @@ import sys, os
 from PIL import Image, ImageChops
 import numpy as np
 
-MOCK = os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'v3', 'mocks', 'mock_home_mobile_v3.png')
+MOCK = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'docs', 'design', 'landscape', 'reference', 'home.png')
 SCREEN = (48, 47, 1800, 806)  # phone screen inside the mock's rendered bezel
 
 def load_target(size):

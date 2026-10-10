@@ -29,6 +29,5 @@ Registered in `src/design-system/assets.ts` as both `categoryArt` and `categoryI
 
 Portrait source size: 1086×1448. If reused, cover-crop — never stretch.
 
-## Mocks (REFERENCE only)
-
-`mocks/mock_home_mobile_v3.png` is a visual target for Home composition. Never load it as a runtime background or baked UI screen.
+Mocks (visual references, never runtime UI) live in
+`docs/design/landscape/reference/`, not here — see that folder's README.
