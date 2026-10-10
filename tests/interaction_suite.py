@@ -350,7 +350,7 @@ def test_rapid_taps(b):
 
     play(page, "match")
     w = page.evaluate("()=>game.left[0].word")
-    page.evaluate("(w)=>document.querySelector(`[data-mleft='${w}']`).click()", w)
+    page.evaluate("(w)=>Array.from(document.querySelectorAll('[data-mleft]')).find(e=>e.getAttribute('data-mleft')===w).click()", w)
     page.wait_for_timeout(200)
     burst(f'[data-mright="{w}"]', 4)
     page.wait_for_timeout(400)
