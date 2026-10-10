@@ -47,7 +47,7 @@ An item added at turn *t* costs `tokens x turns remaining`. A 1.6K-token image v
 - **Numbers first.** `align_report.py`, `pixel_report.py`, `chrome_diff.py` print deltas as text. View an image only when the numbers can't explain a diff.
 - View crops (<= ~600 px long side) or one contact sheet (`contact_sheet.py`) instead of several images. Never a full-resolution screenshot.
 - Never view the same image twice (seen: `home.png` x3, `games.png` x2, `iphone-17-pro-sheet-2.jpg` x2).
-- Mocks are committed (`apps/mobile/assets/v3/mocks/`). Cite the path; don't paste them into the prompt again.
+- Mocks are committed (`docs/design/landscape/reference/`). Cite the path; don't paste them into the prompt again.
 
 ### 4. Edits
 - Targeted edits (search-and-replace, patch, or your editor's edit tool). Never read then rewrite a whole source file to change a few lines (`LandscapeHeroPanel.tsx`: 11.9K read + 12.6K rewritten, both carried 100+ turns).

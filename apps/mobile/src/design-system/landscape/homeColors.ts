@@ -1,5 +1,5 @@
 /**
- * Colours sampled from `assets/v3/mocks/mock_home_android_1843x853.png`
+ * Colours sampled from `docs/design/landscape/reference/home-pixel-source.png`
  * (median of flat regions, not anti-aliased edges). Kept apart from `v3`,
  * which is a verbatim transcription of the legacy CSS palette.
  */

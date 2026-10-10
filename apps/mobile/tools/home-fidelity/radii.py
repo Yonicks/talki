@@ -13,7 +13,7 @@ import numpy as np
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MOCK = os.path.join(HERE, '..', '..', 'assets', 'v3', 'mocks', 'mock_home_android_1843x853.png')
+MOCK = os.path.join(HERE, '..', '..', '..', '..', 'docs', 'design', 'landscape', 'reference', 'home-pixel-source.png')
 PX_PER_DP = 1843 / 900
 
 # name -> (x0, y0, x1) : true top-left corner and right edge, mock px.
