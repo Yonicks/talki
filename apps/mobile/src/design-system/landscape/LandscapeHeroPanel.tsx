@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import {
   Image,
+  Text,
   StyleSheet,
   View,
   type ImageSourcePropType,
@@ -9,7 +10,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { brand, introAssets } from '@/design-system/assets';
+import { brand } from '@/design-system/assets';
 import { TalkiText } from '@/design-system/components';
 import { shadowFloating, shadowSm } from '@/design-system/theme/shadows';
 import { fontFamily } from '@/design-system/theme/typography';
@@ -95,10 +96,6 @@ export function LandscapeHeroPanel({
   const titleRoom =
     s(h.copyWidth) - (titleMark ? s(h.titleStarSize) + s(h.titleGap) : 0) - s(h.titleGroupShift);
   const titleSize = fitTextSize(title, s(h.titleSize), titleRoom, TITLE_FLOOR);
-  /** Panel-local x where the copy column begins — right of the thumbnail
-   *  and its gap, so anything placed at or past this x never overlaps the
-   *  thumbnail (used to park the decorative sparkles safely). */
-  const copyColStart = s(h.padInlineStart + h.thumbWidth + h.columnGap);
   // Explicit px, not `width: '100%'` + `aspectRatio: 1`: Yoga on Android
   // (Fabric) can skip the aspectRatio pass on first layout and collapse
   // the image to zero size, leaving only the `thumbnailBackground` cover
@@ -183,6 +180,7 @@ export function LandscapeHeroPanel({
             height: panelHeight,
             borderRadius: s(h.radius),
             padding: borderWidth,
+            boxShadow: `0 ${s(4)}px ${s(12)}px rgba(114, 44, 115, 0.18)`,
           },
         ]}
       >
@@ -202,22 +200,6 @@ export function LandscapeHeroPanel({
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={StyleSheet.absoluteFill}
-          />
-          {/* Fakes a radial highlight (RN's LinearGradient has no radial
-              mode): a soft, large, low-opacity ellipse biased toward the
-              upper-left/centre, brightening that corner like the mock. */}
-          <View
-            pointerEvents="none"
-            style={[
-              styles.highlightBlob,
-              {
-                width: s(h.width) * 0.85,
-                height: panelHeight * 0.85,
-                borderRadius: s(h.width) * 0.425,
-                top: panelHeight * 0.3 - (panelHeight * 0.85) / 2,
-                insetInlineStart: s(h.width) * 0.45 - (s(h.width) * 0.85) / 2,
-              },
-            ]}
           />
           <View pointerEvents="none" style={[styles.innerHighlight, { borderRadius: innerRadius }]} />
 
@@ -267,11 +249,11 @@ export function LandscapeHeroPanel({
                   styles.thumbBadge,
                   shadowSm,
                   {
-                    width: s(h.thumbFrame) * 5,
-                    height: s(h.thumbFrame) * 5,
-                    borderRadius: s(h.thumbFrame) * 2.5,
-                    bottom: -s(h.thumbFrame) * 1.2,
-                    insetInlineEnd: -s(h.thumbFrame) * 1.2,
+                    width: s(36),
+                    height: s(36),
+                    borderRadius: s(18),
+                    bottom: s(3),
+                    insetInlineStart: s(3),
                   },
                 ]}
               >
@@ -371,7 +353,7 @@ export function LandscapeHeroPanel({
                 color={homeMock.ink}
                 numberOfLines={roomy ? 2 : 1}
                 style={{
-                  fontFamily: fontFamily.heading.extrabold,
+                  fontFamily: fontFamily.heading.bold,
                   marginTop: s(h.gapTitleSubtitle),
                   fontSize: s(h.subtitleSize),
                   lineHeight: s(h.subtitleBox),
@@ -396,6 +378,7 @@ export function LandscapeHeroPanel({
               pillWidth={s(h.progressPillWidth)}
               gap={s(h.progressGap)}
               labelSize={s(h.progressLabelSize)}
+              labelWidth={s(h.progressLabelWidth)}
               style={{ marginTop: s(h.gapSubtitleProgress), alignSelf: 'flex-start', marginInlineStart: s(h.progressPillInset) }}
             />
           ) : null}
@@ -403,7 +386,7 @@ export function LandscapeHeroPanel({
           {progress !== undefined && progressCaption ? (
             <TalkiText
               weight="bold"
-              align="center"
+              align="end"
               color={homeMock.captionMuted}
               numberOfLines={1}
               style={{
@@ -412,6 +395,8 @@ export function LandscapeHeroPanel({
                 lineHeight: s(15),
                 marginTop: s(4),
                 marginInlineStart: s(h.progressPillInset),
+                alignSelf: 'flex-end',
+                marginInlineEnd: s(h.copyWidth - h.progressPillWidth - h.progressPillInset),
               }}
             >
               {progressCaption}
@@ -463,47 +448,31 @@ export function LandscapeHeroPanel({
         </View>
       </LinearGradient>
 
-      {/* Decorative sparkles, placed in the copy column's clear top margin —
-          right of the thumbnail+gap, above where the title row starts
-          (`copyColStart`/`s(h.padTop)`) — so they never sit under the
-          thumbnail or the title/CTA content and are never clipped by the
-          panel's own `overflow: hidden`. */}
+      {/* Four-point highlights outside the card's clipping surface. */}
       <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.sparkleLayer]}>
-        <Image
-          source={introAssets.sparkleYellow}
-          accessibilityIgnoresInvertColors
-          style={[
-            styles.sparkle,
-            {
-              width: s(15),
-              height: s(15),
-              top: s(5),
-              insetInlineStart: copyColStart + s(h.copyWidth) * 0.12,
-              opacity: 0.9,
-              transform: [{ rotate: '-14deg' }],
-            },
-          ]}
-          resizeMode="contain"
-        />
-        <Image
-          source={introAssets.sparkleSmall}
-          accessibilityIgnoresInvertColors
-          style={[
-            styles.sparkle,
-            {
-              width: s(9),
-              height: s(9),
-              top: s(9),
-              insetInlineStart: copyColStart + s(h.copyWidth) * 0.82,
-              opacity: 0.75,
-              transform: [{ rotate: '10deg' }],
-            },
-          ]}
-          resizeMode="contain"
-        />
+        <CardSparkle size={s(22)} style={{ top: panelHeight - s(52), insetInlineStart: s(h.width) - s(48) }} />
+        <CardSparkle size={s(24)} style={{ top: panelHeight - s(43), insetInlineStart: s(53) }} />
+        <CardSparkle size={s(30)} style={{ top: -s(8), insetInlineStart: s(h.width) - s(18) }} />
       </View>
     </View>
   );
+}
+
+function CardSparkle({ size, style }: { size: number; style: StyleProp<ViewStyle> }) {
+  return (
+    <View accessible={false} style={[styles.sparkle, { width: size, height: size }, style]}>
+      <View style={{ position: 'absolute', top: size * 0.32, insetInlineStart: size * 0.32, width: size * 0.36, height: size * 0.36, borderRadius: size, backgroundColor: 'rgba(255, 87, 38, 0.16)', boxShadow: `0 0 ${size * 0.3}px ${size * 0.12}px rgba(255, 71, 35, 0.55)` }} />
+      <HeroGlyph glyph="sparkle" size={size} color="#FFB655" blur={size * 0.18} />
+      <HeroGlyph glyph="sparkle" size={size} color="#FFB641" blur={size * 0.12} scale={0.85} />
+      <HeroGlyph glyph="sparkle" size={size} color="#FFFDDD" blur={size * 0.065} scale={0.76} />
+    </View>
+  );
+}
+
+function HeroGlyph({ glyph, size, color, blur = 0, scale = 1 }: {
+  glyph: 'play' | 'sparkle'; size: number; color: string; blur?: number; scale?: number;
+}) {
+  return <Text accessible={false} aria-hidden style={{ position: 'absolute', width: size, height: size, fontFamily: 'TalkiHeroIcons', fontSize: size, lineHeight: size, includeFontPadding: false, textAlign: 'center', color, transform: [{ scale }], textShadowColor: color, textShadowOffset: { width: 0, height: 0 }, textShadowRadius: blur }}>{glyph === 'play' ? '\uE001' : '\uE002'}</Text>;
 }
 
 /**
@@ -532,7 +501,7 @@ function HeroCta({
   style?: StyleProp<ViewStyle>;
 }) {
   return (
-    <View style={style}>
+    <View style={[{ borderRadius: s(h.ctaHeight) / 2, boxShadow: `0 ${s(2)}px ${s(7)}px rgba(222, 64, 228, 0.40)` }, style]}>
       {/* Outer pink halo, two rings (inner near-white, outer pink) — the
           "without it the button looks flat" glow. Sibling of the touch
           surface, not a shadow prop: Android drops `shadowColor` entirely
@@ -578,7 +547,7 @@ function HeroCta({
         // at its own end: padding on the disc's side of the row.
         surfaceStyle={[
           styles.cta,
-          { paddingInlineEnd: s(h.ctaPlayInset), borderColor: heroCard.ctaHaloInner, borderWidth: 4 },
+          { gap: s(12), borderColor: heroCard.ctaHaloInner, borderWidth: s(1.5) },
         ]}
       >
         {/* Two separate gradient effects, stacked: a horizontal colour
@@ -632,7 +601,6 @@ function HeroCta({
         <View
           style={[
             styles.ctaIconWrap,
-            shadowSm,
             {
               width: s(h.ctaPlaySize),
               height: s(h.ctaPlaySize),
@@ -640,37 +608,11 @@ function HeroCta({
             },
           ]}
         >
-          <PlayTriangle size={s(h.ctaPlaySize) * 0.4} />
+          <HeroGlyph glyph="play" size={s(h.ctaPlaySize)} color="#DCC8FF" blur={s(1.3)} />
+          <HeroGlyph glyph="play" size={s(h.ctaPlaySize)} color="#FFFFFF" scale={0.9} />
         </View>
       </LandscapeTouchSurface>
     </View>
-  );
-}
-
-/**
- * The mock's CTA glyph: a solid purple play triangle in the white circle.
- * Drawn with the standard border trick rather than shipped as art — no
- * play-arrow asset exists in `assets/v2|v3`, and the chevron that stood in
- * for it read as a "next" caret, not "play".
- */
-function PlayTriangle({ size }: { size: number }) {
-  return (
-    <View
-      style={{
-        width: 0,
-        height: 0,
-        // Physical triangle geometry, not an RTL layout edge: the play mark
-        // points the same way in every text direction.
-        // eslint-disable-next-line no-restricted-syntax
-        borderLeftWidth: size,
-        borderLeftColor: homeMock.play,
-        borderTopWidth: size * 0.6,
-        borderTopColor: 'transparent',
-        borderBottomWidth: size * 0.6,
-        borderBottomColor: 'transparent',
-        marginInlineStart: size * 0.22,
-      }}
-    />
   );
 }
 
@@ -697,10 +639,10 @@ const MASCOT_ASPECT = 640 / 618;
 const GLOW_AMBIENT_SPREAD = 14;
 const GLOW_NEAR_SPREAD = 7;
 /** Flat (unscaled mock px) thickness of the gradient border frame. */
-const BORDER_THICKNESS = 5;
+const BORDER_THICKNESS = 3.5;
 /** Flat (unscaled mock px) spread of the CTA's two outer glow rings. */
-const CTA_HALO_OUTER = 8;
-const CTA_HALO_INNER = 3.5;
+const CTA_HALO_OUTER = 5;
+const CTA_HALO_INNER = 2.5;
 
 const styles = StyleSheet.create({
   row: {
@@ -730,10 +672,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 1,
   },
-  highlightBlob: {
-    position: 'absolute',
-    backgroundColor: heroCard.highlight,
-  },
   innerHighlight: {
     position: 'absolute',
     top: 1,
@@ -753,9 +691,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   thumbFrame: {
-    backgroundColor: '#fff',
-    borderWidth: 1.5,
-    borderColor: heroCard.thumbB,
+    backgroundColor: heroCard.thumbA,
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
     flexShrink: 0,
   },
   thumbClip: {
@@ -787,6 +725,7 @@ const styles = StyleSheet.create({
   cta: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     overflow: 'hidden',
   },
   ctaGloss: {
@@ -803,12 +742,12 @@ const styles = StyleSheet.create({
     insetInlineEnd: 0,
   },
   ctaIconWrap: {
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   },
   ctaLabel: {
-    flex: 1,
+    flexShrink: 1,
   },
 });

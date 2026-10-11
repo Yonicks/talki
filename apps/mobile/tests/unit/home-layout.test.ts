@@ -42,10 +42,11 @@ describe('Home mock geometry', () => {
   it('writes the hero card at the mock\'s measured pixel size', () => {
     const h = HOME_LAYOUT.hero;
     expect(h.width * MOCK_PX_PER_DP).toBeCloseTo(792.5, 0);
-    expect(h.height * MOCK_PX_PER_DP).toBeCloseTo(371, 0);
-    // `copyWidth` differs from the legacy mock's 398 — pixel-measured off
-    // the premium-card reference (see homeLayout.ts's `hero` comment).
-    expect(h.copyWidth * MOCK_PX_PER_DP).toBeCloseTo(426, 0);
+    expect(h.height * MOCK_PX_PER_DP).toBeCloseTo(382, 0);
+    // `height` and `copyWidth` both differ from the legacy mock's 371/398 —
+    // pixel-measured off the premium-card reference (see homeLayout.ts's
+    // `hero` comment).
+    expect(h.copyWidth * MOCK_PX_PER_DP).toBeCloseTo(438, 0);
     expect(HOME_LAYOUT.header.height * MOCK_PX_PER_DP).toBeCloseTo(88, 0);
   });
 

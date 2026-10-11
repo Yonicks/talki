@@ -10,6 +10,7 @@
  * fetch possible even accidentally.
  */
 export const fontAssets = {
+  TalkiHeroIcons: require('../../../assets/fonts/TalkiHeroIcons.ttf'),
   Assistant_400Regular: require('../../../assets/fonts/Assistant_400Regular.ttf'),
   Assistant_600SemiBold: require('../../../assets/fonts/Assistant_600SemiBold.ttf'),
   Assistant_700Bold: require('../../../assets/fonts/Assistant_700Bold.ttf'),

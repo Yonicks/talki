@@ -35,8 +35,8 @@ export const HOME_LAYOUT = {
     logoWidth: 202, logoTop: 10,
   },
   hero: {
-    // Row = mascot stage + card. Card edges: x 630.5..1423, y 152.5..523.5.
-    rowWidth: px(1086), width: px(792.5), height: px(371), radius: px(46),
+    // Row = mascot stage + card. Card edges: x 630.5..1423, y 152.5..534.5.
+    rowWidth: px(1086), width: px(792.5), height: px(382), radius: px(68),
     padTop: px(32), padBottom: px(22.5),
     // Card-redesign request ("do it pixel by pixel"): every number below in
     // this block is re-measured directly off the attached premium-card
@@ -45,31 +45,31 @@ export const HOME_LAYOUT = {
     // this card's existing 792.5 × 371 canvas. See the measurement script
     // run for this change — card box (507,181)-(1262,553) in the reference
     // PNG, thumbnail/CTA/progress boxes as fractions of it.
-    padInlineStart: px(10), padInlineEnd: px(30), columnGap: px(14),
+    padInlineStart: px(28), padInlineEnd: px(30), columnGap: px(22),
     // Thumbnail: x-fraction 0.595..0.988, y-fraction 0.095..0.708 of the
     // card — much smaller than the legacy mock's thumbnail, flush to the
     // card's end edge, with real top margin before it starts.
-    thumbWidth: px(312), thumbHeight: px(227), thumbTop: px(35), thumbRadius: px(31), thumbFrame: px(7.5),
+    thumbWidth: px(280), thumbHeight: px(245), thumbTop: px(28), thumbRadius: px(38), thumbFrame: px(3),
     // Copy column (CTA width) and the narrower text block inside it.
-    copyWidth: px(426), textBlockWidth: px(382), textBlockInset: px(8),
+    copyWidth: px(438), textBlockWidth: px(382), textBlockInset: px(8),
     eyebrowSize: 16.2, eyebrowBox: px(26),
     titleSize: 44, titleRow: px(71), titleStarSize: px(71), titleStarBox: px(100), titleGap: px(6.5),
     titleTextDrop: px(6), titleGroupShift: px(31),
     subtitleSize: 14.6, subtitleBox: px(28),
-    eyebrowLift: px(2.5), eyebrowShift: px(8), gapEyebrowTitle: px(3), gapTitleSubtitle: px(15.5), subtitleShift: px(6), gapSubtitleProgress: px(32), gapProgressCta: px(15),
+    eyebrowLift: px(2.5), eyebrowShift: px(8), gapEyebrowTitle: px(3), gapTitleSubtitle: px(15.5), subtitleShift: px(6), gapSubtitleProgress: px(16), gapProgressCta: px(15),
     // The reference's progress bar is a bare track directly on the card —
     // no white pill chrome, count physically *after* the track (measured
     // y-fraction 0.474..0.559 of the card height = ~31 at this canvas).
-    progressPillWidth: px(315), progressPillInset: px(22), progressPillHeight: px(32), progressTrackHeight: px(26),
-    progressLabelSize: 15, progressPadCount: px(23), progressPadTrack: px(17), progressGap: px(14),
+    progressPillWidth: px(400), progressPillInset: px(-16), progressPillHeight: px(38), progressTrackHeight: px(36),
+    progressLabelSize: 13, progressLabelWidth: px(62), progressPadCount: px(23), progressPadTrack: px(17), progressGap: px(20),
     // CTA measured independently of `copyWidth` — it is wider than the text
     // column and not flush to either of its edges (x-fraction 0.153..0.735,
     // y-fraction 0.689..0.932 of the card), so it is positioned absolutely
     // within the panel rather than sized off `copyWidth` like the rest of
     // the copy column. `ctaInsetEnd` is measured from the panel's physical
     // left edge (RTL "end").
-    ctaWidth: px(461), ctaInsetEnd: px(121), ctaTop: px(256),
-    ctaHeight: px(90), ctaPlaySize: px(87), ctaPlayInset: px(2.5), ctaLabelSize: 22, ctaLabelShift: px(14), ctaLabelDrop: px(6),
+    ctaWidth: px(465), ctaInsetEnd: px(127), ctaTop: px(250),
+    ctaHeight: px(94), ctaPlaySize: px(46), ctaPlayInset: 0, ctaLabelSize: 22, ctaLabelShift: 0, ctaLabelDrop: 0,
   },
   mascot: { width: 150, top: 28, insetStart: 382 },
   // The card centre (y338) sits 4 mock px below the centre of the free band

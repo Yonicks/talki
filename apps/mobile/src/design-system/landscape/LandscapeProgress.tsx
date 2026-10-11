@@ -60,6 +60,9 @@ export function LandscapeProgress({
 }: LandscapeProgressProps) {
   const clamped = Math.max(0, Math.min(1, value));
   const trackHeight = height ?? 12;
+  const countSize = labelWidth && label
+    ? Math.min(labelSize ?? 13, labelWidth / (label.length * 0.64))
+    : labelSize ?? 13;
 
   if (layout === 'inline') {
     return (
@@ -81,8 +84,8 @@ export function LandscapeProgress({
             color={homeMock.ink}
             style={{
               fontFamily: fontFamily.heading.extrabold,
-              fontSize: labelSize ?? 13,
-              lineHeight: (labelSize ?? 13) * 1.3,
+              fontSize: countSize,
+              lineHeight: countSize * 1.3,
               width: labelWidth,
               writingDirection: 'ltr',
             }}
@@ -106,9 +109,8 @@ export function LandscapeProgress({
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
             style={[styles.fill, { width: `${clamped * 100}%` }]}
-          >
-            <View style={styles.fillGloss} pointerEvents="none" />
-          </LinearGradient>
+          />
+          <View pointerEvents="none" style={[StyleSheet.absoluteFill, { borderRadius: 999, borderWidth: trackHeight * 0.095, borderColor: '#FFFFFF' }]} />
         </View>
       </View>
     );
@@ -153,24 +155,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row-reverse',
     borderWidth: 0,
-    borderTopWidth: 1,
-    borderTopColor: homeMock.trackEdge,
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
     borderRadius: 999,
     overflow: 'hidden',
-  },
-  fillGloss: {
-    position: 'absolute',
-    top: 0,
-    insetInlineStart: 0,
-    insetInlineEnd: 0,
-    height: '45%',
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
-    borderStartStartRadius: 999,
-    borderStartEndRadius: 999,
   },
   flatFill: { backgroundColor: v3.purple600 },
   label: { fontSize: 12, alignSelf: 'flex-end' },

@@ -29,7 +29,7 @@ export const homeMock = {
   /** Hairline that separates a category label from the white frame around it. */
   labelEdge: 'rgba(60, 40, 110, 0.10)',
   /** Secondary category caption under the hero progress bar. */
-  captionMuted: '#8D7CA8',
+  captionMuted: '#BD80DE',
 } as const;
 
 /**
@@ -42,9 +42,9 @@ export const homeMock = {
 export const heroCard = {
   /** Diagonal surface gradient (135deg): cream → peach → pink → lavender. */
   fillA: '#FFFDF7',
-  fillB: '#FFF4E5',
-  fillC: '#FFE9E5',
-  fillD: '#F6DDFB',
+  fillB: '#FFF9ED',
+  fillC: '#FFF5E2',
+  fillD: '#FFF3DC',
   /** Soft warm highlight blob, layered on top near the upper-left to fake a
    *  radial glow (RN's LinearGradient has no radial mode). */
   highlight: 'rgba(255, 255, 255, 0.55)',
@@ -52,37 +52,37 @@ export const heroCard = {
    *  off the reference (color-transition scan through the rim at all four
    *  edges, e.g. top ≈ #E744C7, right ≈ #F73A9F, bottom ≈ #DE2680) — a
    *  vivid saturated magenta/pink/rose rim, not the soft pastel it was. */
-  borderA: '#E744C7',
-  borderB: '#F73A9F',
-  borderC: '#DE2680',
-  borderD: '#C2206E',
+  borderA: '#F687D9',
+  borderB: '#CD7CF5',
+  borderC: '#F35BBC',
+  borderD: '#FF83AD',
   /** Layered halo behind the card: a wide, faint ambient purple wash and a
    *  tighter, slightly stronger pink/lavender ring closer to the rim. */
-  glowAmbient: 'rgba(103, 44, 160, 0.16)',
-  glowNear: 'rgba(224, 142, 255, 0.30)',
+  glowAmbient: 'rgba(103, 44, 160, 0.05)',
+  glowNear: 'rgba(224, 142, 255, 0.12)',
   /** Progress track: recessed lavender-grey, glossy purple fill. */
-  trackTop: '#E4D9DF',
-  trackBottom: '#D8CBD9',
-  fillGlossTop: '#C177FF',
-  fillGlossMid: '#A343ED',
-  fillGlossLow: '#8530DB',
-  fillGlossBottom: '#7325CC',
+  trackTop: '#E7E5E6',
+  trackBottom: '#DEDBDE',
+  fillGlossTop: '#C66AFF',
+  fillGlossMid: '#B446F8',
+  fillGlossLow: '#9834F0',
+  fillGlossBottom: '#852CEC',
   /** CTA: horizontal colour sweep, then a vertical gloss overlay on top. */
-  ctaSweepA: '#D34CDB',
-  ctaSweepB: '#AA2CDB',
-  ctaSweepC: '#8326D8',
-  ctaSweepD: '#A735ED',
-  ctaSweepE: '#B85BFF',
-  ctaGlossTop: 'rgba(255, 255, 255, 0.45)',
+  ctaSweepA: '#ED6BFC',
+  ctaSweepB: '#BB43FF',
+  ctaSweepC: '#A326F9',
+  ctaSweepD: '#9221F2',
+  ctaSweepE: '#A345FF',
+  ctaGlossTop: 'rgba(255, 255, 255, 0.65)',
   ctaGlossMid: 'rgba(255, 255, 255, 0.08)',
-  ctaGlossLow: 'rgba(80, 0, 140, 0.13)',
-  ctaGlossBottom: 'rgba(58, 0, 105, 0.30)',
+  ctaGlossLow: 'rgba(101, 0, 255, 0.55)',
+  ctaGlossBottom: 'rgba(94, 0, 245, 0.78)',
   /** Opaque white rim (pixel-measured ~4px band around the CTA, not
    *  translucent) and a vivid pink halo outside it — the same saturated
    *  magenta family as the card border, not the duller purple it was. */
   ctaHaloInner: '#FFFFFF',
-  ctaHaloMid: 'rgba(247, 58, 159, 0.45)',
-  ctaHaloOuter: 'rgba(231, 68, 199, 0.30)',
+  ctaHaloMid: 'rgba(247, 58, 219, 0.24)',
+  ctaHaloOuter: 'rgba(231, 68, 199, 0.09)',
   /** Thumbnail frame: lavender gradient + small category badge. */
   thumbA: '#D0A8FF',
   thumbB: '#B994F2',

@@ -10,8 +10,8 @@
     {
       "name": "talki-mobile-web",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "web", "--workspace=mobile"],
-      "port": 8081
+      "runtimeArgs": ["run", "web", "--workspace=mobile", "--", "--port", "8092"],
+      "port": 8092
     },
     {
       "name": "talki-mobile-export",

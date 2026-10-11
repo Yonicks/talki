@@ -71,7 +71,7 @@ test.describe('Phase 7 / 20 Home', () => {
     await seedProgress(page, ['animals:כֶּלֶב'], 'animals');
     await expect(page.getByTestId(testIds.home.hero)).toBeVisible();
     await expect(page.getByTestId(testIds.home.hero)).toContainText('חיות');
-    await expect(page.getByTestId(testIds.home.heroContinue)).toHaveText('המשך ללמוד');
+    await expect(page.getByTestId(testIds.home.heroContinue)).toHaveAccessibleName('המשך ללמוד');
   });
 
   test('the hero is a welcome banner on a completely fresh app (learned.size === 0), not a fabricated 0% continue card', async ({
@@ -80,7 +80,7 @@ test.describe('Phase 7 / 20 Home', () => {
     await openApp(page);
     await expect(page.getByTestId(testIds.home.hero)).toBeVisible();
     await expect(page.getByTestId(testIds.home.hero)).toContainText('היי כאן דברי');
-    await expect(page.getByTestId(testIds.home.heroContinue)).toHaveText('מתחילים ללמוד');
+    await expect(page.getByTestId(testIds.home.heroContinue)).toHaveAccessibleName('מתחילים ללמוד');
   });
 
   test('all categories including mine remain reachable in the strip', async ({ page }) => {
