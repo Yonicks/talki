@@ -9,11 +9,11 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import { brand, introAssets } from '@/design-system/assets';
 import { TalkiText } from '@/design-system/components';
-import { shadowCard, shadowFloating, shadowSm } from '@/design-system/theme/shadows';
+import { shadowFloating, shadowSm } from '@/design-system/theme/shadows';
 import { fontFamily } from '@/design-system/theme/typography';
-import { v3 } from '@/design-system/theme/colors';
-import { homeMock } from './homeColors';
+import { heroCard, homeMock } from './homeColors';
 import { HOME_LAYOUT, useHomeMetrics, type HomeMetrics } from './homeLayout';
 import { LandscapeProgress } from './LandscapeProgress';
 import { LandscapeTouchSurface } from './LandscapeTouchSurface';
@@ -24,6 +24,10 @@ export interface LandscapeHeroPanelProps {
   subtitle?: string;
   progress?: number;
   progressLabel?: string;
+  /** Small caption under the progress bar naming the active category
+   *  (e.g. "קטגוריית חיות"), real data from the caller — never shown when
+   *  `progress` is omitted (the fresh/no-progress state has no category yet). */
+  progressCaption?: string;
   ctaLabel?: string;
   onCtaPress?: () => void;
   /** Defaults to `${testID}-cta` when testID is set. */
@@ -64,6 +68,7 @@ export function LandscapeHeroPanel({
   subtitle,
   progress,
   progressLabel,
+  progressCaption,
   ctaLabel,
   onCtaPress,
   ctaTestID,
@@ -90,6 +95,20 @@ export function LandscapeHeroPanel({
   const titleRoom =
     s(h.copyWidth) - (titleMark ? s(h.titleStarSize) + s(h.titleGap) : 0) - s(h.titleGroupShift);
   const titleSize = fitTextSize(title, s(h.titleSize), titleRoom, TITLE_FLOOR);
+  /** Panel-local x where the copy column begins — right of the thumbnail
+   *  and its gap, so anything placed at or past this x never overlaps the
+   *  thumbnail (used to park the decorative sparkles safely). */
+  const copyColStart = s(h.padInlineStart + h.thumbWidth + h.columnGap);
+  // Explicit px, not `width: '100%'` + `aspectRatio: 1`: Yoga on Android
+  // (Fabric) can skip the aspectRatio pass on first layout and collapse
+  // the image to zero size, leaving only the `thumbnailBackground` cover
+  // fill visible underneath (see `LandscapeCategoryCard`'s `imageSize`,
+  // which hit the same bug first).
+  // 0.8, not 1.0: the mock's cat sits well inside the frame with visible
+  // lavender gradient around it, not filling it edge to edge.
+  const thumbArtSize = (s(h.thumbWidth) - 2 * s(h.thumbFrame)) * 0.8;
+  const borderWidth = s(BORDER_THICKNESS);
+  const innerRadius = Math.max(0, s(h.radius) - borderWidth);
 
   return (
     <View
@@ -113,54 +132,158 @@ export function LandscapeHeroPanel({
         />
       ) : null}
 
+      {/* Layered halo behind the card — a wide, faint ambient wash and a
+          tighter, slightly stronger ring closer to the rim. Plain
+          translucent fills, not native blurred shadows (Android ignores
+          `shadowColor`/blur radius entirely; see theme/shadows.ts). */}
       <View
-        testID={testID ? `${testID}-panel` : undefined}
+        pointerEvents="none"
         style={[
-          styles.panel,
+          styles.glow,
+          {
+            backgroundColor: heroCard.glowAmbient,
+            width: s(h.width) + s(GLOW_AMBIENT_SPREAD) * 2,
+            height: panelHeight + s(GLOW_AMBIENT_SPREAD) * 2,
+            borderRadius: s(h.radius) + s(GLOW_AMBIENT_SPREAD),
+            top: -s(GLOW_AMBIENT_SPREAD),
+            insetInlineStart: -s(GLOW_AMBIENT_SPREAD),
+          },
+        ]}
+      />
+      <View
+        pointerEvents="none"
+        style={[
+          styles.glow,
+          {
+            backgroundColor: heroCard.glowNear,
+            width: s(h.width) + s(GLOW_NEAR_SPREAD) * 2,
+            height: panelHeight + s(GLOW_NEAR_SPREAD) * 2,
+            borderRadius: s(h.radius) + s(GLOW_NEAR_SPREAD),
+            top: -s(GLOW_NEAR_SPREAD),
+            insetInlineStart: -s(GLOW_NEAR_SPREAD),
+          },
+        ]}
+      />
+
+      {/* Gradient border frame: an outer pink→lavender→purple→cream
+          LinearGradient padded out by `borderWidth`, with the actual card
+          surface clipped inside it — a "gradient border" is not a React
+          Native style primitive, so the border itself is drawn as a filled
+          shape the inner content sits on top of. */}
+      <LinearGradient
+        testID={testID ? `${testID}-panel` : undefined}
+        colors={[heroCard.borderA, heroCard.borderB, heroCard.borderC, heroCard.borderD]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[
+          styles.borderFrame,
           shadowFloating,
           {
             width: s(h.width),
             height: panelHeight,
             borderRadius: s(h.radius),
-            paddingInlineStart: s(h.padInlineStart),
-            paddingInlineEnd: s(h.padInlineEnd),
-            gap: s(h.columnGap),
+            padding: borderWidth,
           },
         ]}
       >
-        {thumbnail ? (
+        <View
+          style={[
+            styles.panel,
+            {
+              borderRadius: innerRadius,
+              paddingInlineStart: s(h.padInlineStart),
+              paddingInlineEnd: s(h.padInlineEnd),
+              gap: s(h.columnGap),
+            },
+          ]}
+        >
+          <LinearGradient
+            colors={[heroCard.fillA, heroCard.fillB, heroCard.fillC, heroCard.fillD]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+          />
+          {/* Fakes a radial highlight (RN's LinearGradient has no radial
+              mode): a soft, large, low-opacity ellipse biased toward the
+              upper-left/centre, brightening that corner like the mock. */}
           <View
-            testID={testID ? `${testID}-thumb` : undefined}
+            pointerEvents="none"
             style={[
-              styles.thumbFrame,
-              shadowSm,
+              styles.highlightBlob,
               {
-                width: s(h.thumbWidth),
-                height: s(h.thumbHeight),
-                marginTop: s(h.thumbTop),
-                borderRadius: s(h.thumbRadius),
-                padding: s(h.thumbFrame),
+                width: s(h.width) * 0.85,
+                height: panelHeight * 0.85,
+                borderRadius: s(h.width) * 0.425,
+                top: panelHeight * 0.3 - (panelHeight * 0.85) / 2,
+                insetInlineStart: s(h.width) * 0.45 - (s(h.width) * 0.85) / 2,
               },
             ]}
-          >
-            <View style={[styles.thumbClip, { borderRadius: s(h.thumbRadius - h.thumbFrame) }]}>
-              {thumbnailBackground ? (
-                <Image
-                  source={thumbnailBackground}
-                  accessibilityIgnoresInvertColors
+          />
+          <View pointerEvents="none" style={[styles.innerHighlight, { borderRadius: innerRadius }]} />
+
+          {thumbnail ? (
+            <View
+              testID={testID ? `${testID}-thumb` : undefined}
+              style={[
+                styles.thumbFrame,
+                shadowSm,
+                {
+                  width: s(h.thumbWidth),
+                  height: s(h.thumbHeight),
+                  marginTop: s(h.thumbTop),
+                  borderRadius: s(h.thumbRadius),
+                  padding: s(h.thumbFrame),
+                },
+              ]}
+            >
+              <View style={[styles.thumbClip, { borderRadius: s(h.thumbRadius - h.thumbFrame) }]}>
+                <LinearGradient
+                  colors={[heroCard.thumbA, heroCard.thumbB, heroCard.thumbC]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
                   style={StyleSheet.absoluteFill}
-                  resizeMode="cover"
                 />
-              ) : null}
-              <Image
-                source={thumbnail}
-                accessibilityIgnoresInvertColors
-                style={styles.thumbArt}
-                resizeMode="contain"
-              />
+                {thumbnailBackground ? (
+                  <Image
+                    source={thumbnailBackground}
+                    accessibilityIgnoresInvertColors
+                    style={StyleSheet.absoluteFill}
+                    resizeMode="cover"
+                  />
+                ) : null}
+                <Image
+                  source={thumbnail}
+                  accessibilityIgnoresInvertColors
+                  style={{ width: thumbArtSize, height: thumbArtSize }}
+                  resizeMode="contain"
+                />
+              </View>
+              {/* Small category badge, overlapping the thumbnail's bottom-end
+                  corner (physical bottom-right in RTL) like the mock's paw
+                  tag — the brand star mark, not an invented per-category
+                  glyph (AGENTS.md 19: no fabricated placeholder art). */}
+              <View
+                style={[
+                  styles.thumbBadge,
+                  shadowSm,
+                  {
+                    width: s(h.thumbFrame) * 5,
+                    height: s(h.thumbFrame) * 5,
+                    borderRadius: s(h.thumbFrame) * 2.5,
+                    bottom: -s(h.thumbFrame) * 1.2,
+                    insetInlineEnd: -s(h.thumbFrame) * 1.2,
+                  },
+                ]}
+              >
+                <Image
+                  source={brand.starMark}
+                  accessibilityIgnoresInvertColors
+                  style={{ width: '62%', height: '62%' }}
+                  resizeMode="contain"
+                />
+              </View>
             </View>
-          </View>
-        ) : null}
+          ) : null}
 
         <View
           style={[
@@ -271,73 +394,255 @@ export function LandscapeHeroPanel({
               height={s(h.progressTrackHeight)}
               pillHeight={s(h.progressPillHeight)}
               pillWidth={s(h.progressPillWidth)}
-              padCount={s(h.progressPadCount)}
-              padTrack={s(h.progressPadTrack)}
               gap={s(h.progressGap)}
               labelSize={s(h.progressLabelSize)}
               style={{ marginTop: s(h.gapSubtitleProgress), alignSelf: 'flex-start', marginInlineStart: s(h.progressPillInset) }}
             />
           ) : null}
 
+          {progress !== undefined && progressCaption ? (
+            <TalkiText
+              weight="bold"
+              align="center"
+              color={homeMock.captionMuted}
+              numberOfLines={1}
+              style={{
+                fontFamily: fontFamily.heading.bold,
+                fontSize: s(11),
+                lineHeight: s(15),
+                marginTop: s(4),
+                marginInlineStart: s(h.progressPillInset),
+              }}
+            >
+              {progressCaption}
+            </TalkiText>
+          ) : null}
+
           {children}
 
-          {ctaLabel ? (
-            <View style={{ marginTop: s(h.gapProgressCta) }}>
-              <LandscapeTouchSurface
-                testID={resolvedCtaTestID}
-                accessibilityLabel={ctaLabel}
-                onPress={onCtaPress}
-                width={s(h.copyWidth)}
-                height={s(h.ctaHeight)}
-                borderRadius={s(h.ctaHeight) / 2}
-                // The disc sits 2 px in from the rim at top/bottom but ~4.5 px in
-                // at its own end: padding on the disc's side of the row.
-                surfaceStyle={[styles.cta, shadowCard, { paddingInlineEnd: s(h.ctaPlayInset) }]}
-              >
-                <LinearGradient
-                  colors={[homeMock.ctaTop, homeMock.ctaBottom]}
-                  style={StyleSheet.absoluteFill}
-                />
-                <View pointerEvents="none" style={[styles.ctaGloss, { height: s(1.2), insetInline: s(22) }]} />
-                <TalkiText
-                  weight="extrabold"
-                  align="center"
-                  color="#fff"
-                  numberOfLines={1}
-                  style={[
-                    styles.ctaLabel,
-                    {
-                      fontFamily: fontFamily.heading.medium,
-                      fontSize: s(h.ctaLabelSize),
-                      lineHeight: s(h.ctaLabelSize * 1.3),
-                      // The mock sits the label slightly left of the free space
-                      // between the disc and the CTA's end (start padding =
-                      // physical right in RTL).
-                      paddingInlineStart: s(h.ctaLabelShift),
-                      paddingTop: s(h.ctaLabelDrop),
-                    },
-                  ]}
-                >
-                  {ctaLabel}
-                </TalkiText>
-                <View
-                  style={[
-                    styles.ctaIconWrap,
-                    shadowSm,
-                    {
-                      width: s(h.ctaPlaySize),
-                      height: s(h.ctaPlaySize),
-                      borderRadius: s(h.ctaPlaySize) / 2,
-                    },
-                  ]}
-                >
-                  <PlayTriangle size={s(h.ctaPlaySize) * 0.4} />
-                </View>
-              </LandscapeTouchSurface>
-            </View>
+          {/* In-flow CTA: only the fresh/no-progress state renders it here
+              (sized to the copy column). The returning state's CTA is wider
+              than the copy column and not flush to its edges (pixel-measured
+              off the reference), so it renders as a panel-level sibling
+              below, positioned absolutely instead of flowing in this
+              column. */}
+          {ctaLabel && progress === undefined ? (
+            <HeroCta
+              h={h}
+              s={s}
+              ctaLabel={ctaLabel}
+              onCtaPress={onCtaPress}
+              testID={resolvedCtaTestID}
+              width={s(h.copyWidth)}
+              style={{ marginTop: s(h.gapProgressCta) }}
+            />
           ) : null}
         </View>
+
+        {/* Panel-level sibling of `copyCol` (not `row`-level): its
+            `insetInlineEnd`/`top` are measured relative to the card itself,
+            which is narrower than `row` (`row` also reserves space for the
+            mascot) — positioning this outside the panel would offset it by
+            that gap. */}
+        {ctaLabel && progress !== undefined ? (
+          <HeroCta
+            h={h}
+            s={s}
+            ctaLabel={ctaLabel}
+            onCtaPress={onCtaPress}
+            testID={resolvedCtaTestID}
+            width={s(h.ctaWidth)}
+            style={{
+              position: 'absolute',
+              top: s(h.ctaTop),
+              insetInlineEnd: s(h.ctaInsetEnd),
+              zIndex: 4,
+            }}
+          />
+        ) : null}
+        </View>
+      </LinearGradient>
+
+      {/* Decorative sparkles, placed in the copy column's clear top margin —
+          right of the thumbnail+gap, above where the title row starts
+          (`copyColStart`/`s(h.padTop)`) — so they never sit under the
+          thumbnail or the title/CTA content and are never clipped by the
+          panel's own `overflow: hidden`. */}
+      <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.sparkleLayer]}>
+        <Image
+          source={introAssets.sparkleYellow}
+          accessibilityIgnoresInvertColors
+          style={[
+            styles.sparkle,
+            {
+              width: s(15),
+              height: s(15),
+              top: s(5),
+              insetInlineStart: copyColStart + s(h.copyWidth) * 0.12,
+              opacity: 0.9,
+              transform: [{ rotate: '-14deg' }],
+            },
+          ]}
+          resizeMode="contain"
+        />
+        <Image
+          source={introAssets.sparkleSmall}
+          accessibilityIgnoresInvertColors
+          style={[
+            styles.sparkle,
+            {
+              width: s(9),
+              height: s(9),
+              top: s(9),
+              insetInlineStart: copyColStart + s(h.copyWidth) * 0.82,
+              opacity: 0.75,
+              transform: [{ rotate: '10deg' }],
+            },
+          ]}
+          resizeMode="contain"
+        />
       </View>
+    </View>
+  );
+}
+
+/**
+ * The hero's premium CTA pill — halo rings, the two-layer gradient surface,
+ * gloss and bottom-shadow overlays, the play disc. Factored out of
+ * `LandscapeHeroPanel` so it can render at two different sizes/positions:
+ * in-flow (sized to the copy column, fresh/no-progress state) or as an
+ * absolutely-positioned panel sibling (wider, not flush to the copy
+ * column — the returning state, pixel-measured off the reference).
+ */
+function HeroCta({
+  h,
+  s,
+  ctaLabel,
+  onCtaPress,
+  testID,
+  width,
+  style,
+}: {
+  h: typeof HOME_LAYOUT.hero;
+  s: HomeMetrics['s'];
+  ctaLabel: string;
+  onCtaPress?: () => void;
+  testID?: string;
+  width: number;
+  style?: StyleProp<ViewStyle>;
+}) {
+  return (
+    <View style={style}>
+      {/* Outer pink halo, two rings (inner near-white, outer pink) — the
+          "without it the button looks flat" glow. Sibling of the touch
+          surface, not a shadow prop: Android drops `shadowColor` entirely
+          (theme/shadows.ts), so a coloured glow has to be a plain painted
+          ring to show up there. */}
+      <View
+        pointerEvents="none"
+        style={[
+          styles.ctaHalo,
+          {
+            backgroundColor: heroCard.ctaHaloOuter,
+            width: width + s(CTA_HALO_OUTER) * 2,
+            height: s(h.ctaHeight) + s(CTA_HALO_OUTER) * 2,
+            borderRadius: (s(h.ctaHeight) + s(CTA_HALO_OUTER) * 2) / 2,
+            top: -s(CTA_HALO_OUTER),
+            insetInlineStart: -s(CTA_HALO_OUTER),
+          },
+        ]}
+      />
+      <View
+        pointerEvents="none"
+        style={[
+          styles.ctaHalo,
+          {
+            backgroundColor: heroCard.ctaHaloMid,
+            width: width + s(CTA_HALO_INNER) * 2,
+            height: s(h.ctaHeight) + s(CTA_HALO_INNER) * 2,
+            borderRadius: (s(h.ctaHeight) + s(CTA_HALO_INNER) * 2) / 2,
+            top: -s(CTA_HALO_INNER),
+            insetInlineStart: -s(CTA_HALO_INNER),
+          },
+        ]}
+      />
+      <LandscapeTouchSurface
+        testID={testID}
+        accessibilityLabel={ctaLabel}
+        onPress={onCtaPress}
+        width={width}
+        height={s(h.ctaHeight)}
+        borderRadius={s(h.ctaHeight) / 2}
+        pressedScale={0.97}
+        // The disc sits 2 px in from the rim at top/bottom but ~4.5 px in
+        // at its own end: padding on the disc's side of the row.
+        surfaceStyle={[
+          styles.cta,
+          { paddingInlineEnd: s(h.ctaPlayInset), borderColor: heroCard.ctaHaloInner, borderWidth: 4 },
+        ]}
+      >
+        {/* Two separate gradient effects, stacked: a horizontal colour
+            sweep for variation, then a vertical gloss overlay for the
+            glossy, raised, three-dimensional look. */}
+        <LinearGradient
+          colors={[heroCard.ctaSweepA, heroCard.ctaSweepB, heroCard.ctaSweepC, heroCard.ctaSweepD, heroCard.ctaSweepE]}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <LinearGradient
+          colors={[heroCard.ctaGlossTop, heroCard.ctaGlossMid, 'transparent', heroCard.ctaGlossLow, heroCard.ctaGlossBottom]}
+          locations={[0, 0.18, 0.38, 0.75, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <View pointerEvents="none" style={[styles.ctaGloss, { height: s(1.2), insetInline: s(22) }]} />
+        {/* Faint inset bottom shadow (spec: `inset 0 -4px 6px`) — no RN
+            inset-shadow primitive, so a short vertical fade pinned to the
+            bottom edge fakes it. */}
+        <LinearGradient
+          pointerEvents="none"
+          colors={['transparent', heroCard.ctaGlossBottom]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={[styles.ctaBottomShadow, { height: s(h.ctaHeight) * 0.3 }]}
+        />
+        <TalkiText
+          weight="extrabold"
+          align="center"
+          color="#fff"
+          numberOfLines={1}
+          style={[
+            styles.ctaLabel,
+            {
+              fontFamily: fontFamily.heading.medium,
+              fontSize: s(h.ctaLabelSize),
+              lineHeight: s(h.ctaLabelSize * 1.3),
+              // The mock sits the label slightly left of the free space
+              // between the disc and the CTA's end (start padding =
+              // physical right in RTL).
+              paddingInlineStart: s(h.ctaLabelShift),
+              paddingTop: s(h.ctaLabelDrop),
+            },
+          ]}
+        >
+          {ctaLabel}
+        </TalkiText>
+        <View
+          style={[
+            styles.ctaIconWrap,
+            shadowSm,
+            {
+              width: s(h.ctaPlaySize),
+              height: s(h.ctaPlaySize),
+              borderRadius: s(h.ctaPlaySize) / 2,
+            },
+          ]}
+        >
+          <PlayTriangle size={s(h.ctaPlaySize) * 0.4} />
+        </View>
+      </LandscapeTouchSurface>
     </View>
   );
 }
@@ -388,6 +693,15 @@ function fitTextSize(text: string, base: number, room: number, floor: number): n
 /** `talki-hero-star.webp` is 640 × 618 edge-to-edge (no transparent margin). */
 const MASCOT_ASPECT = 640 / 618;
 
+/** Flat (unscaled mock px) spread of the card's two outer glow rings. */
+const GLOW_AMBIENT_SPREAD = 14;
+const GLOW_NEAR_SPREAD = 7;
+/** Flat (unscaled mock px) thickness of the gradient border frame. */
+const BORDER_THICKNESS = 5;
+/** Flat (unscaled mock px) spread of the CTA's two outer glow rings. */
+const CTA_HALO_OUTER = 8;
+const CTA_HALO_INNER = 3.5;
+
 const styles = StyleSheet.create({
   row: {
     position: 'relative',
@@ -397,37 +711,66 @@ const styles = StyleSheet.create({
     position: 'absolute',
     zIndex: 1,
   },
-  panel: {
+  borderFrame: {
+    // The gradient border frame — absolutely positioned like the old flat
+    // `panel` was; its `padding` (`borderWidth` in the render fn) is the
+    // border thickness, with `panel` filling the rest.
     position: 'absolute',
     top: 0,
     insetInlineStart: 0,
     zIndex: 2,
+  },
+  panel: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: homeMock.surface,
-    flexShrink: 0,
+    overflow: 'hidden',
+  },
+  glow: {
+    position: 'absolute',
+    zIndex: 1,
+  },
+  highlightBlob: {
+    position: 'absolute',
+    backgroundColor: heroCard.highlight,
+  },
+  innerHighlight: {
+    position: 'absolute',
+    top: 1,
+    bottom: 1,
+    insetInlineStart: 1,
+    insetInlineEnd: 1,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.55)',
+  },
+  sparkleLayer: {
+    // Painted above `borderFrame` (zIndex 2): a sibling layer, not a panel
+    // child, so it must out-rank the card explicitly or the opaque surface
+    // paints over it despite sitting at identical screen coordinates.
+    zIndex: 3,
+  },
+  sparkle: {
+    position: 'absolute',
   },
   thumbFrame: {
     backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: 'rgba(60, 40, 110, 0.08)',
+    borderWidth: 1.5,
+    borderColor: heroCard.thumbB,
     flexShrink: 0,
   },
   thumbClip: {
     flex: 1,
     overflow: 'hidden',
-    backgroundColor: v3.purple050,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  thumbArt: {
-    // The category art is square; the mock's thumbnail frame is portrait, so
-    // fitting the art to the frame's *width* leaves it floating in a band of
-    // empty scenery. Oversizing it past the frame width and letting the clip
-    // trim the corners fills the frame the way the mock draws it, without
-    // cropping into the character's head.
-    width: '116%',
-    aspectRatio: 1,
+  thumbBadge: {
+    position: 'absolute',
+    backgroundColor: heroCard.badgeFill,
+    borderWidth: 2,
+    borderColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   copyCol: {
     flexShrink: 0,
@@ -438,15 +781,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  ctaHalo: {
+    position: 'absolute',
+  },
   cta: {
-    // Soft rim like the mock: a firm dark edge only along the bottom, a faint
-    // one at the ends, and none on top where the gloss line sits.
-    borderTopWidth: 0,
-    borderBottomWidth: 1.6,
-    borderStartWidth: 1,
-    borderEndWidth: 1,
-    borderColor: homeMock.ctaRimSide,
-    borderBottomColor: homeMock.ctaRim,
     flexDirection: 'row',
     alignItems: 'center',
     overflow: 'hidden',
@@ -457,6 +795,12 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: homeMock.ctaHighlight,
     opacity: 0.4,
+  },
+  ctaBottomShadow: {
+    position: 'absolute',
+    bottom: 0,
+    insetInlineStart: 0,
+    insetInlineEnd: 0,
   },
   ctaIconWrap: {
     backgroundColor: '#fff',

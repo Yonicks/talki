@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AdBanner } from '../src/components/shell/AdBanner';
 
+import { hideAndroidNavigationBar } from '../src/services/androidNavigationBar';
 import { forceRTL } from '../src/design-system/rtl/forceRTL';
 import { v3 } from '../src/design-system/theme/colors';
 import { useTalkiFonts } from '../src/design-system/theme/useTalkiFonts';
@@ -71,6 +72,7 @@ export default function RootLayout() {
      site exists anymore (see docs/migration/phase-17-report.md). */
   useEffect(() => {
     void orientationService.lockLandscape();
+    void hideAndroidNavigationBar();
   }, []);
 
   const params = useGlobalSearchParams() as { intro?: string };

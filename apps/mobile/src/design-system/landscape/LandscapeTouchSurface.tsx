@@ -16,6 +16,11 @@ export interface LandscapeTouchSurfaceProps {
   onPressIn?: (e: GestureResponderEvent) => void;
   onPressOut?: (e: GestureResponderEvent) => void;
   onTouchMove?: (e: GestureResponderEvent) => void;
+  /** Opt-in: scale down slightly on press (e.g. 0.97) in addition to the
+   *  default translateY feedback every surface already gets. Off by
+   *  default so existing call sites (category cards, arrows) keep their
+   *  current feel; the hero CTA is the first to opt in. */
+  pressedScale?: number;
   children?: ReactNode;
 }
 
@@ -40,6 +45,7 @@ export function LandscapeTouchSurface({
   onPressIn,
   onPressOut,
   onTouchMove,
+  pressedScale,
   children,
 }: LandscapeTouchSurfaceProps) {
   const boxW = Math.max(width, LANDSCAPE_MIN_TOUCH);
@@ -66,6 +72,7 @@ export function LandscapeTouchSurface({
             { width, height, borderRadius },
             surfaceStyle,
             pressed && styles.pressed,
+            pressed && pressedScale ? { transform: [{ translateY: 2 }, { scale: pressedScale }] } : null,
           ]}
         >
           {children}

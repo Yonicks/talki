@@ -10,8 +10,8 @@ import {
   homeHeroInsetStart,
   homeHeroPanelHeight,
   homeHeroTop,
+  homeMetricsFor,
   homeStripMetrics,
-  useHomeMetrics,
 } from '@/design-system/landscape';
 import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
 import {
@@ -62,7 +62,16 @@ export function HomeScreen() {
   const push = useGuardedPush();
   const replace = useGuardedReplace();
   const layout = useLandscapeLayout();
-  const metrics = useHomeMetrics();
+  // The mock runs the stage edge to edge horizontally — header icons and
+  // carousel arrows sit close to the physical corners (home.png). A
+  // landscape-rotated camera cutout's OS safe-area inset only ever covers a
+  // band around the screen's vertical centre on one edge, nowhere near
+  // these corner controls, so padding the whole stage by it (symmetrically
+  // or not) just pushes everything inward for no real protection. Home
+  // therefore ignores left/right safe-area insets entirely, matching the
+  // mock; `sideInset` stays 0 unless a future device proves this wrong.
+  const sideInset = 0;
+  const metrics = homeMetricsFor(layout.width, layout.usableHeight);
   const data = useHomeData();
   const { settings, toggleMusic } = useSettingsStore();
   const parent = useParentBrand();
@@ -80,7 +89,6 @@ export function HomeScreen() {
     return <LandscapeScreen testID={testIds.home.root}>{null}</LandscapeScreen>;
   }
 
-  const heroIndex = data.hero ? categories.findIndex((c) => c.id === data.hero!.id) : 0;
   const strip = homeStripMetrics(metrics);
   const heroRowWidth = metrics.s(HOME_LAYOUT.hero.rowWidth);
   const heroTop = homeHeroTop(metrics, strip, homeHeroPanelHeight(metrics));
@@ -103,11 +111,12 @@ export function HomeScreen() {
             paddingTop: layout.safeInsets.top,
             paddingBottom: layout.safeInsets.bottom,
             // Physical OS safe-area edges — a notch sits on a physical side
-            // regardless of text direction.
+            // regardless of text direction. Symmetric (see `sideInset`
+            // above), not `layout.safeInsets.left/right` individually.
             // eslint-disable-next-line no-restricted-syntax
-            paddingLeft: layout.safeInsets.left,
+            paddingLeft: sideInset,
             // eslint-disable-next-line no-restricted-syntax
-            paddingRight: layout.safeInsets.right,
+            paddingRight: sideInset,
           },
         ]}
       >
@@ -144,7 +153,6 @@ export function HomeScreen() {
                 learned={data.heroLearned}
                 points={data.points}
                 metrics={metrics}
-                backgroundIndex={heroIndex < 0 ? 0 : heroIndex}
                 onContinue={() => openCategory(data.hero!.id)}
               />
             </View>

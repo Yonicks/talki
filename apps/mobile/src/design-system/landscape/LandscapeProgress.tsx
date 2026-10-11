@@ -2,10 +2,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { TalkiText } from '@/design-system/components';
-import { shadowSm } from '@/design-system/theme/shadows';
 import { v2, v3 } from '@/design-system/theme/colors';
 import { fontFamily } from '@/design-system/theme/typography';
-import { homeMock } from './homeColors';
+import { heroCard, homeMock } from './homeColors';
 
 export type LandscapeProgressLayout = 'below' | 'inline';
 
@@ -16,8 +15,8 @@ export interface LandscapeProgressProps {
   /**
    * `below` (default) — the original landscape bar with its count under the
    * track, used by the category/word screens.
-   * `inline` — the v3 Home hero treatment: a white pill holding the count at
-   * the physical start and a recessed track filling the rest.
+   * `inline` — the redesigned Home hero treatment: a bare recessed track
+   * (no pill chrome) with the count as plain text after its physical end.
    */
   layout?: LandscapeProgressLayout;
   /** Track thickness (dp). Defaults to the historical 12. */
@@ -26,10 +25,6 @@ export interface LandscapeProgressProps {
   pillHeight?: number;
   /** `inline` only — outer white pill width (dp); omit to fill the parent. */
   pillWidth?: number;
-  /** `inline` only — padding (dp) left of the count / right of the track (the
-   *  row is physically left-to-right, so these are not logical start/end). */
-  padCount?: number;
-  padTrack?: number;
   /** `inline` only — gap (dp) between the count and the track. */
   gap?: number;
   /** `inline` only — fixed width (dp) of the count's box; omit to size to the text. */
@@ -43,10 +38,12 @@ export interface LandscapeProgressProps {
  * Child-facing landscape progress bar — purple fill on a recessed track.
  *
  * The `inline` variant runs physically left-to-right even in Hebrew, because
- * that is what the approved v3 Home mock draws (count on the left, fill
- * growing rightwards). `row-reverse` is what pins both: under RTL it lays a
- * row out starting from the physical left. The count itself is a digit pair
- * that reads LTR regardless.
+ * that is what the redesigned Home hero draws: track on the physical left
+ * (fill growing rightwards), count after it on the physical right. Plain
+ * `row` achieves this under forced RTL — a row's first child sits at the
+ * physical *start* (right) under RTL, so the label (first in JSX) lands
+ * right and the track (second) lands left. The count itself is a digit
+ * pair that reads LTR regardless.
  */
 export function LandscapeProgress({
   value,
@@ -55,8 +52,6 @@ export function LandscapeProgress({
   height,
   pillHeight,
   pillWidth,
-  padCount,
-  padTrack,
   gap,
   labelWidth,
   labelSize,
@@ -72,16 +67,10 @@ export function LandscapeProgress({
         testID={testID}
         style={[
           styles.pill,
-          shadowSm,
           {
             height: pillHeight ?? trackHeight + 14,
             width: pillWidth,
-            borderRadius: 999,
-            // Row is physically LTR (row-reverse under RTL): the count side is
-            // the physical left = inline end, the track side the right.
-            paddingInlineEnd: padCount ?? trackHeight * 0.6,
-            paddingInlineStart: padTrack ?? trackHeight * 0.6,
-            gap: gap ?? trackHeight * 0.8,
+            gap: gap ?? trackHeight * 0.4,
           },
           style,
         ]}
@@ -102,14 +91,24 @@ export function LandscapeProgress({
           </TalkiText>
         ) : null}
         <View
-          style={[styles.track, styles.inlineTrack, { height: trackHeight }]}
+          style={[styles.track, styles.inlineTrack, { height: trackHeight, flex: pillWidth ? 1 : undefined }]}
           accessibilityRole="progressbar"
           accessibilityValue={{ min: 0, max: 100, now: Math.round(clamped * 100) }}
         >
           <LinearGradient
-            colors={[homeMock.fillTop, homeMock.fillBottom]}
-            style={[styles.fill, { width: `${clamped * 100}%` }]}
+            colors={[heroCard.trackTop, heroCard.trackBottom]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={StyleSheet.absoluteFill}
           />
+          <LinearGradient
+            colors={[heroCard.fillGlossTop, heroCard.fillGlossMid, heroCard.fillGlossLow, heroCard.fillGlossBottom]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={[styles.fill, { width: `${clamped * 100}%` }]}
+          >
+            <View style={styles.fillGloss} pointerEvents="none" />
+          </LinearGradient>
         </View>
       </View>
     );
@@ -136,11 +135,12 @@ export function LandscapeProgress({
 const styles = StyleSheet.create({
   wrap: { gap: 4 },
   pill: {
-    // Physical LTR: the mock's count sits on the left and the fill grows
-    // rightwards — see the component doc block.
-    flexDirection: 'row-reverse',
+    // Plain `row`: under forced RTL a row's first child (the count) sits at
+    // the physical start (right), so the track (second child) lands at the
+    // physical left — see the component doc block. No background/shadow —
+    // the redesigned card has no white pill chrome, just a bare track.
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
   track: {
     borderRadius: 999,
@@ -152,14 +152,25 @@ const styles = StyleSheet.create({
   inlineTrack: {
     flex: 1,
     flexDirection: 'row-reverse',
-    backgroundColor: homeMock.track,
     borderWidth: 0,
     borderTopWidth: 1,
     borderTopColor: homeMock.trackEdge,
+    overflow: 'hidden',
   },
   fill: {
     height: '100%',
     borderRadius: 999,
+    overflow: 'hidden',
+  },
+  fillGloss: {
+    position: 'absolute',
+    top: 0,
+    insetInlineStart: 0,
+    insetInlineEnd: 0,
+    height: '45%',
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+    borderStartStartRadius: 999,
+    borderStartEndRadius: 999,
   },
   flatFill: { backgroundColor: v3.purple600 },
   label: { fontSize: 12, alignSelf: 'flex-end' },

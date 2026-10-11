@@ -43,7 +43,9 @@ describe('Home mock geometry', () => {
     const h = HOME_LAYOUT.hero;
     expect(h.width * MOCK_PX_PER_DP).toBeCloseTo(792.5, 0);
     expect(h.height * MOCK_PX_PER_DP).toBeCloseTo(371, 0);
-    expect(h.copyWidth * MOCK_PX_PER_DP).toBeCloseTo(398, 0);
+    // `copyWidth` differs from the legacy mock's 398 — pixel-measured off
+    // the premium-card reference (see homeLayout.ts's `hero` comment).
+    expect(h.copyWidth * MOCK_PX_PER_DP).toBeCloseTo(426, 0);
     expect(HOME_LAYOUT.header.height * MOCK_PX_PER_DP).toBeCloseTo(88, 0);
   });
 
@@ -80,7 +82,9 @@ describe.each(DEVICES)('Home strip on $name', ({ w, h }) => {
     expect(strip.cardWidth).toBeGreaterThanOrEqual(48);
     expect(strip.arrowSize).toBeGreaterThanOrEqual(48);
     const bottom = strip.top + strip.cardHeight;
-    expect(bottom).toBeLessThanOrEqual(metrics.stageHeight - 8);
+    // `STRIP_BOTTOM_AIR` in homeLayout.ts — 5dp flat clearance above the ad
+    // strip (reduced from 8dp per an explicit design request).
+    expect(bottom).toBeLessThanOrEqual(metrics.stageHeight - 5);
   });
 
   it('places the hero card between the header and the strip without overlapping either', () => {
