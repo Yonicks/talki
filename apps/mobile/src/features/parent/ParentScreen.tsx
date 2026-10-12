@@ -1,16 +1,17 @@
+/* eslint-disable no-restricted-syntax -- mock-unit layout constants are physical canvas coordinates */
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { TalkiHeading, TalkiText } from '@/design-system/components';
-import { landscapeTokens } from '@/design-system/landscape';
-import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
-import { v3 } from '@/design-system/theme/colors';
-import { radii } from '@/design-system/theme/radii';
+import { landscapeScenes } from '@/design-system/assets';
+import { MockBox, MockHeader, MockStage, MockText, mockInk, useMockUnits } from '@/design-system/landscape';
+import { fontFamily } from '@/design-system/theme/typography';
+import { homeHref } from '@/domain/navigation/routes';
+import { useProgressStore } from '@/state/progressStore';
+import { useSettingsStore } from '@/state/settingsStore';
 import { testIds } from '@/testing/testIds';
 
 import { ParentGateScreen } from './ParentGateScreen';
-import { ParentShell } from './ParentShell';
 import { MethodTab } from './tabs/MethodTab';
 import { RecordTab } from './tabs/RecordTab';
 import { ReportTab } from './tabs/ReportTab';
@@ -28,90 +29,102 @@ const TABS = [
 
 type TabId = (typeof TABS)[number][0];
 
+/** Parent Center composition in mock units (mock "ChatGPT Image …-2"); panel and card are baked into the scene. */
+const CENTER = {
+  title: { left: 693, top: 164, width: 300, height: 70 },
+  back: { left: 1236, top: 178, width: 96, height: 48 },
+  tabTop: 237,
+  tabH: 73,
+  tabs: [
+    { left: 1195, width: 150 },
+    { left: 1040, width: 145 },
+    { left: 872, width: 158 },
+    { left: 748, width: 114 },
+    { left: 598, width: 140 },
+  ],
+  content: { left: 350, top: 345, width: 990, height: 352 },
+} as const;
+
+function TabPill({ id, label, on, spec, onPress }: { id: TabId; label: string; on: boolean; spec: { left: number; width: number }; onPress: () => void }) {
+  const { u } = useMockUnits();
+  return (
+    <Pressable
+      testID={testIds.parent.tab(id)}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: on }}
+      onPress={onPress}
+      style={[
+        styles.tab,
+        on && styles.tabOn,
+        {
+          position: 'absolute',
+          left: spec.left * u,
+          top: CENTER.tabTop * u,
+          width: spec.width * u,
+          height: CENTER.tabH * u,
+          borderRadius: 34 * u,
+        },
+      ]}
+    >
+      <Text style={{ fontFamily: on ? fontFamily.body.extrabold : fontFamily.body.regular, fontSize: 31 * u, color: mockInk, writingDirection: 'rtl' }}>{label}</Text>
+    </Pressable>
+  );
+}
+
 /**
- * Parent Center host — landscape (Phase 27).
- * Gate → unlocked tabs. One tab mounted at a time (no conflicting stacks).
- * Horizontal tab strip for short landscape height; adult form scroll OK.
+ * Parent Center host, drawn to the mock. Gate -> unlocked tabs; one tab mounted at
+ * a time. The tab content scrolls inside the cream card the scene paints.
  */
 export function ParentScreen() {
   const { unlocked, unlock } = useParentLock();
   const [tab, setTab] = useState<TabId>('settings');
   const router = useRouter();
-  const layout = useLandscapeLayout();
-  const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
+  const learned = useProgressStore((s) => s.learned);
+  const { settings, toggleMusic } = useSettingsStore();
 
   if (!unlocked) {
     return <ParentGateScreen onUnlocked={unlock} />;
   }
 
   return (
-    <ParentShell
-      testID={testIds.parent.root}
-      header={
-        <View style={[styles.header, { minHeight: tokens.topBarMinHeight, paddingInline: tokens.padInline }]}>
-          <Pressable
-            testID={testIds.parent.gateBack}
-            accessibilityRole="button"
-            onPress={() => router.back()}
-            style={styles.back}
-          >
-            <TalkiText weight="semibold">חזרה</TalkiText>
-          </Pressable>
-          <TalkiHeading level={2}>מסך הורים</TalkiHeading>
-          <View style={styles.back} />
+    <MockStage testID={testIds.parent.root} withAd scene={landscapeScenes.parent}>
+      <MockHeader
+        points={learned.size}
+        musicOn={settings.music}
+        onToggleMusic={() => void toggleMusic()}
+        onBack={() => router.back()}
+        onHome={() => router.replace(homeHref)}
+        testID="parent-center-header"
+      />
+      <MockBox {...CENTER.title} pointerEvents="none">
+        <MockText size={52} color="#3B1A7C">
+          מסך הורים
+        </MockText>
+      </MockBox>
+      <MockBox testID={testIds.parent.gateBack} accessibilityLabel="חזרה" onPress={() => router.back()} {...CENTER.back} style={styles.center}>
+        <MockText size={30} weight="regular" color="#3B1A7C">
+          חזרה
+        </MockText>
+      </MockBox>
+      {TABS.map(([id, label], i) => (
+        <TabPill key={id} id={id} label={label} on={tab === id} spec={CENTER.tabs[i]!} onPress={() => setTab(id)} />
+      ))}
+      <MockBox {...CENTER.content}>
+        <View style={styles.fill}>
+          {tab === 'settings' ? <SettingsTab /> : null}
+          {tab === 'record' ? <RecordTab /> : null}
+          {tab === 'words' ? <WordsTab /> : null}
+          {tab === 'report' ? <ReportTab /> : null}
+          {tab === 'method' ? <MethodTab /> : null}
         </View>
-      }
-      tabs={
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[styles.tabs, { gap: Math.max(6, tokens.gap - 4), paddingInline: tokens.padInline }]}
-          keyboardShouldPersistTaps="handled"
-        >
-          {TABS.map(([id, label]) => (
-            <Pressable
-              key={id}
-              testID={testIds.parent.tab(id)}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: tab === id }}
-              onPress={() => setTab(id)}
-              style={[styles.tab, tab === id && styles.tabOn]}
-            >
-              <TalkiText weight="semibold">{label}</TalkiText>
-            </Pressable>
-          ))}
-        </ScrollView>
-      }
-    >
-      {tab === 'settings' ? <SettingsTab /> : null}
-      {tab === 'record' ? <RecordTab /> : null}
-      {tab === 'words' ? <WordsTab /> : null}
-      {tab === 'report' ? <ReportTab /> : null}
-      {tab === 'method' ? <MethodTab /> : null}
-    </ParentShell>
+      </MockBox>
+    </MockStage>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBlock: 4,
-  },
-  back: { minHeight: 48, minWidth: 48, justifyContent: 'center' },
-  tabs: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingBlockEnd: 6,
-  },
-  tab: {
-    minHeight: 48,
-    paddingInline: 12,
-    borderRadius: radii.btn,
-    borderWidth: 1,
-    borderColor: v3.borderSoft,
-    justifyContent: 'center',
-  },
-  tabOn: { borderColor: v3.purple600, backgroundColor: v3.surface },
+  fill: { flex: 1, minHeight: 0 },
+  center: { alignItems: 'center', justifyContent: 'center' },
+  tab: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFBF1', borderWidth: 2, borderColor: '#EEDDB8' },
+  tabOn: { backgroundColor: '#F1E8FF', borderColor: '#8A55EA', borderWidth: 3 },
 });

@@ -29,7 +29,7 @@ if vp == 'ref' or True:
 ref.save(os.path.join(d, 'reference.png'))
 a = np.asarray(act).astype(np.int16); r = np.asarray(ref).astype(np.int16)
 # the mock's test-ad band (bottom 12 %) is native in the app: excluded from metrics
-ad = int(r.shape[0] * 697 / 790) if (sc['crop'] and sc.get('ad', True)) else r.shape[0]
+ad = sc['adY'] if sc.get('adY') else (int(r.shape[0] * 697 / 790) if (sc['crop'] and sc.get('ad', True)) else r.shape[0])
 delta = np.abs(a - r).max(-1)
 m = {
     'label': label, 'size': list(ref.size), 'note': note,

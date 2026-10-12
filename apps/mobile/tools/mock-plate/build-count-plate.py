@@ -48,5 +48,9 @@ chrome = np.zeros((h, w), np.uint8)
 for r in [(80, 64, 182, 158), (748, 68, 1018, 155), (1338, 66, 1696, 155), (62, 388, 125, 448), (398, 745, 1378, 842), (840, 748, 935, 778)]:
     rect(chrome, r, 4)
 out = cv2.inpaint(img, chrome, 7, cv2.INPAINT_TELEA)
-out[697:] = cv2.GaussianBlur(out[697 - (h - 697):697][::-1], (0, 0), 1.2)
+# the answer pills are baked into this scene, so reflecting the rows above would mirror them:
+# continue the meadow from the clean ground strip just above the pills instead
+strip = out[556:588]
+tile = np.concatenate([strip[::-1], strip] * 3, axis=0)[: h - 697]
+out[697:] = cv2.GaussianBlur(tile, (0, 0), 1.2)
 Image.fromarray(out).save(sys.argv[1], quality=88)

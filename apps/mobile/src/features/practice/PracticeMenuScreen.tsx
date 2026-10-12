@@ -1,32 +1,26 @@
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView } from 'react-native';
 
 import { ToastHost } from '@/components/shell';
-import {
-  LandscapeActivityCard,
-  LandscapeActivityGrid,
-  landscapeTokens,
-} from '@/design-system/landscape';
-import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
+import { hubMockArt } from '@/design-system/assets';
+import { MockBox, MockHubCard } from '@/design-system/landscape';
 import { gameCatChips } from '@/domain/games/gameCatChips';
 import { PRACTICE_LIST } from '@/domain/practice/list';
 import { practiceCardImage } from '@/domain/practice/practiceCards';
 import { practiceHref } from '@/domain/navigation/routes';
 import type { CategoryId, PracticeModeId } from '@/domain/types';
-import { HubCategoryHeader } from '@/features/games/HubCategoryHeader';
-import { LandscapeHubFrame } from '@/features/shell/LandscapeHubFrame';
+import { GameCatChipRow } from '@/features/games/GameCatChipRow';
+import { MockHubFrame } from '@/features/shell/MockHubFrame';
 import { useGuardedPush } from '@/hooks/useGuardedPush';
 import { useParentBrand } from '@/hooks/useParentBrand';
 import { useProgressStore } from '@/state/progressStore';
 import { useSettingsStore } from '@/state/settingsStore';
 import { testIds } from '@/testing/testIds';
 
-const PRACTICE_SUBTITLE = 'בואו נתרגל לדבר, להבין ולבטא מילים ומשפטים';
-
 /**
  * Landscape Practice hub (Phase 22).
  *
- * Composition (matches `docs/design/landscape/reference/practice.png`):
+ * Composition (matches `docs/design/landscape/reference/Talki Fantasy Garden Game Menu.png`):
  *   world background + top chrome + side nav (LandscapeHubFrame)
  *   LandscapeTitle with the reference subtitle
  *   category chips (preserved launch context)
@@ -37,8 +31,6 @@ const PRACTICE_SUBTITLE = 'בואו נתרגל לדבר, להבין ולבטא �
  */
 export function PracticeMenuScreen() {
   const push = useGuardedPush();
-  const layout = useLandscapeLayout();
-  const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
   const { hydrated, custom, lastCat, learned, hydrate } = useProgressStore();
   const { settings, toggleMusic } = useSettingsStore();
   const parent = useParentBrand();
@@ -59,7 +51,7 @@ export function PracticeMenuScreen() {
   );
 
   return (
-    <LandscapeHubFrame
+    <MockHubFrame
       hub="practice"
       testID={testIds.practiceMenu.root}
       points={learned.size}
@@ -67,47 +59,43 @@ export function PracticeMenuScreen() {
       onToggleMusic={() => void toggleMusic()}
       onBrandLongPress={parent.onBrandLongPress}
       onBrandShortPress={parent.onBrandShortPress}
-      titleSlot={
-        <HubCategoryHeader
-          testID={testIds.practiceMenu.title}
-          title="תרגול דיבור"
-          subtitle={PRACTICE_SUBTITLE}
-          chips={chips}
-          current={currentChip}
-          onSelect={setActiveChip}
-          testIDFactory={(id) => testIds.practiceMenu.chip(id)}
-        />
-      }
     >
       <ToastHost message={parent.toast} onHide={parent.dismissToast} testID={testIds.parent.toast} />
-      <View style={[styles.body, { gap: tokens.gap }]}>
-        <View style={styles.gridHost} testID={testIds.practiceMenu.grid}>
-          <LandscapeActivityGrid>
-            {PRACTICE_LIST.map(([id, , title]) => (
-              <LandscapeActivityCard
-                key={id}
-                testID={testIds.practiceMenu.card(id)}
-                title={title}
-                image={practiceCardImage(id)}
-                footerVariant="banner"
-                onPress={() => openPractice(id)}
-              />
-            ))}
-          </LandscapeActivityGrid>
-        </View>
-      </View>
-    </LandscapeHubFrame>
+      <MockBox testID={testIds.practiceMenu.title} left={0} top={0} width={1} height={1} pointerEvents="none" />
+      <MockBox testID={testIds.practiceMenu.grid} left={0} top={0} width={1609} height={650} pointerEvents="box-none">
+        {PRACTICE_LIST.map(([id, , title], i) => (
+          <MockHubCard
+            key={id}
+            testID={testIds.practiceMenu.card(id)}
+            title={title}
+            image={hubMockArt[`practice:${id}`] ?? practiceCardImage(id)}
+            onPress={() => openPractice(id)}
+            // RTL reading order: the first card sits at the physical right.
+            left={PRACTICE_GRID.cols[i % 3]!}
+            top={PRACTICE_GRID.rows[Math.floor(i / 3)]!.top}
+            width={PRACTICE_GRID.w}
+            height={PRACTICE_GRID.rows[Math.floor(i / 3)]!.h}
+            plate={PRACTICE_GRID.plate}
+            radius={36}
+            titleSize={32}
+          />
+        ))}
+      </MockBox>
+      {chips ? (
+        <MockBox left={160} top={640} width={1290} height={76} pointerEvents="box-none">
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <GameCatChipRow chips={chips} current={currentChip} onSelect={setActiveChip} nowrap testIDFactory={(id) => testIds.practiceMenu.chip(id)} />
+          </ScrollView>
+        </MockBox>
+      ) : null}
+    </MockHubFrame>
   );
 }
 
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-    minHeight: 0,
-  },
-  gridHost: {
-    flex: 1,
-    minHeight: 0,
-    minWidth: 0,
-  },
-});
+/** Practice hub grid in mock units (mock "Talki Fantasy Garden Game Menu"). */
+const PRACTICE_GRID = {
+  cols: [1022, 593, 163],
+  rows: [{ top: 188, h: 212 }, { top: 410, h: 214 }],
+  w: 420,
+  plate: { inStart: 24, inEnd: 24, bottom: 14, height: 52 },
+} as const;

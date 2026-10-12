@@ -11,7 +11,7 @@ import sys
 from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MOCK = os.path.join(HERE, '..', '..', '..', '..', 'docs', 'design', 'landscape', 'reference', 'home-pixel-source.png')
+MOCK = os.path.join(HERE, 'home-pixel-source.png')
 
 
 def main() -> None:

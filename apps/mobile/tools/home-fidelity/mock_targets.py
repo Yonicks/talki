@@ -15,7 +15,7 @@ from PIL import Image
 from scipy import ndimage
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MOCK = os.path.join(HERE, '..', '..', '..', '..', 'docs', 'design', 'landscape', 'reference', 'home-pixel-source.png')
+MOCK = os.path.join(HERE, 'home-pixel-source.png')
 
 
 def box_of(mask, win, pick='largest', min_area=60):

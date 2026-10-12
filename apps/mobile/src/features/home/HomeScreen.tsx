@@ -35,7 +35,7 @@ import { LandscapeHomeHeader } from './LandscapeHomeHeader';
 import { useHomeData } from './useHomeData';
 
 /**
- * Landscape Home hub, composed to `docs/design/landscape/reference/home.png`.
+ * Landscape Home hub, composed to the approved Home mock `docs/design/landscape/reference/c577a74e-1f80-4697-b832-e2e672fe9cb6.png`.
  *
  * Three layers, exactly as the mock reads:
  *   1. the full-bleed storybook world (edge to edge, behind everything);

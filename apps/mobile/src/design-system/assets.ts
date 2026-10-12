@@ -96,7 +96,28 @@ export const landscapeScenes = {
   memory: require('../../assets/v2/landscape/scenes/memory.webp'),
   missing: require('../../assets/v2/landscape/scenes/missing.webp'),
   cards: require('../../assets/v2/landscape/scenes/cards.webp'),
+  gate: require('../../assets/v2/landscape/scenes/gate.webp'),
+  parent: require('../../assets/v2/landscape/scenes/parent.webp'),
+  games: require('../../assets/v2/landscape/scenes/games.webp'),
+  practice: require('../../assets/v2/landscape/scenes/practice.webp'),
+  rewards: require('../../assets/v2/landscape/scenes/rewards.webp'),
 } as const;
+
+/** Hub card pictures cut from the Games / Practice mocks (tools/mock-plate/extract-hub-art.py). */
+export const hubMockArt: Record<string, number> = {
+  'games:quiz': require('../../assets/v2/hub-mock/games-quiz.webp'),
+  'games:memory': require('../../assets/v2/hub-mock/games-memory.webp'),
+  'games:missing': require('../../assets/v2/hub-mock/games-missing.webp'),
+  'games:cards': require('../../assets/v2/hub-mock/games-cards.webp'),
+  'games:sounds': require('../../assets/v2/hub-mock/games-sounds.webp'),
+  'games:count': require('../../assets/v2/hub-mock/games-count.webp'),
+  'practice:focus': require('../../assets/v2/hub-mock/practice-focus.webp'),
+  'practice:receptive': require('../../assets/v2/hub-mock/practice-receptive.webp'),
+  'practice:cloze': require('../../assets/v2/hub-mock/practice-cloze.webp'),
+  'practice:temptation': require('../../assets/v2/hub-mock/practice-temptation.webp'),
+  'practice:pairs': require('../../assets/v2/hub-mock/practice-pairs.webp'),
+  'practice:combine': require('../../assets/v2/hub-mock/practice-combine.webp'),
+};
 
 /** Game card art — all eleven registered games (Phase 21). Files live under
  *  `apps/mobile/assets/v2/game-menu/`; match/bubbles/sort/speech were added

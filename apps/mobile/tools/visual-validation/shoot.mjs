@@ -26,13 +26,15 @@ const VPS = {
   'iphone-17-pro': { viewport: landscape(devices['iPhone 17 Pro'].screen), dsf: devices['iPhone 17 Pro'].deviceScaleFactor, ua: devices['iPhone 17 Pro'].userAgent },
 };
 const v = VPS[vp];
+if (vp === 'ref' && sc.vp) v.viewport = { width: sc.vp[0], height: sc.vp[1] };
+const adPx = vp === 'ref' && sc.adPx ? sc.adPx : 50;
 const out = path.resolve(here, '..', '..', '..', '..', 'visual-validation', screen, vp);
 mkdirSync(out, { recursive: true });
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: v.viewport, deviceScaleFactor: v.dsf, userAgent: v.ua, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
 const page = await ctx.newPage();
-await page.addInitScript(() => { window.__talkiAdReservedPx = 50; });
+await page.addInitScript((px) => { window.__talkiAdReservedPx = px; }, adPx);
 await page.goto(`${base}/?intro=0`);
 await page.waitForLoadState('networkidle');
 await page.waitForFunction(() => Boolean(window.__talkiStorageE2E));
@@ -48,6 +50,13 @@ if (screen !== 'home') {
   await page.evaluate((r) => window.__talkiRouterE2E.push(r), sc.route);
 }
 await page.waitForTimeout(1800);
+if (sc.unlock) {
+  const q = await page.locator('[data-testid="parent-gate-question"]').innerText();
+  const [, a, b] = q.match(/(\d+)\s*×\s*(\d+)/) ?? [];
+  for (const ch of String(Number(a) * Number(b))) await page.locator(`[data-testid="parent-gate-key-${ch}"]`).click();
+  await page.locator('[data-testid="parent-gate-ok"]').click();
+  await page.waitForTimeout(1200);
+}
 await page.evaluate(() => document.fonts.ready);
 await page.addStyleTag({ content: '*{animation:none!important;transition:none!important;caret-color:transparent!important}' });
 await page.waitForTimeout(400);

@@ -3,7 +3,7 @@ import { NavigationBar } from 'expo-navigation-bar';
 
 /**
  * Hides Android's system navigation bar so the locked-landscape stage runs
- * edge to edge, matching the mock (`docs/design/landscape/reference/home.png`)
+ * edge to edge, matching the mock (the approved Home mock `docs/design/landscape/reference/c577a74e-1f80-4697-b832-e2e672fe9cb6.png`)
  * instead of leaving the nav bar's reserved inset as a bare black strip
  * between the stage and the ad banner. Android's edge-to-edge model (SDK 57+)
  * still lets the user reveal it with an edge swipe. The one and only call

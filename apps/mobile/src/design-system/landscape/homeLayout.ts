@@ -1,6 +1,6 @@
 /**
  * Home geometry measured from the user-supplied 1843 × 853 edge-to-edge mock
- * (`docs/design/landscape/reference/home-pixel-source.png`).
+ * (`tools/home-fidelity/home-pixel-source.png`).
  *
  * Every number is written as `px(<mock pixels>)`, so the source measurement
  * stays visible next to the dp it becomes. The mock maps to a 900 dp canvas

@@ -19,20 +19,28 @@ There is no portrait child layout to preserve.
 
 ## Source of truth
 
-`reference/` is the single canonical location for every landscape mock — see
-`reference/README.md` for the full list and the naming rule (one current
-`<screen>.png` per screen, never two files that could both read as latest).
+`reference/` is the single canonical location for every landscape mock. The set was
+replaced with the latest approved mocks (12 files). Mapping to screens:
 
-Visual reference order:
+| Screen | Mock file |
+|---|---|
+| Home (approved, do not change) | `c577a74e-1f80-4697-b832-e2e672fe9cb6.png` |
+| Games hub | `Whimsical Talki Game Selection Screen.png` |
+| Practice hub | `Talki Fantasy Garden Game Menu.png` |
+| Rewards / stickers | `Talki Sticker Meadow Adventure.png` |
+| Parent gate | `ChatGPT Image Oct 12, 2026, 01_46_53 AM-1.png` |
+| Parent center | `ChatGPT Image Oct 12, 2026, 01_46_53 AM-2.png` |
+| Count game | `ChatGPT Image Oct 12, 2026, 01_46_54 AM-3.png` |
+| Sounds game ("מי אמר את זה?") | `ChatGPT Image Oct 12, 2026, 01_46_54 AM-4.png` |
+| Cards | `ChatGPT Image Oct 12, 2026, 01_46_55 AM-5.png` |
+| Quiz game ("איפה זה...?") | `ChatGPT Image Oct 12, 2026, 01_46_55 AM-6.png` |
+| Memory game | `ChatGPT Image Oct 12, 2026, 01_46_56 AM-7.png` |
+| Missing game | `ChatGPT Image Oct 12, 2026, 01_46_56 AM-8.png` |
 
-1. `reference/home.png` — current Home composition target (v3)
-2. `reference/home-pixel-source.png` — the edge-to-edge pixel-measurement source `homeLayout.ts` is built from
-3. `reference/home-historical.png` — prior landscape Home crop (still useful for shell history)
-4. `reference/games.png`
-5. `reference/practice.png`
-6. `reference/talki-landscape-master.*` (optional; not committed — see `reference/README.md`)
-
-No other screen has a mock yet — every individual game, every practice activity, Cards, Category, Parent, and Rewards. When one is supplied, it is committed to `reference/` as `<screen>.png`, named to match `tools/home-fidelity/screens.mjs`'s screen ids.
+The `ChatGPT Image …` mocks are phone screenshots (1774×887) whose screen interior is
+the crop `[44, 48, 1732, 838]`; `apps/mobile/tools/visual-validation/screens.json` holds
+the crops. The Home edge-to-edge pixel-measurement source `homeLayout.ts` was built from
+now lives with the rig: `apps/mobile/tools/home-fidelity/home-pixel-source.png`.
 
 The cropped images are easier for an agent to inspect per screen. The optional master, if ever added, would preserve the original composite reference supplied for this redesign; its absence is not a gate failure. The Home mock is composition/chrome inspiration only — never embed it as runtime UI.
 
@@ -138,7 +146,7 @@ Default product direction:
 
 ## Games hub
 
-Reference: `reference/games.jpg`
+Reference: `reference/Whimsical Talki Game Selection Screen.png`
 
 Primary composition:
 
@@ -160,7 +168,7 @@ Default product direction:
 
 ## Practice hub
 
-Reference: `reference/practice.jpg`
+Reference: `reference/Talki Fantasy Garden Game Menu.png`
 
 The current app has six practice modes, matching the reference.
 

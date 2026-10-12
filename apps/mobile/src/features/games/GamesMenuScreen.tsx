@@ -1,35 +1,29 @@
+/* eslint-disable no-restricted-syntax -- mock-unit layout constants are physical canvas coordinates */
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 import { ToastHost } from '@/components/shell';
-import {
-  LandscapeActivityCard,
-  LandscapeActivityGrid,
-  LandscapePageIndicator,
-  landscapeTokens,
-} from '@/design-system/landscape';
-import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
+import { hubMockArt } from '@/design-system/assets';
+import { LandscapePageIndicator, MockBox, MockHubCard } from '@/design-system/landscape';
 import { gameCardImage } from '@/domain/games/gameCards';
 import { gameCatChips } from '@/domain/games/gameCatChips';
 import { GAMES_HUB_PAGE_SIZE, gameHubPages } from '@/domain/games/gameHubPages';
 import { GAMES } from '@/domain/games/ids';
 import { gameHref } from '@/domain/navigation/routes';
 import type { CategoryId } from '@/domain/types';
-import { LandscapeHubFrame } from '@/features/shell/LandscapeHubFrame';
+import { MockHubFrame } from '@/features/shell/MockHubFrame';
 import { useGuardedPush } from '@/hooks/useGuardedPush';
 import { useParentBrand } from '@/hooks/useParentBrand';
 import { useProgressStore } from '@/state/progressStore';
 import { useSettingsStore } from '@/state/settingsStore';
 import { testIds } from '@/testing/testIds';
 
-import { HubCategoryHeader } from './HubCategoryHeader';
-
-const GAMES_SUBTITLE = 'בואו נשחק, נחשוב ונלמד ביחד';
+import { GameCatChipRow } from './GameCatChipRow';
 
 /**
  * Landscape Games hub (Phase 21).
  *
- * Composition (matches `docs/design/landscape/reference/games.png`):
+ * Composition (matches `docs/design/landscape/reference/Whimsical Talki Game Selection Screen.png`):
  *   world background + top chrome + side nav (LandscapeHubFrame)
  *   LandscapeTitle + category chips (preserved launch context)
  *   3×2 LandscapeActivityGrid for the active page (page size 6)
@@ -41,8 +35,6 @@ const GAMES_SUBTITLE = 'בואו נשחק, נחשוב ונלמד ביחד';
  */
 export function GamesMenuScreen() {
   const push = useGuardedPush();
-  const layout = useLandscapeLayout();
-  const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
   const { hydrated, custom, lastCat, learned, hydrate } = useProgressStore();
   const { settings, toggleMusic } = useSettingsStore();
   const parent = useParentBrand();
@@ -74,7 +66,7 @@ export function GamesMenuScreen() {
   );
 
   return (
-    <LandscapeHubFrame
+    <MockHubFrame
       hub="games"
       testID={testIds.gamesMenu.root}
       points={learned.size}
@@ -82,60 +74,52 @@ export function GamesMenuScreen() {
       onToggleMusic={() => void toggleMusic()}
       onBrandLongPress={parent.onBrandLongPress}
       onBrandShortPress={parent.onBrandShortPress}
-      titleSlot={
-        <HubCategoryHeader
-          testID={testIds.gamesMenu.title}
-          title="משחקים"
-          subtitle={GAMES_SUBTITLE}
-          chips={chips}
-          current={currentChip}
-          onSelect={setActiveChip}
-        />
-      }
-      auxiliary={
+    >
+      <ToastHost message={parent.toast} onHide={parent.dismissToast} testID={testIds.parent.toast} />
+      <MockBox testID={testIds.gamesMenu.title} left={0} top={0} width={1} height={1} pointerEvents="none" />
+      <MockBox testID={testIds.gamesMenu.grid} left={0} top={0} width={1730} height={640} pointerEvents="box-none">
+        <MockBox testID={testIds.gamesMenu.page(pageIndex)} left={0} top={0} width={1730} height={640} pointerEvents="box-none">
+          {activePage.map((game, i) => (
+            <MockHubCard
+              key={game.id}
+              testID={testIds.gamesMenu.card(game.id)}
+              title={game.title}
+              image={hubMockArt[`games:${game.id}`] ?? gameCardImage(game.id)}
+              onPress={() => openGame(game.id)}
+              // RTL reading order: the first card sits at the physical right.
+              left={GAMES_GRID.cols[i % 3]!.left}
+              top={GAMES_GRID.rows[Math.floor(i / 3)]!.top}
+              width={GAMES_GRID.cols[i % 3]!.w}
+              height={GAMES_GRID.rows[Math.floor(i / 3)]!.h}
+            />
+          ))}
+        </MockBox>
+      </MockBox>
+      {chips ? (
+        <MockBox left={170} top={612} width={1050} height={76} pointerEvents="box-none">
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <GameCatChipRow chips={chips} current={currentChip} onSelect={setActiveChip} nowrap />
+          </ScrollView>
+        </MockBox>
+      ) : null}
+      <MockBox left={1240} top={622} width={300} height={60} pointerEvents="box-none" style={styles.dots}>
         <LandscapePageIndicator
           testID={testIds.gamesMenu.pageIndicator}
           pageCount={pages.length}
           activeIndex={pageIndex}
           onSelect={selectPage}
         />
-      }
-    >
-      <ToastHost message={parent.toast} onHide={parent.dismissToast} testID={testIds.parent.toast} />
-      <View style={[styles.body, { gap: tokens.gap }]}>
-        <View style={styles.gridHost} testID={testIds.gamesMenu.grid}>
-          <View style={styles.page} testID={testIds.gamesMenu.page(pageIndex)}>
-            <LandscapeActivityGrid>
-              {activePage.map((game) => (
-                <LandscapeActivityCard
-                  key={game.id}
-                  testID={testIds.gamesMenu.card(game.id)}
-                  title={game.title}
-                  image={gameCardImage(game.id)}
-                  footerVariant="pill"
-                  onPress={() => openGame(game.id)}
-                />
-              ))}
-            </LandscapeActivityGrid>
-          </View>
-        </View>
-      </View>
-    </LandscapeHubFrame>
+      </MockBox>
+    </MockHubFrame>
   );
 }
 
+/** Games hub grid in mock units (mock "Whimsical Talki Game Selection Screen"). */
+const GAMES_GRID = {
+  cols: [{ left: 1090, w: 442 }, { left: 650, w: 432 }, { left: 195, w: 447 }],
+  rows: [{ top: 175, h: 208 }, { top: 395, h: 210 }],
+} as const;
+
 const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-    minHeight: 0,
-  },
-  gridHost: {
-    flex: 1,
-    minHeight: 0,
-    minWidth: 0,
-  },
-  page: {
-    flex: 1,
-    minHeight: 0,
-  },
+  dots: { alignItems: 'center', justifyContent: 'center' },
 });
