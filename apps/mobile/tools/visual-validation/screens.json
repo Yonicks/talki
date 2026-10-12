@@ -7,17 +7,20 @@
    48,
    1732,
    838
-  ]
+  ],
+  "adPx": 46
  },
  "parent": {
-  "route": "/parent?seed=42&unlock=1",
+  "route": "/parent?seed=42",
   "mock": "ChatGPT Image Oct 12, 2026, 01_46_53 AM-2.png",
   "crop": [
    44,
    48,
    1732,
    838
-  ]
+  ],
+  "adPx": 46,
+  "unlock": true
  },
  "game-count": {
   "route": "/game/count?catId=animals&seed=42",
@@ -83,17 +86,50 @@
  "practice": {
   "route": "/practice",
   "mock": "Talki Fantasy Garden Game Menu.png",
-  "crop": null
+  "crop": [
+   33,
+   52,
+   1642,
+   868
+  ],
+  "vp": [
+   805,
+   408
+  ],
+  "adPx": 42,
+  "adY": 733
  },
  "rewards": {
   "route": "/rewards",
   "mock": "Talki Sticker Meadow Adventure.png",
-  "crop": null
+  "crop": [
+   45,
+   42,
+   1865,
+   788
+  ],
+  "vp": [
+   910,
+   373
+  ],
+  "adPx": 45,
+  "adY": 656
  },
  "games": {
   "route": "/games",
   "mock": "Whimsical Talki Game Selection Screen.png",
-  "crop": null
+  "crop": [
+   30,
+   50,
+   1760,
+   835
+  ],
+  "vp": [
+   865,
+   393
+  ],
+  "adPx": 46,
+  "adY": 693
  },
  "home": {
   "route": "/",

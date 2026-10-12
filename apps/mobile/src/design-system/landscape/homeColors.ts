@@ -1,5 +1,5 @@
 /**
- * Colours sampled from `docs/design/landscape/reference/home-pixel-source.png`
+ * Colours sampled from `tools/home-fidelity/home-pixel-source.png`
  * (median of flat regions, not anti-aliased edges). Kept apart from `v3`,
  * which is a verbatim transcription of the legacy CSS palette.
  */

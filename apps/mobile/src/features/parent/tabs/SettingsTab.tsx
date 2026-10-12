@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { TalkiButton, TalkiCard, TalkiHeading, TalkiText } from '@/design-system/components';
+import { TalkiButton, TalkiCard, TalkiText } from '@/design-system/components';
+import { mockInk, useMockUnits } from '@/design-system/landscape';
+import { fontFamily } from '@/design-system/theme/typography';
 import { v3 } from '@/design-system/theme/colors';
-import { radii } from '@/design-system/theme/radii';
 import { RESET_CONFIRM_TEXT, RESET_DELETES_TEXT, RESET_KEEPS_TEXT } from '@/domain/parent/progressReset';
 import { formatStorageInfo, readStorageInfo } from '@/services/storage/readStorageInfo';
 import { audioEngine } from '@/services/audio';
@@ -45,19 +46,23 @@ export function SettingsTab() {
 
   return (
     <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled" style={styles.fill}>
-      <TalkiCard>
-        <TalkiHeading level={3}>הקראה ותצוגה</TalkiHeading>
-        <TalkiText weight="bold">מהירות דיבור</TalkiText>
-        <View style={styles.seg}>
-          {RATES.map((r) => (
-            <Seg
-              key={r.v}
-              testID={testIds.parent.settingsRate(r.v)}
-              label={r.label}
-              on={settings.rate === r.v}
-              onPress={() => void patchSettings({ rate: r.v })}
-            />
-          ))}
+      <TalkiCard style={flatCard}>
+        <View style={styles.topRow}>
+          <View style={styles.seg}>
+            {RATES.map((r) => (
+              <Seg
+                key={r.v}
+                testID={testIds.parent.settingsRate(r.v)}
+                label={r.label}
+                on={settings.rate === r.v}
+                onPress={() => void patchSettings({ rate: r.v })}
+              />
+            ))}
+          </View>
+          <View style={styles.headBlock}>
+            <Heading>הקראה והצגה</Heading>
+            <Sub>מהירות דיבור</Sub>
+          </View>
         </View>
         <Toggle
           testID={testIds.parent.settingsNiqqud}
@@ -71,7 +76,7 @@ export function SettingsTab() {
           on={settings.music}
           onPress={() => toggle('music')}
         />
-        <TalkiText weight="bold">עוצמת המוזיקה</TalkiText>
+        <Sub>עוצמת המוזיקה</Sub>
         <View style={styles.seg}>
           {VOLS.map((r) => (
             <Seg
@@ -106,12 +111,12 @@ export function SettingsTab() {
         />
       </TalkiCard>
 
-      <TalkiCard>
+      <TalkiCard style={flatCard}>
         <BackupPanel />
       </TalkiCard>
 
-      <TalkiCard>
-        <TalkiHeading level={3}>פרטיות</TalkiHeading>
+      <TalkiCard style={flatCard}>
+        <Heading>פרטיות</Heading>
         <TalkiText color={v3.textSecondary}>
           אין חשבון ואין שרת. מילים והקלטות נשארות במכשיר. בגרסת החנות מוצג באנר מודעות לילדים (לא מותאם אישית).
         </TalkiText>
@@ -123,8 +128,8 @@ export function SettingsTab() {
         ) : null}
       </TalkiCard>
 
-      <TalkiCard>
-        <TalkiHeading level={3}>איפוס</TalkiHeading>
+      <TalkiCard style={flatCard}>
+        <Heading>איפוס</Heading>
         <TalkiText color={v3.textSecondary}>מוחק מדבקות וסטטיסטיקות בלבד</TalkiText>
         {confirming ? (
           <View style={styles.confirm}>
@@ -153,6 +158,16 @@ export function SettingsTab() {
   );
 }
 
+function Heading({ children }: { children: string }) {
+  const { u } = useMockUnits();
+  return <Text style={{ fontFamily: fontFamily.body.extrabold, fontSize: 44 * u, color: mockInk, writingDirection: 'rtl', textAlign: 'left' }}>{children}</Text>;
+}
+
+function Sub({ children }: { children: string }) {
+  const { u } = useMockUnits();
+  return <Text style={{ fontFamily: fontFamily.body.extrabold, fontSize: 31 * u, color: mockInk, writingDirection: 'rtl', textAlign: 'left' }}>{children}</Text>;
+}
+
 function Seg({
   label,
   on,
@@ -164,15 +179,16 @@ function Seg({
   onPress: () => void;
   testID: string;
 }) {
+  const { u } = useMockUnits();
   return (
     <Pressable
       testID={testID}
       accessibilityRole="button"
       accessibilityState={{ selected: on }}
       onPress={onPress}
-      style={[styles.segBtn, on && styles.segOn]}
+      style={[styles.segBtn, on && styles.segOn, { minWidth: 120 * u, minHeight: 74 * u, borderRadius: 34 * u }]}
     >
-      <TalkiText weight="semibold">{label}</TalkiText>
+      <Text style={{ fontFamily: on ? fontFamily.body.extrabold : fontFamily.body.regular, fontSize: 30 * u, color: mockInk, writingDirection: 'rtl' }}>{label}</Text>
     </Pressable>
   );
 }
@@ -188,42 +204,53 @@ function Toggle({
   onPress: () => void;
   testID: string;
 }) {
+  const { u } = useMockUnits();
   return (
     <Pressable
       testID={testID}
       accessibilityRole="switch"
       accessibilityState={{ checked: on }}
       onPress={onPress}
-      style={styles.toggle}
+      style={[styles.toggle, { minHeight: 86 * u }]}
     >
-      <TalkiText weight="bold">{label}</TalkiText>
-      <View style={[styles.sw, on && styles.swOn]} />
+      <Text style={{ fontFamily: fontFamily.body.extrabold, fontSize: 31 * u, color: mockInk, writingDirection: 'rtl' }}>{label}</Text>
+      <View style={[styles.sw, on && styles.swOn, { width: 118 * u, height: 62 * u, borderRadius: 31 * u }]}>
+        <View style={[styles.knob, { width: 52 * u, height: 52 * u, borderRadius: 26 * u }, on ? { start: 5 * u } : { end: 5 * u }]} />
+      </View>
     </Pressable>
   );
 }
+
+/** Settings cards sit directly on the cream card the scene paints. */
+const flatCard = { backgroundColor: 'transparent', borderWidth: 0, shadowOpacity: 0, elevation: 0 } as const;
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   pad: { padding: 16, gap: 12, paddingBlockEnd: 32 },
   seg: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBlock: 8 },
+  topRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
+  headBlock: { alignItems: 'flex-start' },
   segBtn: {
     minHeight: 48,
     paddingInline: 12,
-    borderRadius: radii.btn,
-    borderWidth: 1,
-    borderColor: v3.borderSoft,
+    borderWidth: 2,
+    borderColor: '#EEDDB8',
+    backgroundColor: '#FFFBF1',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  segOn: { backgroundColor: v3.surface, borderColor: v3.purple600 },
+  segOn: { backgroundColor: '#F1E8FF', borderColor: '#8A55EA' },
   toggle: {
     minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBlock: 4,
+    borderTopWidth: 1,
+    borderTopColor: '#F0E2C4',
   },
-  sw: { width: 44, height: 28, borderRadius: 14, backgroundColor: v3.borderSoft },
-  swOn: { backgroundColor: v3.purple600 },
+  sw: { backgroundColor: '#EBDDBE', justifyContent: 'center' },
+  swOn: { backgroundColor: '#7B3FE4' },
+  knob: { position: 'absolute', backgroundColor: '#FFFFFF' },
   confirm: { gap: 8, marginBlockStart: 8 },
 });
