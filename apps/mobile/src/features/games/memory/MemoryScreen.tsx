@@ -1,8 +1,7 @@
+/* eslint-disable no-restricted-syntax -- mock-unit layout constants are physical canvas coordinates (see design-system/landscape/mock/MockStage.tsx) */
 import { useCallback, useEffect, useReducer, useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
 
-import { landscapeTokens } from '@/design-system/landscape';
-import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
+import { MockBox, MockChip, MockText } from '@/design-system/landscape';
 import { STAR_STEP } from '@/domain/progress/stars';
 import type { TalkiCategory, TalkiSettings, WordStats } from '@/domain/types';
 import { homeHref } from '@/domain/navigation/routes';
@@ -79,8 +78,6 @@ function MemoryPlay({
   const push = useGuardedPush();
   const { stats, markLearned } = useProgressStore();
   const settings = useSettingsStore((s) => s.settings);
-  const layout = useLandscapeLayout();
-  const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
   const completeFired = useRef(false);
   const [state, dispatch] = useReducer(memoryReducer, undefined, () => initialMemory(category, stats, settings, seed));
 
@@ -121,7 +118,12 @@ function MemoryPlay({
     [state, category.id, session, markLearned],
   );
 
-  const cols = tokens.memoryColumns;
+  const n = state.cards.length;
+  const rows = Math.max(1, Math.ceil(n / MEMORY.cols));
+  const cardH = Math.min(MEMORY.cardH, (MEMORY.gridBottom - MEMORY.gridTop - MEMORY.gapY * (rows - 1)) / rows);
+  const cardW = cardH === MEMORY.cardH ? MEMORY.cardW : (MEMORY.cardW * cardH) / MEMORY.cardH;
+  const gridW = MEMORY.cols * cardW + (MEMORY.cols - 1) * MEMORY.gapX;
+  const gridLeft = MEMORY.gridCenterX - gridW / 2;
 
   return (
     <GameShell
@@ -137,29 +139,54 @@ function MemoryPlay({
       celebrateMessage={null}
       onDismissCelebrate={() => undefined}
       chipTestIDs={[testIds.memory.chipPairs]}
+      layout="free"
+      scene="memory"
     >
-      <View testID={testIds.memory.root} style={styles.grid}>
-        {state.cards.map((card) => (
-          <View key={card.idx} style={[styles.cell, { width: `${100 / cols}%`, padding: Math.max(2, tokens.gap / 3) }]}>
-            <MemoryCard card={card} niqqud={settings.niqqud} onPress={() => flip(card.idx)} minSize={tokens.memoryCardMin} />
-          </View>
-        ))}
-      </View>
+      <MockBox testID={testIds.memory.root} left={0} top={0} width={1688} height={697} />
+      <MockChip testID={testIds.memory.chipPairs} label={`🃏 זוגות ${state.found}/${state.total}`} {...MEMORY.pairs} />
+      <MockChip testID={testIds.game.chip(1)} label={`🩷 ניסיונות ${state.moves}`} {...MEMORY.moves} />
+      <MockBox {...MEMORY.title}>
+        <MockText testID={testIds.game.headerTitle} size={MEMORY.titleSize} align="right">
+          🎉 משחק זיכרון
+        </MockText>
+      </MockBox>
+      {state.cards.map((card) => {
+        const col = card.idx % MEMORY.cols;
+        const row = Math.floor(card.idx / MEMORY.cols);
+        return (
+          <MemoryCard
+            key={card.idx}
+            card={card}
+            niqqud={settings.niqqud}
+            onPress={() => flip(card.idx)}
+            placement={{
+              // RTL reading order: the first card sits at the physical right.
+              left: gridLeft + (MEMORY.cols - 1 - col) * (cardW + MEMORY.gapX),
+              top: MEMORY.gridTop + row * (cardH + MEMORY.gapY),
+              width: cardW,
+              height: cardH,
+            }}
+          />
+        );
+      })}
     </GameShell>
   );
 }
 
-const styles = StyleSheet.create({
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignContent: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    minHeight: 0,
-  },
-  cell: {
-    aspectRatio: 1,
-    maxHeight: '33%',
-  },
-});
+/** Memory composition in mock units (mock "ChatGPT Image …-7"). */
+const MEMORY = {
+  bar: { left: 455, top: 132, width: 793, height: 80 },
+  pairs: { left: 698, top: 141, width: 202, height: 62 },
+  moves: { left: 470, top: 141, width: 202, height: 62 },
+  title: { left: 760, top: 140, width: 470, height: 66 },
+  titleSize: 46,
+  cols: 4,
+  cardW: 187,
+  cardH: 154,
+  gapX: 24,
+  gapY: 14,
+  gridCenterX: 843,
+  gridTop: 232,
+  /** Third row of the mock sits under the ad; the app keeps every row above it. */
+  gridBottom: 800,
+} as const;

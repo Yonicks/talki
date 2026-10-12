@@ -1,11 +1,9 @@
+/* eslint-disable no-restricted-syntax -- mock-unit layout constants are physical canvas coordinates (see design-system/landscape/mock/MockStage.tsx) */
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-import { TalkiButton, TalkiText } from '@/design-system/components';
-import { landscapeTokens } from '@/design-system/landscape';
-import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
-import { radii } from '@/design-system/theme/radii';
-import { shadowSm } from '@/design-system/theme/shadows';
+import { uiIcons } from '@/design-system/assets';
+import { MockAction, MockBox, MockCard, MockChip, MockText } from '@/design-system/landscape';
 import { v3 } from '@/design-system/theme/colors';
 import { STAR_STEP } from '@/domain/progress/stars';
 import type { TalkiCategory, TalkiSettings, WordStats } from '@/domain/types';
@@ -88,8 +86,6 @@ function SoundsPlay({
 }) {
   const goBack = useGoBack();
   const push = useGuardedPush();
-  const layout = useLandscapeLayout();
-  const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
   const { stats, recordSeen, markLearned } = useProgressStore();
   const settings = useSettingsStore((s) => s.settings);
   const [celebrate, setCelebrate] = useState<string | null>(null);
@@ -153,12 +149,9 @@ function SoundsPlay({
     [session, state.target.word, markLearned, recordSeen, seed],
   );
 
-  const split = tokens.soundsSplitLayout;
-  const optMin = tokens.soundsOptionMin;
-
   return (
     <GameShell
-      title="🐮 מי אמר את זה?"
+      title="מי אמר את זה? 🐮"
       chips={state.pool.length ? soundsChips(state) : []}
       done={state.done && state.pool.length > 0}
       result={soundsResult(state)}
@@ -169,84 +162,50 @@ function SoundsPlay({
       onDismissToast={session.dismissToast}
       celebrateMessage={celebrate}
       onDismissCelebrate={() => setCelebrate(null)}
+      layout="free"
+      scene="sounds"
     >
-      <View
-        testID={testIds.sounds.root}
-        style={[
-          styles.board,
-          {
-            gap: Math.max(6, tokens.gap - 2),
-            paddingInline: tokens.padInline,
-            flexDirection: split ? 'row' : 'column',
-            alignItems: split ? 'center' : 'stretch',
-          },
-        ]}
-      >
-        <View style={[styles.prompt, { gap: Math.max(6, tokens.gap - 2) }]}>
-          <TalkiText align="center" color={v3.textSecondary} style={{ fontSize: tokens.subtitleSize }}>
-            איזו חיה עושה את הקול הזה?
-          </TalkiText>
-          <TalkiButton testID={testIds.sounds.play} label="🔊 לשמוע שוב" variant="secondary" onPress={replay} />
-        </View>
-        <View
-          style={[
-            styles.grid,
-            {
-              gap: Math.max(6, tokens.gap - 2),
-              flexWrap: split ? 'nowrap' : 'wrap',
-            },
-          ]}
+      <MockBox testID={testIds.sounds.root} {...SOUNDS.panel} />
+      <MockChip testID={testIds.game.chip(1)} label={`${state.score} ✅`} {...SOUNDS.score} />
+      <MockChip testID={testIds.game.chip(0)} label={`שאלה ${state.i + 1}/${state.pool.length}`} tint="lavender" {...SOUNDS.question} />
+      <MockBox {...SOUNDS.title}>
+        <MockText testID={testIds.game.headerTitle} size={SOUNDS.titleSize} align="right">
+          מי אמר את זה? 🐮
+        </MockText>
+      </MockBox>
+      <MockAction testID={testIds.sounds.play} label="לשמוע שוב" icon={uiIcons.speaker} direction="stack" onPress={replay} {...SOUNDS.replay} />
+      {state.options.map((opt, index) => (
+        <MockCard
+          key={`${state.i}:${opt.word}`}
+          testID={testIds.sounds.option(index)}
+          accessibilityLabel={plain(opt.word)}
+          onPress={() => answer(opt.word)}
+          {...SOUNDS.cards[index]}
+          width={SOUNDS.cardW}
+          height={SOUNDS.cardH}
+          style={feedback?.word === opt.word ? (feedback.ok ? styles.ok : styles.bad) : undefined}
         >
-          {state.options.map((opt, index) => (
-            <Pressable
-              key={`${state.i}:${opt.word}`}
-              testID={testIds.sounds.option(index)}
-              accessibilityRole="button"
-              accessibilityLabel={plain(opt.word)}
-              onPress={() => answer(opt.word)}
-              style={[
-                styles.opt,
-                shadowSm,
-                {
-                  minWidth: optMin,
-                  minHeight: optMin,
-                  maxWidth: split ? optMin + 24 : undefined,
-                  flexGrow: split ? 0 : 1,
-                  flexBasis: split ? optMin : 100,
-                },
-                feedback?.word === opt.word && feedback.ok && styles.ok,
-                feedback?.word === opt.word && !feedback.ok && styles.bad,
-              ]}
-            >
-              <WordArt word={opt} />
-            </Pressable>
-          ))}
-        </View>
-      </View>
+          <WordArt word={opt} size="84%" />
+        </MockCard>
+      ))}
     </GameShell>
   );
 }
 
+/** Sounds composition in mock units (mock "ChatGPT Image …-4"). */
+const SOUNDS = {
+  panel: { left: 321, top: 142, width: 1045, height: 532 },
+  score: { left: 371, top: 202, width: 125, height: 74 },
+  question: { left: 508, top: 202, width: 190, height: 74 },
+  title: { left: 719, top: 196, width: 480, height: 80 },
+  titleSize: 62,
+  replay: { left: 1139, top: 387, width: 200, height: 133 },
+  cardW: 237,
+  cardH: 242,
+  cards: [{ left: 880, top: 319 }, { left: 624, top: 319 }, { left: 369, top: 319 }],
+} as const;
+
 const styles = StyleSheet.create({
-  board: { flex: 1, minHeight: 0, paddingBlock: 4 },
-  prompt: { alignItems: 'center', zIndex: 2, flexShrink: 0 },
-  grid: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignContent: 'center',
-    alignItems: 'center',
-    flex: 1,
-    minHeight: 0,
-  },
-  opt: {
-    aspectRatio: 1,
-    borderRadius: radii.card,
-    backgroundColor: v3.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: 'transparent',
-  },
-  ok: { borderColor: v3.green500 },
-  bad: { borderColor: v3.pink500 },
+  ok: { borderColor: v3.green500, borderWidth: 3 },
+  bad: { borderColor: v3.pink500, borderWidth: 3 },
 });

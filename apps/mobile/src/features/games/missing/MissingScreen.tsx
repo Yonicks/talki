@@ -1,12 +1,8 @@
+/* eslint-disable no-restricted-syntax -- mock-unit layout constants are physical canvas coordinates (see design-system/landscape/mock/MockStage.tsx) */
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { AppState, Pressable, StyleSheet, View } from 'react-native';
+import { AppState, StyleSheet } from 'react-native';
 
-import { TalkiText } from '@/design-system/components';
-import { landscapeTokens } from '@/design-system/landscape';
-import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
-import { radii } from '@/design-system/theme/radii';
-import { shadowSm } from '@/design-system/theme/shadows';
-import { v3 } from '@/design-system/theme/colors';
+import { MockBox, MockCard, MockChip, MockText } from '@/design-system/landscape';
 import { STAR_STEP } from '@/domain/progress/stars';
 import type { TalkiCategory, TalkiSettings, WordStats } from '@/domain/types';
 import { homeHref } from '@/domain/navigation/routes';
@@ -102,8 +98,6 @@ function MissingPlay({
   const push = useGuardedPush();
   const { stats, recordSeen, markLearned } = useProgressStore();
   const settings = useSettingsStore((s) => s.settings);
-  const layout = useLandscapeLayout();
-  const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
   const [celebrate, setCelebrate] = useState<string | null>(null);
   const spoken = useRef(false);
   const completeFired = useRef(false);
@@ -180,12 +174,16 @@ function MissingPlay({
   );
 
   const showing = state.phase === 'show';
-  const cardSize = tokens.missingCardSize;
-  const askSplit = !showing && tokens.cardsSplitLayout;
+  const n = state.set.length;
+  const cardW = Math.min(MISSING.cardW, (MISSING.rowW - (n - 1) * MISSING.gap) / n);
+  const rowLeft = MISSING.rowCenterX - (n * cardW + (n - 1) * MISSING.gap) / 2;
+  const itemH = showing ? MISSING.cardH : MISSING.askCardH;
+  // RTL reading order: the first item sits at the physical right.
+  const slot = (i: number) => rowLeft + (n - 1 - i) * (cardW + MISSING.gap);
 
   return (
     <GameShell
-      title="🙈 מה נעלם?"
+      title="🐵 מה נעלם?"
       chips={missingChips(state)}
       done={state.done}
       result={missingResult(state)}
@@ -196,96 +194,81 @@ function MissingPlay({
       onDismissToast={session.dismissToast}
       celebrateMessage={celebrate}
       onDismissCelebrate={() => setCelebrate(null)}
+      layout="free"
+      scene="missing"
     >
-      <View
-        testID={testIds.missing.root}
-        style={[styles.board, { gap: tokens.gap }]}
-        accessibilityState={{ busy: showing }}
-      >
-        <View testID={showing ? testIds.missing.phaseShow : testIds.missing.phaseAsk}>
-          <TalkiText align="center" color={v3.textSecondary} style={{ fontSize: tokens.subtitleSize }}>
-            {showing ? 'מסתכלים טוב על התמונות...' : 'איזו תמונה נעלמה? לוחצים על השם שלה'}
-          </TalkiText>
-        </View>
-        <View style={[askSplit ? styles.askSplit : styles.stack, { gap: tokens.gap, flex: 1, minHeight: 0 }]}>
-          <View style={[styles.grid, { gap: Math.max(6, tokens.gap - 2) }]}>
-            {state.set.map((it, index) => {
-              const gone = !showing && it.word === state.missing.word;
-              return (
-                <Pressable
-                  key={`item-${it.word}`}
-                  testID={testIds.missing.item(index)}
-                  disabled
-                  style={[
-                    styles.card,
-                    shadowSm,
-                    { width: cardSize, minHeight: cardSize, minWidth: cardSize },
-                    gone && styles.gone,
-                  ]}
-                >
-                  {gone ? null : <WordArt word={it} />}
-                </Pressable>
-              );
-            })}
-          </View>
-          {showing ? null : (
-            <View style={[styles.grid, { gap: Math.max(6, tokens.gap - 2) }]}>
-              {state.askOrder.map((it, index) => (
-                <Pressable
-                  key={`guess-${it.word}`}
-                  testID={testIds.missing.guess(index)}
-                  accessibilityRole="button"
-                  accessibilityLabel={display(it.word, settings.niqqud)}
-                  onPress={() => guess(it.word)}
-                  style={[
-                    styles.card,
-                    styles.guess,
-                    shadowSm,
-                    { width: cardSize, minHeight: cardSize, minWidth: cardSize },
-                  ]}
-                >
-                  <TalkiText weight="extrabold" align="center">
-                    {display(it.word, settings.niqqud)}
-                  </TalkiText>
-                </Pressable>
-              ))}
-            </View>
-          )}
-        </View>
-      </View>
+      <MockBox testID={testIds.missing.root} left={0} top={0} width={1688} height={697} />
+      <MockChip testID={testIds.game.chip(1)} label={`${state.score} ⭐`} {...MISSING.score} />
+      <MockChip testID={testIds.game.chip(0)} label={`סיבוב ${state.round + 1}/5`} {...MISSING.round} />
+      <MockBox {...MISSING.title}>
+        <MockText testID={testIds.game.headerTitle} size={MISSING.titleSize} align="right">
+          🐵 מה נעלם?
+        </MockText>
+      </MockBox>
+      <MockBox testID={showing ? testIds.missing.phaseShow : testIds.missing.phaseAsk} {...MISSING.prompt}>
+        <MockText size={MISSING.promptSize} weight="regular">
+          {showing ? 'מסתכלים טוב על התמונות...' : 'איזו תמונה נעלמה? לוחצים על השם שלה'}
+        </MockText>
+      </MockBox>
+      {state.set.map((it, index) => {
+        const gone = !showing && it.word === state.missing.word;
+        return (
+          <MockCard
+            key={`item-${it.word}`}
+            testID={testIds.missing.item(index)}
+            left={slot(index)}
+            top={MISSING.cardTop}
+            width={cardW}
+            height={itemH}
+            radius={48}
+            style={[styles.tall, gone && styles.gone]}
+          >
+            {gone ? null : <WordArt word={it} size="68%" />}
+          </MockCard>
+        );
+      })}
+      {showing
+        ? null
+        : state.askOrder.map((it, index) => (
+            <MockCard
+              key={`guess-${it.word}`}
+              testID={testIds.missing.guess(index)}
+              accessibilityLabel={display(it.word, settings.niqqud)}
+              onPress={() => guess(it.word)}
+              left={rowLeft + (state.askOrder.length - 1 - index) * (cardW + MISSING.gap)}
+              top={MISSING.guessTop}
+              width={cardW}
+              height={MISSING.guessH}
+              radius={40}
+              style={styles.tall}
+            >
+              <MockText size={44}>{display(it.word, settings.niqqud)}</MockText>
+            </MockCard>
+          ))}
     </GameShell>
   );
 }
 
+/** Missing composition in mock units (mock "ChatGPT Image …-8"). */
+const MISSING = {
+  score: { left: 518, top: 170, width: 102, height: 60 },
+  round: { left: 632, top: 170, width: 156 , height: 60 },
+  title: { left: 800, top: 164, width: 330, height: 76 },
+  titleSize: 56,
+  prompt: { left: 560, top: 246, width: 570, height: 44 },
+  promptSize: 31,
+  cardW: 198,
+  cardH: 341,
+  askCardH: 196,
+  gap: 22,
+  rowCenterX: 844,
+  rowW: 900,
+  cardTop: 327,
+  guessTop: 545,
+  guessH: 123,
+} as const;
+
 const styles = StyleSheet.create({
-  board: {
-    flex: 1,
-    minHeight: 0,
-  },
-  stack: {
-    justifyContent: 'center',
-  },
-  askSplit: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignContent: 'center',
-    flexShrink: 1,
-  },
-  card: {
-    borderRadius: radii.card,
-    backgroundColor: v3.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 8,
-  },
-  guess: {},
-  gone: {
-    opacity: 0.15,
-  },
+  tall: { backgroundColor: '#FFFCF5', borderColor: '#EDC060' },
+  gone: { opacity: 0.35 },
 });

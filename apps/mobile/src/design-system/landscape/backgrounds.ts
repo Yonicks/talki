@@ -11,7 +11,7 @@ import type { ImageSourcePropType } from 'react-native';
 
 import type { DeviceClass } from '../responsive/breakpoints';
 
-export type LandscapeWorldId = 'home' | 'games' | 'practice';
+export type LandscapeWorldId = 'home' | 'games' | 'practice' | 'detail';
 
 /** Normalized focal point: 0..1 in image space (0.5 = center). */
 export interface FocalPoint {
@@ -35,6 +35,7 @@ export const LANDSCAPE_BG_FOCAL: Record<LandscapeWorldId, FocalPoint> = {
   home: { x: 0.92, y: 0.55 },
   games: { x: 0.55, y: 0.4 },
   practice: { x: 0.5, y: 0.42 },
+  detail: { x: 0.5, y: 0 },
 };
 
 /**
@@ -56,6 +57,7 @@ export const LANDSCAPE_BG_ZOOM: Record<LandscapeWorldId, number> = {
   home: 1.45,
   games: 1,
   practice: 1,
+  detail: 1,
 };
 
 /**

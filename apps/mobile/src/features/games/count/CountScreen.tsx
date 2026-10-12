@@ -1,11 +1,8 @@
+/* eslint-disable no-restricted-syntax -- mock-unit layout constants are physical canvas coordinates (see design-system/landscape/mock/MockStage.tsx) */
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
-import { TalkiText } from '@/design-system/components';
-import { landscapeTokens } from '@/design-system/landscape';
-import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
-import { radii } from '@/design-system/theme/radii';
-import { shadowSm } from '@/design-system/theme/shadows';
+import { MockBox, MockCard, MockChip, MockPanel, MockText } from '@/design-system/landscape';
 import { v3 } from '@/design-system/theme/colors';
 import { NUM_WORDS } from '@/domain/games/numWords';
 import { STAR_STEP } from '@/domain/progress/stars';
@@ -24,7 +21,6 @@ import { GameShell } from '../shell/GameShell';
 import { WordArt } from '../shell/WordArt';
 import { useGameSession, type GameSession } from '../shell/useGameSession';
 import { COUNT_ROUNDS, countChips, countReducer, countResult, initCount, setupCountRound } from './countReducer';
-import { countPicSize } from './countDensity';
 
 export interface CountScreenProps {
   catId: string | null;
@@ -82,13 +78,10 @@ function CountPlay({
 }) {
   const goBack = useGoBack();
   const push = useGuardedPush();
-  const layout = useLandscapeLayout();
-  const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
   const { stats, markLearned } = useProgressStore();
   const settings = useSettingsStore((s) => s.settings);
   const [celebrate, setCelebrate] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<number | null>(null);
-  const [stageWidth, setStageWidth] = useState(layout.usableWidth);
   const spoken = useRef<number | null>(null);
   const completeFired = useRef(false);
   const [state, dispatch] = useReducer(countReducer, undefined, () => initialCount(category, stats, settings, seed));
@@ -149,12 +142,15 @@ function CountPlay({
     [session, state.n, state.it.word, state.round, state.score, category, stats, settings, seed, markLearned, setCelebrate],
   );
 
-  const pic = countPicSize(state.n, stageWidth, tokens.countPicMax);
-  const optMin = tokens.countOptionMin;
+  const replayPrompt = useCallback(() => {
+    void wordVoiceService.say(category.id, `כַּמָּה ${state.it.word} יֵשׁ?`, { core: true });
+  }, [category.id, state.it.word]);
+  const n = state.n;
+  const pic = Math.min(COUNT.picMax, Math.floor(COUNT.stage.width / n) - 10);
 
   return (
     <GameShell
-      title="🔢 כמה יש?"
+      title="כמה יש? 🔢"
       chips={countChips(state)}
       done={state.done}
       result={countResult(state)}
@@ -165,73 +161,77 @@ function CountPlay({
       onDismissToast={session.dismissToast}
       celebrateMessage={celebrate}
       onDismissCelebrate={() => setCelebrate(null)}
+      layout="free"
+      scene="count"
     >
-      <View
-        testID={testIds.count.root}
-        style={[styles.board, { gap: Math.max(6, tokens.gap - 2), paddingInline: tokens.padInline }]}
+      <MockBox testID={testIds.count.root} left={0} top={0} width={1688} height={697} />
+      <MockChip testID={testIds.game.chip(1)} label={`${state.score} ⭐`} {...COUNT.score} />
+      <MockChip testID={testIds.game.chip(0)} label={`סיבוב ${state.round + 1}/5`} {...COUNT.round} />
+      <MockBox
+        testID="count-replay"
+        left={268}
+        top={257}
+        width={148}
+        height={140}
       >
-        <TalkiText align="center" color={v3.textSecondary} style={{ fontSize: tokens.subtitleSize }}>
+        <Pressable accessibilityRole="button" accessibilityLabel="להשמיע שוב" onPress={replayPrompt} style={StyleSheet.absoluteFill} />
+      </MockBox>
+      <MockPanel {...COUNT.titleBanner} radius={52} style={styles.banner}>
+        <MockText testID={testIds.game.headerTitle} size={COUNT.titleSize}>
+          🔢 כמה יש?
+        </MockText>
+      </MockPanel>
+      <MockPanel {...COUNT.promptBanner} radius={40} style={styles.banner}>
+        <MockText size={COUNT.promptSize} weight="regular">
           {`כמה ${display(state.it.word, settings.niqqud)} יש כאן?`}
-        </TalkiText>
-        <View
-          testID={testIds.count.stage}
-          style={[styles.stage, { gap: Math.max(4, tokens.gap - 4) }]}
-          onLayout={(e) => setStageWidth(e.nativeEvent.layout.width)}
+        </MockText>
+      </MockPanel>
+      <MockBox testID={testIds.count.stage} {...COUNT.stage} style={styles.stage}>
+        {Array.from({ length: n }, (_, i) => (
+          <MockBox key={i} left={0} top={0} width={pic} height={COUNT.stage.height} style={styles.pic}>
+            <WordArt word={state.it} size="100%" />
+          </MockBox>
+        ))}
+      </MockBox>
+      {state.options.map((opt, index) => (
+        <MockCard
+          key={`${state.round}:${opt}`}
+          testID={testIds.count.option(index)}
+          accessibilityLabel={String(opt)}
+          onPress={() => answer(opt)}
+          radius={56}
+          {...COUNT.options[index]}
+          width={COUNT.optionW}
+          height={COUNT.optionH}
+          style={feedback === opt ? (opt === state.n ? styles.ok : styles.bad) : undefined}
         >
-          {Array.from({ length: state.n }, (_, i) => (
-            <View key={i} style={[styles.pic, { width: pic, height: pic, maxWidth: pic }]}>
-              <WordArt word={state.it} size="80%" />
-            </View>
-          ))}
-        </View>
-        <View style={[styles.grid, { gap: Math.max(6, tokens.gap - 2) }]}>
-          {state.options.map((n, index) => (
-            <Pressable
-              key={`${state.round}:${n}`}
-              testID={testIds.count.option(index)}
-              accessibilityRole="button"
-              accessibilityLabel={String(n)}
-              onPress={() => answer(n)}
-              style={[
-                styles.opt,
-                shadowSm,
-                { minHeight: optMin },
-                feedback === n && (n === state.n ? styles.ok : styles.bad),
-              ]}
-            >
-              <TalkiText style={[styles.num, { fontSize: Math.max(24, tokens.gameTitleSize + 10) }]}>{n}</TalkiText>
-            </Pressable>
-          ))}
-        </View>
-      </View>
+          <MockText size={COUNT.optionSize}>{String(opt)}</MockText>
+        </MockCard>
+      ))}
     </GameShell>
   );
 }
 
+/** Count composition in mock units (mock "ChatGPT Image …-3"). */
+const COUNT = {
+  score: { left: 251, top: 190, width: 125, height: 72 },
+  round: { left: 471, top: 187, width: 175, height: 76 },
+  titleBanner: { left: 646, top: 140, width: 418, height: 98 },
+  titleSize: 72,
+  promptBanner: { left: 624, top: 247, width: 440, height: 83 },
+  promptSize: 40,
+  stage: { left: 500, top: 360, width: 690, height: 210 },
+  picMax: 200,
+  optionW: 376,
+  optionH: 112,
+  optionSize: 78,
+  options: [{ left: 1064, top: 592 }, { left: 658, top: 592 }, { left: 248, top: 592 }],
+} as const;
+
 const styles = StyleSheet.create({
-  board: { flex: 1, minHeight: 0, paddingTop: 4, paddingBottom: 12 },
-  stage: {
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexGrow: 1,
-    flexShrink: 1,
-    minHeight: 64,
-    overflow: 'hidden',
-  },
-  pic: { alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  grid: { flexDirection: 'row', justifyContent: 'center', flexShrink: 0 },
-  opt: {
-    flex: 1,
-    borderRadius: radii.card,
-    backgroundColor: v3.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: 'transparent',
-  },
-  num: {},
-  ok: { borderColor: v3.green500 },
-  bad: { borderColor: v3.pink500 },
+  banner: { alignItems: 'center', justifyContent: 'center' },
+  stage: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
+  pic: { position: 'relative', left: 0, top: 0, alignItems: 'center', justifyContent: 'center' },
+  ok: { borderColor: v3.green500, borderWidth: 3 },
+  bad: { borderColor: v3.pink500, borderWidth: 3 },
 });

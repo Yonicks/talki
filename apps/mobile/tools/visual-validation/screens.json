@@ -1,0 +1,103 @@
+{
+ "gate": {
+  "route": "/parent?seed=42",
+  "mock": "ChatGPT Image Oct 12, 2026, 01_46_53 AM-1.png",
+  "crop": [
+   44,
+   48,
+   1732,
+   838
+  ]
+ },
+ "parent": {
+  "route": "/parent?seed=42&unlock=1",
+  "mock": "ChatGPT Image Oct 12, 2026, 01_46_53 AM-2.png",
+  "crop": [
+   44,
+   48,
+   1732,
+   838
+  ]
+ },
+ "game-count": {
+  "route": "/game/count?catId=animals&seed=42",
+  "mock": "ChatGPT Image Oct 12, 2026, 01_46_54 AM-3.png",
+  "crop": [
+   44,
+   48,
+   1732,
+   838
+  ]
+ },
+ "game-quiz": {
+  "route": "/game/quiz?catId=animals&seed=42",
+  "mock": "ChatGPT Image Oct 12, 2026, 01_46_55 AM-6.png",
+  "crop": [
+   44,
+   48,
+   1732,
+   838
+  ]
+ },
+ "cards": {
+  "route": "/cards/animals",
+  "mock": "ChatGPT Image Oct 12, 2026, 01_46_55 AM-5.png",
+  "crop": [
+   44,
+   48,
+   1732,
+   838
+  ],
+  "ad": false
+ },
+ "game-sounds": {
+  "route": "/game/sounds?catId=animals&seed=42",
+  "mock": "ChatGPT Image Oct 12, 2026, 01_46_54 AM-4.png",
+  "crop": [
+   44,
+   48,
+   1732,
+   838
+  ]
+ },
+ "game-memory": {
+  "route": "/game/memory?catId=animals&seed=42",
+  "mock": "ChatGPT Image Oct 12, 2026, 01_46_56 AM-7.png",
+  "crop": [
+   44,
+   48,
+   1732,
+   838
+  ]
+ },
+ "game-missing": {
+  "route": "/game/missing?catId=animals&seed=42",
+  "mock": "ChatGPT Image Oct 12, 2026, 01_46_56 AM-8.png",
+  "crop": [
+   44,
+   48,
+   1732,
+   838
+  ]
+ },
+ "practice": {
+  "route": "/practice",
+  "mock": "Talki Fantasy Garden Game Menu.png",
+  "crop": null
+ },
+ "rewards": {
+  "route": "/rewards",
+  "mock": "Talki Sticker Meadow Adventure.png",
+  "crop": null
+ },
+ "games": {
+  "route": "/games",
+  "mock": "Whimsical Talki Game Selection Screen.png",
+  "crop": null
+ },
+ "home": {
+  "route": "/",
+  "mock": "c577a74e-1f80-4697-b832-e2e672fe9cb6.png",
+  "crop": null
+ }
+}
