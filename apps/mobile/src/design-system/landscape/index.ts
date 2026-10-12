@@ -48,3 +48,4 @@ export {
   type HomeMetrics,
   type HomeStripMetrics,
 } from './homeLayout';
+export * from './mock';

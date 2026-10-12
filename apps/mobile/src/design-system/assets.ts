@@ -83,6 +83,19 @@ export const landscapeBackgrounds = {
   home: require('../../assets/v2/landscape/talki-landscape-bg-home.png'),
   games: require('../../assets/v2/landscape/talki-landscape-bg-games.png'),
   practice: require('../../assets/v2/landscape/talki-landscape-bg-practice.png'),
+  /** Clean garden plate rebuilt from the game-detail mocks (tools/mock-plate). */
+  detail: require('../../assets/v2/landscape/talki-landscape-bg-detail.webp'),
+} as const;
+
+/** Per-screen scene plates: each mock's own painting with live UI painted out and
+ *  static dressing (panel, vines, banners) baked in. See tools/mock-plate. */
+export const landscapeScenes = {
+  count: require('../../assets/v2/landscape/scenes/count.webp'),
+  quiz: require('../../assets/v2/landscape/scenes/quiz.webp'),
+  sounds: require('../../assets/v2/landscape/scenes/sounds.webp'),
+  memory: require('../../assets/v2/landscape/scenes/memory.webp'),
+  missing: require('../../assets/v2/landscape/scenes/missing.webp'),
+  cards: require('../../assets/v2/landscape/scenes/cards.webp'),
 } as const;
 
 /** Game card art — all eleven registered games (Phase 21). Files live under

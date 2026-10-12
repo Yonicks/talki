@@ -1,14 +1,10 @@
+/* eslint-disable no-restricted-syntax -- mock-unit layout constants are physical canvas coordinates (see design-system/landscape/mock/MockStage.tsx) */
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
 
-import { TalkiButton, TalkiHeading, TalkiText } from '@/design-system/components';
-import { landscapeTokens } from '@/design-system/landscape';
-import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
-import { radii } from '@/design-system/theme/radii';
-import { shadowCard } from '@/design-system/theme/shadows';
-import { v3 } from '@/design-system/theme/colors';
+import { MockBox, MockCard, MockPrimary, MockText } from '@/design-system/landscape';
 import { homeHref } from '@/domain/navigation/routes';
 import { display } from '@/domain/vocabulary/niqqud';
 import { useGoBack } from '@/hooks/useGoBack';
@@ -36,8 +32,6 @@ export function CardsScreen({ catId }: CardsScreenProps) {
   const session = useGameSession({ gameId: 'cards', requestedCatId: catId, mode: 'browse' });
   const settings = useSettingsStore((s) => s.settings);
   const markLearned = useProgressStore((s) => s.markLearned);
-  const layout = useLandscapeLayout();
-  const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -73,7 +67,6 @@ export function CardsScreen({ catId }: CardsScreenProps) {
 
   const title = session.category ? `🖼️ ${session.category.title}` : '🖼️ כרטיסיות';
   const counter = items.length ? `${safeIndex + 1}/${items.length}` : '0/0';
-  const split = tokens.cardsSplitLayout;
 
   return (
     <GameShell
@@ -90,83 +83,69 @@ export function CardsScreen({ catId }: CardsScreenProps) {
       onDismissCelebrate={() => undefined}
       scoring={false}
       chipTestIDs={[testIds.cards.counter]}
+      layout="free"
+      scene="cards"
     >
+      <MockBox testID={testIds.cards.counter} {...CARDS.counter} pointerEvents="none">
+        <MockText size={CARDS.counterSize} weight="bold">
+          {counter}
+        </MockText>
+      </MockBox>
+      <MockBox {...CARDS.category}>
+        <MockText testID={testIds.game.headerTitle} size={CARDS.categorySize}>
+          {session.category ? `🖼️ ${session.category.title}` : '🖼️ כרטיסיות'}
+        </MockText>
+      </MockBox>
       {current ? (
-        <View
-          testID={testIds.cards.root}
-          style={[
-            styles.stage,
-            {
-              gap: tokens.gap,
-              maxWidth: tokens.cardsStageMaxWidth,
-              alignSelf: 'center',
-              width: '100%',
-              flexDirection: split ? 'row' : 'column',
-              alignItems: split ? 'stretch' : undefined,
-            },
-          ]}
-        >
+        <>
           <GestureDetector gesture={swipe}>
-            <Pressable
-              testID={testIds.cards.word}
-              accessibilityRole="button"
-              onPress={say}
-              style={[styles.card, shadowCard, split && styles.cardSplit]}
-            >
-              <WordArt word={current} size={split ? '56%' : '64%'} />
-              <TalkiHeading level={1} align="center">
-                {display(current.word, settings.niqqud)}
-              </TalkiHeading>
-            </Pressable>
+            <MockBox testID={testIds.cards.word} accessibilityLabel="השמעת המילה" onPress={say} {...CARDS.panel} />
           </GestureDetector>
-          <View style={[styles.side, split && styles.sideSplit, { gap: tokens.gap }]}>
-            <View style={styles.nav}>
-              <TalkiButton testID={testIds.cards.prev} label="הקודם" variant="secondary" onPress={() => go(-1)} />
-              <TalkiButton testID={testIds.cards.say} label="שוב" onPress={say} />
-              <TalkiButton testID={testIds.cards.next} label="הבא" variant="secondary" onPress={() => go(1)} />
-            </View>
-            <TalkiText align="center" color={v3.textSecondary} style={{ fontSize: tokens.subtitleSize }}>
-              מחליקים ימינה ושמאלה כדי להחליף מילה
-            </TalkiText>
-          </View>
-        </View>
+          <MockBox testID={testIds.cards.root} {...CARDS.art} pointerEvents="none" style={styles.art}>
+            <WordArt word={current} size="100%" />
+          </MockBox>
+          <MockBox {...CARDS.word} pointerEvents="none">
+            <MockText size={CARDS.wordSize} color={CARDS.wordInk}>
+              {display(current.word, settings.niqqud)}
+            </MockText>
+          </MockBox>
+        </>
       ) : null}
+      <MockCard testID={testIds.cards.prev} accessibilityLabel="הקודם" onPress={() => go(-1)} radius={40} {...CARDS.prev}>
+        <MockText size={CARDS.btnSize}>הקודם</MockText>
+      </MockCard>
+      <MockPrimary testID={testIds.cards.say} label="שוב" onPress={say} size={CARDS.btnSize} {...CARDS.say} />
+      <MockCard testID={testIds.cards.next} accessibilityLabel="הבא" onPress={() => go(1)} radius={40} {...CARDS.next}>
+        <MockText size={CARDS.btnSize}>הבא</MockText>
+      </MockCard>
+      <MockBox {...CARDS.hint}>
+        <MockText size={CARDS.hintSize} weight="regular">
+          לחצו על שוב כדי לשמוע את המילה שוב.
+        </MockText>
+      </MockBox>
     </GameShell>
   );
 }
 
+/** Cards composition in mock units (mock "ChatGPT Image …-5"). */
+const CARDS = {
+  counter: { left: 705, top: 112, width: 107, height: 66 },
+  counterSize: 32,
+  category: { left: 822, top: 116, width: 150, height: 58 },
+  categorySize: 36,
+  panel: { left: 362, top: 185, width: 960, height: 441 },
+  art: { left: 689, top: 207, width: 300, height: 300 },
+  word: { left: 640, top: 494, width: 405, height: 106 },
+  wordSize: 78,
+  wordInk: '#4B1E8E',
+  prev: { left: 956, top: 640, width: 190, height: 88 },
+  say: { left: 752, top: 640, width: 176, height: 88 },
+  next: { left: 542, top: 640, width: 186, height: 88 },
+  btnSize: 34,
+  hint: { left: 600, top: 743, width: 500, height: 38 },
+  hintSize: 28,
+} as const;
+
 const styles = StyleSheet.create({
-  stage: {
-    flex: 1,
-    minHeight: 0,
-    justifyContent: 'center',
-  },
-  card: {
-    flex: 1,
-    minHeight: 160,
-    borderRadius: radii.hero,
-    backgroundColor: v3.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-    gap: 12,
-  },
-  cardSplit: {
-    flex: 1.4,
-    minHeight: 0,
-  },
-  side: {
-    alignItems: 'center',
-  },
-  sideSplit: {
-    flex: 1,
-    justifyContent: 'center',
-    minWidth: 160,
-  },
-  nav: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    justifyContent: 'center',
-  },
+  art: { alignItems: 'center', justifyContent: 'center' },
 });
