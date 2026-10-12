@@ -6,7 +6,8 @@
  */
 
 /**
- * Hub / parent surfaces that may reserve a bottom banner strip.
+ * Child hubs that may reserve a bottom banner strip. Parent reading/forms
+ * use the full viewport and never mount a banner.
  *
  * Home (`/`) is included: the v3 Home composition is measured against the
  * *usable* viewport (`useLandscapeLayout().usableHeight` already subtracts
@@ -20,7 +21,6 @@ export const BANNER_ELIGIBLE_EXACT_PATHS = [
   '/games',
   '/practice',
   '/rewards',
-  '/parent',
 ] as const;
 
 export type BannerEligiblePath = (typeof BANNER_ELIGIBLE_EXACT_PATHS)[number];

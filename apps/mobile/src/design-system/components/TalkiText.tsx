@@ -1,7 +1,8 @@
-import type { ComponentProps } from 'react';
+import { useContext, type ComponentProps } from 'react';
 import { StyleSheet, Text } from 'react-native';
 
 import { isRTL } from '../rtl/logical';
+import { ReadingDirection } from '../rtl/ReadingDirection';
 import { v3 } from '../theme/colors';
 import { fontFamily } from '../theme/typography';
 
@@ -31,10 +32,11 @@ export interface TalkiTextProps extends ComponentProps<typeof Text> {
  *  app renders through this, never a bare `<Text>`, so a font-family change
  *  is a one-file edit. */
 export function TalkiText({ weight = 'regular', color = v3.textPrimary, align = 'start', style, ...rest }: TalkiTextProps) {
+  const readingDirection = useContext(ReadingDirection);
   return (
     <Text
       {...rest}
-      style={[styles.base, { fontFamily: fontFamily.body[weight], color, textAlign: resolveLogicalAlign(align) }, style]}
+      style={[styles.base, { fontFamily: fontFamily.body[weight], color, writingDirection: readingDirection, textAlign: readingDirection && align === 'start' ? 'auto' : resolveLogicalAlign(align) }, style]}
     />
   );
 }

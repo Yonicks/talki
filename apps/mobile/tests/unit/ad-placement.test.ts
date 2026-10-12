@@ -9,15 +9,20 @@ import {
 } from '@/services/ads/adPlacement';
 
 describe('ad placement eligibility', () => {
-  it('exposes exact eligible hub/parent paths', () => {
-    expect([...BANNER_ELIGIBLE_EXACT_PATHS]).toEqual(['/', '/games', '/practice', '/rewards', '/parent']);
+  it('exposes exact eligible child hub paths', () => {
+    expect([...BANNER_ELIGIBLE_EXACT_PATHS]).toEqual(['/', '/games', '/practice', '/rewards']);
   });
 
-  it('marks hub and parent routes eligible', () => {
+  it('marks child hub routes eligible', () => {
     for (const path of BANNER_ELIGIBLE_EXACT_PATHS) {
       expect(isBannerAdEligible(path), path).toBe(true);
       expect(bannerAdIneligibilityReason(path)).toBeNull();
     }
+  });
+
+  it('keeps parent reading and forms free of ads', () => {
+    expect(isBannerAdEligible('/parent')).toBe(false);
+    expect(isBannerAdEligible('/parent/?seed=42')).toBe(false);
   });
 
   it('suppresses active gameplay and practice detail', () => {

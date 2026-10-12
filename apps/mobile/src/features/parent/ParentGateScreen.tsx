@@ -115,10 +115,10 @@ export function ParentGateScreen({ onUnlocked }: { onUnlocked: () => void }) {
 
 /** Gate composition in mock units (mock "ChatGPT Image …-1"); the panel is baked into the scene. */
 const GATE = {
-  colLefts: [412, 540, 668],
-  rowTops: [187, 301, 414, 527],
-  keyW: 112,
-  keyH: 110,
+  colLefts: [400, 540, 680],
+  rowTops: [175, 305, 435, 565],
+  keyW: 124,
+  keyH: 124,
   lock: { left: 1000, top: 172, width: 180, height: 100 },
   title: { left: 940, top: 272, width: 300, height: 76 },
   subtitle: { left: 900, top: 346, width: 380, height: 44 },
@@ -131,5 +131,5 @@ const PHYSICAL = [0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 10, 9] as const;
 
 const styles = StyleSheet.create({
   pill: { backgroundColor: '#EFE5F5', alignItems: 'center', justifyContent: 'center' },
-  center: { alignItems: 'center', justifyContent: 'center' },
+  center: { minHeight: 48, minWidth: 48, alignItems: 'center', justifyContent: 'center' },
 });

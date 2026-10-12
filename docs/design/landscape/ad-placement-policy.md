@@ -35,7 +35,6 @@ Exact pathnames only (no prefix match for hubs):
 | `/games` | Games menu hub |
 | `/practice` | Practice menu hub |
 | `/rewards` | Stickers / rewards |
-| `/parent` | Parent gate + center |
 
 On these routes the root layout may mount `AdBanner` beneath a `flex:1`
 Stack. The banner **never** paints on top of hub controls; it consumes a
@@ -47,6 +46,7 @@ dedicated bottom strip. Failure to load reclaims the strip (`reserved = 0`).
 |---|---|
 | Opening stages (`bumper` / `intro` before app) | Opening sequence — no ads |
 | `/intro` | Isolated intro route |
+| `/parent` | Parent gate and tabs: full viewport for reading and forms (October 2026 UI correction) |
 | `/game/*` | Active gameplay — no overlay, no play-area shrink |
 | `/practice/<id>` | Active practice detail |
 | `/category/*` | Category play / word grid |

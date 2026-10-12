@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { TalkiButton, TalkiCard, TalkiText } from '@/design-system/components';
-import { mockInk, useMockUnits } from '@/design-system/landscape';
-import { fontFamily } from '@/design-system/theme/typography';
+import { TalkiButton, TalkiCard, TalkiHeading, TalkiText } from '@/design-system/components';
 import { v3 } from '@/design-system/theme/colors';
 import { RESET_CONFIRM_TEXT, RESET_DELETES_TEXT, RESET_KEEPS_TEXT } from '@/domain/parent/progressReset';
 import { formatStorageInfo, readStorageInfo } from '@/services/storage/readStorageInfo';
@@ -48,6 +46,10 @@ export function SettingsTab() {
     <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled" style={styles.fill}>
       <TalkiCard style={flatCard}>
         <View style={styles.topRow}>
+          <View style={styles.headBlock}>
+            <Heading>הקראה והצגה</Heading>
+            <Sub>מהירות דיבור</Sub>
+          </View>
           <View style={styles.seg}>
             {RATES.map((r) => (
               <Seg
@@ -58,10 +60,6 @@ export function SettingsTab() {
                 onPress={() => void patchSettings({ rate: r.v })}
               />
             ))}
-          </View>
-          <View style={styles.headBlock}>
-            <Heading>הקראה והצגה</Heading>
-            <Sub>מהירות דיבור</Sub>
           </View>
         </View>
         <Toggle
@@ -159,13 +157,11 @@ export function SettingsTab() {
 }
 
 function Heading({ children }: { children: string }) {
-  const { u } = useMockUnits();
-  return <Text style={{ fontFamily: fontFamily.body.extrabold, fontSize: 44 * u, color: mockInk, writingDirection: 'rtl', textAlign: 'left' }}>{children}</Text>;
+  return <TalkiHeading level={3}>{children}</TalkiHeading>;
 }
 
 function Sub({ children }: { children: string }) {
-  const { u } = useMockUnits();
-  return <Text style={{ fontFamily: fontFamily.body.extrabold, fontSize: 31 * u, color: mockInk, writingDirection: 'rtl', textAlign: 'left' }}>{children}</Text>;
+  return <TalkiText weight="bold">{children}</TalkiText>;
 }
 
 function Seg({
@@ -179,16 +175,15 @@ function Seg({
   onPress: () => void;
   testID: string;
 }) {
-  const { u } = useMockUnits();
   return (
     <Pressable
       testID={testID}
       accessibilityRole="button"
       accessibilityState={{ selected: on }}
       onPress={onPress}
-      style={[styles.segBtn, on && styles.segOn, { minWidth: 120 * u, minHeight: 74 * u, borderRadius: 34 * u }]}
+      style={[styles.segBtn, on && styles.segOn]}
     >
-      <Text style={{ fontFamily: on ? fontFamily.body.extrabold : fontFamily.body.regular, fontSize: 30 * u, color: mockInk, writingDirection: 'rtl' }}>{label}</Text>
+      <TalkiText align="center" weight={on ? 'extrabold' : 'regular'}>{label}</TalkiText>
     </Pressable>
   );
 }
@@ -204,24 +199,23 @@ function Toggle({
   onPress: () => void;
   testID: string;
 }) {
-  const { u } = useMockUnits();
   return (
     <Pressable
       testID={testID}
       accessibilityRole="switch"
       accessibilityState={{ checked: on }}
       onPress={onPress}
-      style={[styles.toggle, { minHeight: 86 * u }]}
+      style={styles.toggle}
     >
-      <Text style={{ fontFamily: fontFamily.body.extrabold, fontSize: 31 * u, color: mockInk, writingDirection: 'rtl' }}>{label}</Text>
-      <View style={[styles.sw, on && styles.swOn, { width: 118 * u, height: 62 * u, borderRadius: 31 * u }]}>
-        <View style={[styles.knob, { width: 52 * u, height: 52 * u, borderRadius: 26 * u }, on ? { start: 5 * u } : { end: 5 * u }]} />
+      <TalkiText weight="extrabold">{label}</TalkiText>
+      <View style={[styles.sw, on && styles.swOn]}>
+        <View style={[styles.knob, on ? { start: 3 } : { end: 3 }]} />
       </View>
     </Pressable>
   );
 }
 
-/** Settings cards sit directly on the cream card the scene paints. */
+/** Settings cards share the parent workspace's quiet cream surface. */
 const flatCard = { backgroundColor: 'transparent', borderWidth: 0, shadowOpacity: 0, elevation: 0 } as const;
 
 const styles = StyleSheet.create({
@@ -232,6 +226,8 @@ const styles = StyleSheet.create({
   headBlock: { alignItems: 'flex-start' },
   segBtn: {
     minHeight: 48,
+    minWidth: 60,
+    borderRadius: 17,
     paddingInline: 12,
     borderWidth: 2,
     borderColor: '#EEDDB8',
@@ -249,8 +245,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#F0E2C4',
   },
-  sw: { backgroundColor: '#EBDDBE', justifyContent: 'center' },
+  sw: { width: 58, height: 32, borderRadius: 16, backgroundColor: '#EBDDBE', justifyContent: 'center' },
   swOn: { backgroundColor: '#7B3FE4' },
-  knob: { position: 'absolute', backgroundColor: '#FFFFFF' },
+  knob: { width: 26, height: 26, borderRadius: 13, position: 'absolute', backgroundColor: '#FFFFFF' },
   confirm: { gap: 8, marginBlockStart: 8 },
 });

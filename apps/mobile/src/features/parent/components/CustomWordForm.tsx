@@ -72,6 +72,8 @@ const styles = StyleSheet.create({
   emojiCol: { width: 88 },
   label: { marginBlockStart: 8 },
   input: {
+    writingDirection: 'rtl',
+    textAlign: 'auto',
     minHeight: 48,
     borderWidth: 1,
     borderColor: v3.borderSoft,

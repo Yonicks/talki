@@ -10,7 +10,7 @@ import { auditReachability, auditTouchTargets, captureMatrix, openApp } from './
 const FIXTURE = readFileSync(resolve(__dirname, '../../../../docs/migration/fixtures/legacy-backup-v1.json'), 'utf8');
 
 async function holdParent(page: Page, ms = 1000): Promise<void> {
-  const btn = page.getByTestId(testIds.parent.button);
+  const btn = page.getByTestId(testIds.parent.button).filter({ visible: true });
   await expect(btn).toBeVisible();
   // Playwright's click delay keeps the pointer down for `ms`, which maps to
   // RN Web Pressable onPressIn → hold timer → onBrandLongPress more reliably
@@ -31,6 +31,45 @@ async function unlockGate(page: Page): Promise<void> {
 }
 
 test.describe('Phase 27 parent centre', () => {
+  test('parent reading area reclaims the hub ad band and the final paragraph is reachable', async ({ page }, testInfo) => {
+    await page.addInitScript(() => {
+      (window as unknown as { __talkiAdReservedPx: number }).__talkiAdReservedPx = 60;
+    });
+    await openApp(page);
+    await holdParent(page);
+    await unlockGate(page);
+    for (const tab of ['settings', 'record', 'words', 'report', 'method']) {
+      await page.getByTestId(testIds.parent.tab(tab)).click();
+      await expect(page.getByTestId('parent-tab-content')).toHaveCSS('direction', 'rtl');
+      await expect(page.getByTestId('parent-tab-content').getByRole('heading').first()).toHaveCSS('direction', 'rtl');
+      if (tab === 'words') {
+        await expect(page.getByTestId(testIds.parent.wordsInput)).toHaveCSS('direction', 'rtl');
+      }
+      await page.screenshot({ path: testInfo.outputPath(`parent-${tab}.png`) });
+    }
+    await page.getByTestId(testIds.parent.tab('method')).click();
+    await expect(page.getByRole('button', { name: 'חזרה לילדים', exact: true })).toHaveCount(1);
+    const touch = (await auditTouchTargets(page)).filter((v) => v.testId.startsWith('parent-'));
+    expect(touch, JSON.stringify(touch)).toHaveLength(0);
+
+    await expect(page.getByTestId(testIds.ads.reserved)).toHaveCount(0);
+    {
+      const content = page.getByTestId('parent-tab-content');
+      await expect.poll(async () => {
+        const box = await content.boundingBox();
+        return Math.round(box!.y + box!.height);
+      }).toBe(page.viewportSize()!.height);
+      const finalParagraph = page.getByText('שלוש הנחיות שחוזרות בכל הגישות:', { exact: false });
+      await finalParagraph.scrollIntoViewIfNeeded();
+      const end = await finalParagraph.boundingBox();
+      const bounds = await content.boundingBox();
+      expect(end!.y + end!.height).toBeLessThanOrEqual(bounds!.y + bounds!.height + 1);
+      await expect(page.getByTestId(testIds.parent.tab('method'))).toBeInViewport();
+    }
+    await page.getByText('על מה מבוססים משחקי הדיבור').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: testInfo.outputPath('parent-method.png') });
+  });
+
   test('hold opens the gate; short tap toasts; wrong stays locked; tabs and reset; leaving re-locks', async ({
     page,
   }) => {
@@ -163,7 +202,7 @@ test.describe('Phase 27 parent centre', () => {
     await captureMatrix(page, '27', 'mine-custom-word');
 
     // Delete from parent words tab
-    await page.getByTestId(testIds.category.back).click();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
     await holdParent(page);
     await unlockGate(page);
     await page.getByTestId(testIds.parent.tab('words')).click();

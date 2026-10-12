@@ -4,6 +4,7 @@ import { KeyboardAvoidingView, Platform, StyleSheet, View, type StyleProp, type 
 import { LandscapeScreen, landscapeTokens } from '@/design-system/landscape';
 import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
 import { v3 } from '@/design-system/theme/colors';
+import { ReadingDirection } from '@/design-system/rtl/ReadingDirection';
 
 export interface ParentShellProps {
   children: ReactNode;
@@ -28,6 +29,7 @@ export function ParentShell({ children, testID, header, tabs, style, contentStyl
   const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
 
   return (
+    <ReadingDirection.Provider value="rtl">
     <LandscapeScreen testID={testID} backgroundColor={v3.bg} style={StyleSheet.flatten(style)}>
       <KeyboardAvoidingView
         style={styles.flex}
@@ -52,6 +54,7 @@ export function ParentShell({ children, testID, header, tabs, style, contentStyl
         </View>
       </KeyboardAvoidingView>
     </LandscapeScreen>
+    </ReadingDirection.Provider>
   );
 }
 

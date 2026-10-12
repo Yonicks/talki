@@ -1,9 +1,10 @@
-import type { ComponentProps } from 'react';
+import { useContext, type ComponentProps } from 'react';
 import { Text } from 'react-native';
 
 import { resolveLogicalAlign, type TalkiLogicalAlign } from './TalkiText';
 import { v3 } from '../theme/colors';
 import { fontFamily } from '../theme/typography';
+import { ReadingDirection } from '../rtl/ReadingDirection';
 
 export type TalkiHeadingLevel = 1 | 2 | 3;
 export type TalkiHeadingWeight = 'medium' | 'bold' | 'extrabold' | 'black';
@@ -30,13 +31,14 @@ export function TalkiHeading({
   style,
   ...rest
 }: TalkiHeadingProps) {
+  const readingDirection = useContext(ReadingDirection);
   return (
     <Text
       {...rest}
       accessibilityRole="header"
       style={[
         SIZE_BY_LEVEL[level],
-        { fontFamily: fontFamily.heading[weight], color, textAlign: resolveLogicalAlign(align) },
+        { fontFamily: fontFamily.heading[weight], color, writingDirection: readingDirection, textAlign: readingDirection && align === 'start' ? 'auto' : resolveLogicalAlign(align) },
         style,
       ]}
     />

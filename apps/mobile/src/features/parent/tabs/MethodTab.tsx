@@ -38,19 +38,19 @@ const ITEMS: [string, string, string][] = [
 
 export function MethodTab() {
   return (
-    <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled" style={styles.fill}>
+    <ScrollView testID="parent-method-scroll" contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled" style={styles.fill}>
       <TalkiCard>
-        <TalkiHeading level={3}>על מה מבוססים משחקי הדיבור</TalkiHeading>
+        <TalkiHeading level={3} style={styles.readingDirection}>על מה מבוססים משחקי הדיבור</TalkiHeading>
         {ITEMS.map(([title, tech, desc]) => (
           <View key={title} style={styles.row}>
-            <TalkiText weight="extrabold">{title}</TalkiText>
-            <TalkiText color={v3.textSecondary} weight="bold">
+            <TalkiText weight="extrabold" style={styles.body}>{title}</TalkiText>
+            <TalkiText color={v3.textHeading} weight="bold" style={styles.body}>
               {tech}
             </TalkiText>
-            <TalkiText color={v3.textSecondary}>{desc}</TalkiText>
+            <TalkiText style={styles.body}>{desc}</TalkiText>
           </View>
         ))}
-        <TalkiText color={v3.textSecondary} style={styles.note}>
+        <TalkiText style={[styles.body, styles.note]}>
           שלוש הנחיות שחוזרות בכל הגישות: לדבר קצר ואיטי, לחכות בשקט אחרי כל הזדמנות, ולהחזיר כל ניסיון של הילד כמשפט
           מלא. האפליקציה עוזרת לתרגל — היא לא מחליפה קלינאית תקשורת, ואם יש חשש לעיכוב שפתי כדאי להיבדק.
         </TalkiText>
@@ -62,6 +62,8 @@ export function MethodTab() {
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   pad: { padding: 16, gap: 12, paddingBlockEnd: 32 },
-  row: { gap: 4, marginBlockStart: 12 },
-  note: { marginBlockStart: 12 },
+  readingDirection: { writingDirection: 'rtl', textAlign: 'auto' },
+  body: { fontSize: 17, lineHeight: 27, writingDirection: 'rtl', textAlign: 'auto' },
+  row: { gap: 6, marginBlockStart: 20, paddingBlockStart: 16, borderTopWidth: 1, borderTopColor: v3.borderSoft },
+  note: { marginBlockStart: 20, padding: 16, borderRadius: 12, backgroundColor: v3.purple050 },
 });
