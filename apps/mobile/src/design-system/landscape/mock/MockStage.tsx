@@ -103,7 +103,14 @@ export function MockStage({ children, testID, backgroundSource, scene, withAd = 
         <MockUnitsContext.Provider value={units}>
           <View
             pointerEvents="box-none"
-            style={{ position: 'absolute', top: 0, left: (box.w - units.width) / 2, width: units.width, height: units.height }}
+            // `direction: 'ltr'` keeps every mock-unit left/top physical on
+            // native: without it, `I18nManager.forceRTL()` (rtl/forceRTL.ts)
+            // auto-mirrors this canvas's absolutely positioned children
+            // (header icons, grid cells, …), which never happens on web —
+            // so a screen built exactly to its mock reference renders
+            // correctly on web but mirrored on native. See the "physical
+            // mock composition" rationale at the top of this file.
+            style={{ position: 'absolute', top: 0, left: (box.w - units.width) / 2, width: units.width, height: units.height, direction: 'ltr' }}
           >
             {scene ? (
               <Image

@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
-import { ScrollView } from 'react-native';
+import { useCallback, useEffect } from 'react';
 
 import { ToastHost } from '@/components/shell';
 import { hubMockArt } from '@/design-system/assets';
@@ -9,7 +8,6 @@ import { PRACTICE_LIST } from '@/domain/practice/list';
 import { practiceCardImage } from '@/domain/practice/practiceCards';
 import { practiceHref } from '@/domain/navigation/routes';
 import type { CategoryId, PracticeModeId } from '@/domain/types';
-import { GameCatChipRow } from '@/features/games/GameCatChipRow';
 import { MockHubFrame } from '@/features/shell/MockHubFrame';
 import { useGuardedPush } from '@/hooks/useGuardedPush';
 import { useParentBrand } from '@/hooks/useParentBrand';
@@ -21,9 +19,8 @@ import { testIds } from '@/testing/testIds';
  * Landscape Practice hub (Phase 22).
  *
  * Composition (matches `docs/design/landscape/reference/Talki Fantasy Garden Game Menu.png`):
- *   world background + top chrome + side nav (LandscapeHubFrame)
- *   LandscapeTitle with the reference subtitle
- *   category chips (preserved launch context)
+ *   world background + top chrome (no side nav, no category chips — see
+ *   PracticeMenuScreen's MockHubFrame usage)
  *   3×2 LandscapeActivityGrid for all six PRACTICE_LIST modes
  *
  * All six registered practice modes remain reachable; launch/gating
@@ -39,9 +36,9 @@ export function PracticeMenuScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate once on mount
   }, []);
 
-  const chips = gameCatChips(custom, lastCat as CategoryId | null);
-  const [activeChip, setActiveChip] = useState<CategoryId | null>(chips?.current ?? null);
-  const currentChip = activeChip ?? chips?.current ?? null;
+  // No chip picker is shown on this hub anymore; a mode still opens in the
+  // last-active category context so progress/learned state stays correct.
+  const currentChip = gameCatChips(custom, lastCat as CategoryId | null)?.current ?? null;
 
   const openPractice = useCallback(
     (id: PracticeModeId) => {
@@ -59,6 +56,7 @@ export function PracticeMenuScreen() {
       onToggleMusic={() => void toggleMusic()}
       onBrandLongPress={parent.onBrandLongPress}
       onBrandShortPress={parent.onBrandShortPress}
+      hideSideNav
     >
       <ToastHost message={parent.toast} onHide={parent.dismissToast} testID={testIds.parent.toast} />
       <MockBox testID={testIds.practiceMenu.title} left={0} top={0} width={1} height={1} pointerEvents="none" />
@@ -81,13 +79,6 @@ export function PracticeMenuScreen() {
           />
         ))}
       </MockBox>
-      {chips ? (
-        <MockBox left={160} top={640} width={1290} height={76} pointerEvents="box-none">
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <GameCatChipRow chips={chips} current={currentChip} onSelect={setActiveChip} nowrap testIDFactory={(id) => testIds.practiceMenu.chip(id)} />
-          </ScrollView>
-        </MockBox>
-      ) : null}
     </MockHubFrame>
   );
 }

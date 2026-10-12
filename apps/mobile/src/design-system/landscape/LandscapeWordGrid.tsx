@@ -62,11 +62,13 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 0,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   row: {
     flex: 1,
     flexDirection: 'row',
     minHeight: 0,
+    justifyContent: 'center',
   },
   cell: {
     flex: 1,

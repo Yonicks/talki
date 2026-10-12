@@ -61,6 +61,8 @@ export interface MockHubFrameProps {
   onToggleMusic: () => void;
   onBrandLongPress?: () => void;
   onBrandShortPress?: () => void;
+  /** Hides the Home/Games <-> Practice side-arrow lanes for this screen. */
+  hideSideNav?: boolean;
   children: ReactNode;
 }
 
@@ -72,6 +74,7 @@ export function MockHubFrame({
   onToggleMusic,
   onBrandLongPress,
   onBrandShortPress,
+  hideSideNav = false,
   children,
 }: MockHubFrameProps) {
   const spec = HUB_SPEC[hub];
@@ -93,22 +96,26 @@ export function MockHubFrame({
         onBrandShortPress={onBrandShortPress}
       />
       {children}
-      <MockBox left={spec.design.w - 130} top={spec.arrowY - 60} width={120} height={150}>
-        <LandscapeSideNav
-          testID={testIds.nav.sideStart}
-          label={spec.start.label}
-          direction="backward"
-          onPress={() => replace(spec.start.href)}
-        />
-      </MockBox>
-      <MockBox left={10} top={spec.arrowY - 60} width={120} height={150}>
-        <LandscapeSideNav
-          testID={testIds.nav.sideEnd}
-          label={spec.end.label}
-          direction="forward"
-          onPress={() => replace(spec.end.href)}
-        />
-      </MockBox>
+      {hideSideNav ? null : (
+        <>
+          <MockBox left={spec.design.w - 130} top={spec.arrowY - 60} width={120} height={150}>
+            <LandscapeSideNav
+              testID={testIds.nav.sideStart}
+              label={spec.start.label}
+              direction="backward"
+              onPress={() => replace(spec.start.href)}
+            />
+          </MockBox>
+          <MockBox left={10} top={spec.arrowY - 60} width={120} height={150}>
+            <LandscapeSideNav
+              testID={testIds.nav.sideEnd}
+              label={spec.end.label}
+              direction="forward"
+              onPress={() => replace(spec.end.href)}
+            />
+          </MockBox>
+        </>
+      )}
     </MockStage>
   );
 }

@@ -11,6 +11,10 @@ import { testIds } from '@/testing/testIds';
 
 import { landscapeTokens } from './tokens';
 
+// Same house glyph MockHeader draws for every hub (Games/Practice/Rewards/
+// Parent) at the physical end — kept visually identical here.
+const homeGlyph = require('../../../assets/v3/ui/talki-mock-home.png') as ImageSourcePropType;
+
 export interface LandscapeTopBarProps {
   points: number;
   musicOn: boolean;
@@ -23,6 +27,9 @@ export interface LandscapeTopBarProps {
   pointsTestID?: string;
   /** Optional profile/settings control (reference shows a separate parent icon). */
   onProfilePress?: () => void;
+  /** Optional home control — matches the house glyph every hub header (Games/
+   *  Practice/Rewards/Parent, via MockHeader) shows at the physical end. */
+  onHomePress?: () => void;
   showLogo?: boolean;
   /** Extra start-side node (rarely needed). */
   startAccessory?: ReactNode;
@@ -45,6 +52,7 @@ export function LandscapeTopBar({
   onPointsPress,
   pointsTestID,
   onProfilePress,
+  onHomePress,
   showLogo = true,
   startAccessory,
   testID,
@@ -121,6 +129,14 @@ export function LandscapeTopBar({
       style={[styles.bar, { minHeight: tokens.topBarMinHeight, paddingInline: tokens.padInline }]}
     >
       <View style={styles.sideGroup}>
+        {onHomePress ? (
+          <TalkiIconButton
+            testID={testID ? `${testID}-home` : undefined}
+            icon={homeGlyph}
+            onPress={onHomePress}
+            accessibilityLabel="חזרה לדף הבית"
+          />
+        ) : null}
         {startAccessory}
         {onPointsPress ? (
           <Pressable

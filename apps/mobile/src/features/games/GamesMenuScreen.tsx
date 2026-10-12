@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax -- mock-unit layout constants are physical canvas coordinates */
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { ToastHost } from '@/components/shell';
 import { hubMockArt } from '@/design-system/assets';
@@ -18,14 +18,12 @@ import { useProgressStore } from '@/state/progressStore';
 import { useSettingsStore } from '@/state/settingsStore';
 import { testIds } from '@/testing/testIds';
 
-import { GameCatChipRow } from './GameCatChipRow';
-
 /**
  * Landscape Games hub (Phase 21).
  *
  * Composition (matches `docs/design/landscape/reference/Whimsical Talki Game Selection Screen.png`):
- *   world background + top chrome + side nav (LandscapeHubFrame)
- *   LandscapeTitle + category chips (preserved launch context)
+ *   world background + top chrome (no side nav, no category chips — see
+ *   GamesMenuScreen's MockHubFrame usage)
  *   3×2 LandscapeActivityGrid for the active page (page size 6)
  *   LandscapePageIndicator when more than one page
  *
@@ -43,9 +41,9 @@ export function GamesMenuScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate once on mount
   }, []);
 
-  const chips = gameCatChips(custom, lastCat as CategoryId | null);
-  const [activeChip, setActiveChip] = useState<CategoryId | null>(chips?.current ?? null);
-  const currentChip = activeChip ?? chips?.current ?? null;
+  // No chip picker is shown on this hub anymore; a game still opens in the
+  // last-active category context so progress/learned state stays correct.
+  const currentChip = gameCatChips(custom, lastCat as CategoryId | null)?.current ?? null;
 
   const pages = useMemo(() => gameHubPages(GAMES, GAMES_HUB_PAGE_SIZE), []);
   const [pageIndex, setPageIndex] = useState(0);
@@ -74,6 +72,7 @@ export function GamesMenuScreen() {
       onToggleMusic={() => void toggleMusic()}
       onBrandLongPress={parent.onBrandLongPress}
       onBrandShortPress={parent.onBrandShortPress}
+      hideSideNav
     >
       <ToastHost message={parent.toast} onHide={parent.dismissToast} testID={testIds.parent.toast} />
       <MockBox testID={testIds.gamesMenu.title} left={0} top={0} width={1} height={1} pointerEvents="none" />
@@ -95,13 +94,6 @@ export function GamesMenuScreen() {
           ))}
         </MockBox>
       </MockBox>
-      {chips ? (
-        <MockBox left={170} top={612} width={1050} height={76} pointerEvents="box-none">
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <GameCatChipRow chips={chips} current={currentChip} onSelect={setActiveChip} nowrap />
-          </ScrollView>
-        </MockBox>
-      ) : null}
       <MockBox left={1240} top={622} width={300} height={60} pointerEvents="box-none" style={styles.dots}>
         <LandscapePageIndicator
           testID={testIds.gamesMenu.pageIndicator}

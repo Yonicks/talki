@@ -78,12 +78,13 @@ export function LandscapeWorldShell({
           {
             paddingTop: layout.safeInsets.top,
             paddingBottom: layout.safeInsets.bottom,
-            // Physical safe-area edges — notch/home-indicator sit on physical
-            // sides regardless of RTL text direction.
-            // eslint-disable-next-line no-restricted-syntax
-            paddingLeft: layout.safeInsets.left,
-            // eslint-disable-next-line no-restricted-syntax
-            paddingRight: layout.safeInsets.right,
+            // A landscape-rotated cutout/gesture-nav inset only ever lands on
+            // one physical side at a time, so padding left/right by the raw
+            // asymmetric insets (layout.safeInsets.left vs .right) shifts the
+            // whole centred composition off-centre instead of protecting
+            // anything — same reasoning as HomeScreen's `sideInset`. Pad both
+            // sides symmetrically by the larger of the two.
+            paddingInline: Math.max(layout.safeInsets.left, layout.safeInsets.right),
           },
         ]}
       >

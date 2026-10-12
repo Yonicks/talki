@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { RewardOverlay, ToastHost } from '@/components/shell';
-import { landscapeBackgrounds, uiIcons } from '@/design-system/assets';
-import { TalkiButton, TalkiIconButton, TalkiText } from '@/design-system/components';
+import { landscapeBackgrounds } from '@/design-system/assets';
+import { TalkiButton, TalkiText } from '@/design-system/components';
 import {
   LandscapePageIndicator,
   LandscapeProgress,
@@ -17,12 +17,12 @@ import { shadowCard } from '@/design-system/theme/shadows';
 import { v2, v3 } from '@/design-system/theme/colors';
 import { radii } from '@/design-system/theme/radii';
 import { celebrateTitle, shouldCelebrate } from '@/domain/progress/celebrate';
-import { cardsHref, gameHref, practiceMenuHref } from '@/domain/navigation/routes';
+import { cardsHref, gameHref, homeHref, practiceMenuHref } from '@/domain/navigation/routes';
 import type { CategoryId } from '@/domain/types';
 import { display, plain } from '@/domain/vocabulary/niqqud';
 import { wordGridPages, wordGridPageSize } from '@/domain/vocabulary/wordGridPages';
-import { useGoBack } from '@/hooks/useGoBack';
 import { useGuardedPush } from '@/hooks/useGuardedPush';
+import { useGuardedReplace } from '@/hooks/useGuardedReplace';
 import { useParentBrand } from '@/hooks/useParentBrand';
 import { audioEngine } from '@/services/audio';
 import { wordVoiceService } from '@/services/voice';
@@ -52,8 +52,8 @@ export interface CategoryScreenProps {
  * words/custom/mine reachable.
  */
 export function CategoryScreen({ catId }: CategoryScreenProps) {
-  const goBack = useGoBack();
   const push = useGuardedPush();
+  const replace = useGuardedReplace();
   const layout = useLandscapeLayout();
   const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
   const { ready, category, learnedCount, isLearned, niqqudEnabled, markLearned } = useCategoryProgress(catId);
@@ -120,15 +120,8 @@ export function CategoryScreen({ catId }: CategoryScreenProps) {
           onToggleMusic={() => void toggleMusic()}
           onBrandLongPress={parent.onBrandLongPress}
           onBrandShortPress={parent.onBrandShortPress}
+          onHomePress={() => replace(homeHref)}
           showLogo
-          startAccessory={
-            <TalkiIconButton
-              testID={testIds.category.back}
-              icon={uiIcons.back}
-              accessibilityLabel="חזרה"
-              onPress={goBack}
-            />
-          }
         />
       }
       auxiliary={
@@ -270,10 +263,14 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 0,
     minWidth: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   page: {
     flex: 1,
     minHeight: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyPanel: {
     flex: 1,
