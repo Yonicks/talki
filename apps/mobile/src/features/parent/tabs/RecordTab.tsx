@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { TalkiCard, TalkiHeading, TalkiText } from '@/design-system/components';
+import { TalkiHeading, TalkiText } from '@/design-system/components';
+import { ParentCard as TalkiCard } from '../components/ParentCard';
 import { v3 } from '@/design-system/theme/colors';
 import { radii } from '@/design-system/theme/radii';
 import { deleteRecording, recordingFlagsForCategory } from '@/domain/parent/recordings';

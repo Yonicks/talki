@@ -81,6 +81,9 @@ test.describe('Phase 25 puzzle', () => {
     await expect(page.getByTestId(testIds.puzzle.done)).toBeVisible({ timeout: 3000 });
     await captureMatrix(page, '25', 'puzzle-done');
     await expect(page).toHaveScreenshot();
+    await page.getByTestId(testIds.game.doneHome).click();
+    await expect(page.getByTestId(testIds.home.root)).toHaveCount(1);
+    await expect(page.getByTestId(testIds.home.root)).toBeVisible();
   });
 
   test('burst on a piece does not place it twice', async ({ page }) => {

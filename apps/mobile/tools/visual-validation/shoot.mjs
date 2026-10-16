@@ -31,7 +31,7 @@ const adPx = vp === 'ref' && sc.adPx ? sc.adPx : 50;
 const out = path.resolve(here, '..', '..', '..', '..', 'visual-validation', screen, vp);
 mkdirSync(out, { recursive: true });
 
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH, args: ['--no-sandbox', '--disable-dev-shm-usage'] } : {});
 const ctx = await browser.newContext({ viewport: v.viewport, deviceScaleFactor: v.dsf, userAgent: v.ua, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
 const page = await ctx.newPage();
 await page.addInitScript((px) => { window.__talkiAdReservedPx = px; }, adPx);

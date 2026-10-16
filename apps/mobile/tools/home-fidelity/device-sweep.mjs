@@ -111,7 +111,7 @@ async function pushRoute(page, p) {
   await page.evaluate((route) => window.__talkiRouterE2E.push(route), p);
 }
 
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH, args: ['--no-sandbox', '--disable-dev-shm-usage'] } : {});
 const report = {};
 const sweepDevices = (mode === 'flows' ? DEVICES.slice(0, 2) : DEVICES).filter((d) => !ONLY_DEVICES || ONLY_DEVICES.includes(d.name));
 for (const dev of sweepDevices) {

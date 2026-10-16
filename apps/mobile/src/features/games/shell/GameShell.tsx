@@ -8,8 +8,7 @@ import { TalkiText } from '@/design-system/components';
 import { MockBox, MockHeader, MockPanel, MockStage, landscapeTokens } from '@/design-system/landscape';
 import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
 import { v3 } from '@/design-system/theme/colors';
-import { homeHref } from '@/domain/navigation/routes';
-import { useGuardedPush } from '@/hooks/useGuardedPush';
+import { useGoHome } from '@/hooks/useGoHome';
 import { useParentBrand } from '@/hooks/useParentBrand';
 import { useProgressStore } from '@/state/progressStore';
 import { useSettingsStore } from '@/state/settingsStore';
@@ -62,7 +61,6 @@ export function GameShell({
   result,
   onBack,
   onReplay,
-  onHome,
   toast,
   onDismissToast,
   celebrateMessage,
@@ -78,12 +76,12 @@ export function GameShell({
   const learned = useProgressStore((s) => s.learned);
   const { settings, toggleMusic } = useSettingsStore();
   const parent = useParentBrand();
-  const push = useGuardedPush();
+  const goHome = useGoHome();
   const showDone = scoring && done;
 
   const content = showDone ? (
     <MockBox testID="game-play-area" left={PANEL.left} top={PANEL.top} width={PANEL.width} height={PANEL.height} style={styles.center}>
-      <DoneCard result={result} onReplay={onReplay} onHome={onHome} />
+      <DoneCard result={result} onReplay={onReplay} onHome={goHome} />
     </MockBox>
   ) : mode === 'free' ? (
     <View testID="game-play-area" style={StyleSheet.absoluteFill} pointerEvents="box-none">
@@ -118,7 +116,7 @@ export function GameShell({
         musicOn={settings.music}
         onToggleMusic={() => void toggleMusic()}
         onBack={onBack}
-        onHome={() => push(homeHref)}
+        onHome={goHome}
         onBrandLongPress={parent.onBrandLongPress}
         onBrandShortPress={parent.onBrandShortPress}
       />

@@ -111,7 +111,7 @@ test.describe('Phase 7 / 20 Home', () => {
     await openApp(page);
     await page.getByTestId(testIds.nav.sideEnd).click();
     await expect(page.getByTestId(testIds.gamesMenu.root)).toBeVisible();
-    await page.getByTestId(testIds.nav.sideStart).click();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
     await expect(page.getByTestId(testIds.home.root)).toBeVisible();
 
     await page.getByTestId(testIds.nav.sideStart).click();

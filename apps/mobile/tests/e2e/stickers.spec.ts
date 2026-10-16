@@ -29,6 +29,54 @@ async function revealSticker(page: Page, index: number): Promise<void> {
 }
 
 test.describe('Phase 27 stickers / rewards', () => {
+  test('pagination remains fully visible and reachable above the reserved ad', async ({ page }) => {
+    await page.addInitScript(() => {
+      (window as unknown as { __talkiAdReservedPx: number }).__talkiAdReservedPx = 50;
+    });
+    await openApp(page);
+    await page.getByTestId(testIds.nav.rewards).click();
+    await expect(page.getByTestId(testIds.stickers.root)).toBeVisible();
+    const dots = page.locator(`[data-testid^="${testIds.stickers.pageIndicator}-dot-"]`);
+    expect(await dots.count()).toBeGreaterThan(1);
+    const stage = await page.getByTestId(testIds.stickers.root).boundingBox();
+    expect(stage).not.toBeNull();
+    for (const [index, dot] of (await dots.all()).entries()) {
+      const box = await dot.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.y + box!.height).toBeLessThanOrEqual(stage!.y + stage!.height + 1);
+      await dot.click();
+      await expect(page.getByTestId(testIds.stickers.item(index === 0 ? 0 : STICKERS.length - 1))).toBeVisible();
+    }
+    const touch = (await auditTouchTargets(page)).filter((v) => v.testId.startsWith('stickers-'));
+    expect(touch, JSON.stringify(touch)).toHaveLength(0);
+    const reach = (await auditReachability(page)).filter((v) => v.testId.startsWith('stickers-'));
+    expect(reach, JSON.stringify(reach)).toHaveLength(0);
+    for (let i = 0; i < STICKERS.length; i++) {
+      await revealSticker(page, i);
+      await expect(page.getByTestId(testIds.stickers.item(i))).toBeVisible();
+    }
+  });
+
+  test('Home returns to a single Home from a hub and a direct rewards URL', async ({ page }) => {
+    await openApp(page);
+    await page.getByTestId(testIds.nav.sideEnd).click();
+    await expect(page.getByTestId(testIds.gamesMenu.root)).toBeVisible();
+    await page.getByTestId(testIds.nav.rewards).click();
+    await expect(page.getByTestId(testIds.stickers.root)).toBeVisible();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
+    await expect(page.getByTestId(testIds.home.root)).toHaveCount(1);
+    await expect(page.getByTestId(testIds.home.root)).toBeVisible();
+
+    // expo serve has no SPA fallback. Set the initial route before the bundle
+    // boots to exercise a standalone Rewards stack without mocking navigation.
+    await page.addInitScript(() => history.replaceState(null, '', '/rewards?intro=0'));
+    await page.goto('/?intro=0');
+    await expect(page.getByTestId(testIds.stickers.root)).toBeVisible();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
+    await expect(page.getByTestId(testIds.home.root)).toHaveCount(1);
+    await expect(page.getByTestId(testIds.home.root)).toBeVisible();
+  });
+
   test('24 stickers render greyed when locked; filters and counter work', async ({ page }) => {
     await openApp(page);
     await page.getByTestId(testIds.nav.rewards).click();

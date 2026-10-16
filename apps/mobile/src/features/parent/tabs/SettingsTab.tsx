@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { TalkiButton, TalkiCard, TalkiHeading, TalkiText } from '@/design-system/components';
+import { TalkiButton, TalkiHeading, TalkiText } from '@/design-system/components';
+import { ParentCard as TalkiCard } from '../components/ParentCard';
 import { v3 } from '@/design-system/theme/colors';
 import { RESET_CONFIRM_TEXT, RESET_DELETES_TEXT, RESET_KEEPS_TEXT } from '@/domain/parent/progressReset';
 import { formatStorageInfo, readStorageInfo } from '@/services/storage/readStorageInfo';
@@ -44,7 +45,7 @@ export function SettingsTab() {
 
   return (
     <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled" style={styles.fill}>
-      <TalkiCard style={flatCard}>
+      <TalkiCard>
         <View style={styles.topRow}>
           <View style={styles.headBlock}>
             <Heading>הקראה והצגה</Heading>
@@ -109,11 +110,11 @@ export function SettingsTab() {
         />
       </TalkiCard>
 
-      <TalkiCard style={flatCard}>
+      <TalkiCard>
         <BackupPanel />
       </TalkiCard>
 
-      <TalkiCard style={flatCard}>
+      <TalkiCard>
         <Heading>פרטיות</Heading>
         <TalkiText color={v3.textSecondary}>
           אין חשבון ואין שרת. מילים והקלטות נשארות במכשיר. בגרסת החנות מוצג באנר מודעות לילדים (לא מותאם אישית).
@@ -126,7 +127,7 @@ export function SettingsTab() {
         ) : null}
       </TalkiCard>
 
-      <TalkiCard style={flatCard}>
+      <TalkiCard>
         <Heading>איפוס</Heading>
         <TalkiText color={v3.textSecondary}>מוחק מדבקות וסטטיסטיקות בלבד</TalkiText>
         {confirming ? (
@@ -216,7 +217,6 @@ function Toggle({
 }
 
 /** Settings cards share the parent workspace's quiet cream surface. */
-const flatCard = { backgroundColor: 'transparent', borderWidth: 0, shadowOpacity: 0, elevation: 0 } as const;
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },

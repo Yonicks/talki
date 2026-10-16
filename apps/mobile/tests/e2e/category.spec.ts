@@ -83,7 +83,7 @@ test.describe('Phase 23 landscape category screen', () => {
     await expect(page.getByTestId(testIds.category.title)).toHaveText('חיות');
     await expect(page.getByTestId(testIds.category.progress)).toBeVisible();
     await expect(page.getByTestId(testIds.category.grid)).toBeVisible();
-    await expect(page.getByTestId(testIds.category.back)).toBeVisible();
+    await expect(page.getByRole('button', { name: 'חזרה לדף הבית', exact: true })).toBeVisible();
     await expect(page.locator('[data-testid^="bottom-nav"]')).toHaveCount(0);
 
     // Opening writes lastcat (enterCat equivalent).
@@ -160,9 +160,9 @@ test.describe('Phase 23 landscape category screen', () => {
     await expect(page.getByTestId(testIds.category.word(0))).toContainText('★');
   });
 
-  test('back returns to Home', async ({ page }) => {
+  test('Home returns to Home', async ({ page }) => {
     await gotoCategory(page, 'animals');
-    await page.getByTestId(testIds.category.back).click();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
     await expect(page.getByTestId(testIds.home.root)).toBeVisible();
   });
 

@@ -17,12 +17,12 @@ import { shadowCard } from '@/design-system/theme/shadows';
 import { v2, v3 } from '@/design-system/theme/colors';
 import { radii } from '@/design-system/theme/radii';
 import { celebrateTitle, shouldCelebrate } from '@/domain/progress/celebrate';
-import { cardsHref, gameHref, homeHref, practiceMenuHref } from '@/domain/navigation/routes';
+import { cardsHref, gameHref, practiceMenuHref } from '@/domain/navigation/routes';
 import type { CategoryId } from '@/domain/types';
 import { display, plain } from '@/domain/vocabulary/niqqud';
 import { wordGridPages, wordGridPageSize } from '@/domain/vocabulary/wordGridPages';
 import { useGuardedPush } from '@/hooks/useGuardedPush';
-import { useGuardedReplace } from '@/hooks/useGuardedReplace';
+import { useGoHome } from '@/hooks/useGoHome';
 import { useParentBrand } from '@/hooks/useParentBrand';
 import { audioEngine } from '@/services/audio';
 import { wordVoiceService } from '@/services/voice';
@@ -53,7 +53,7 @@ export interface CategoryScreenProps {
  */
 export function CategoryScreen({ catId }: CategoryScreenProps) {
   const push = useGuardedPush();
-  const replace = useGuardedReplace();
+  const goHome = useGoHome();
   const layout = useLandscapeLayout();
   const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
   const { ready, category, learnedCount, isLearned, niqqudEnabled, markLearned } = useCategoryProgress(catId);
@@ -120,7 +120,7 @@ export function CategoryScreen({ catId }: CategoryScreenProps) {
           onToggleMusic={() => void toggleMusic()}
           onBrandLongPress={parent.onBrandLongPress}
           onBrandShortPress={parent.onBrandShortPress}
-          onHomePress={() => replace(homeHref)}
+          onHomePress={goHome}
           showLogo
         />
       }

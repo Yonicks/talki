@@ -10,6 +10,13 @@ import type { ReactNode } from 'react';
 
 import { fontFamily } from '../../theme/typography';
 import { useMockUnits } from './MockStage';
+import { LANDSCAPE_MIN_TOUCH } from '../tokens';
+
+function touchBox(left: number, top: number, width: number, height: number, u: number) {
+  const w = Math.max(LANDSCAPE_MIN_TOUCH, width * u);
+  const h = Math.max(LANDSCAPE_MIN_TOUCH, height * u);
+  return { left: left * u - (w - width * u) / 2, top: top * u - (h - height * u) / 2, width: w, height: h };
+}
 
 export const mockInk = '#2B0E6B';
 
@@ -97,7 +104,7 @@ export function MockCard({ left, top, width, height, radius = 32, onPress, testI
     );
   }
   return (
-    <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={accessibilityLabel} onPress={onPress} style={box}>
+    <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={accessibilityLabel} onPress={onPress} style={[box, touchBox(left, top, width, height, u)]}>
       {children}
     </Pressable>
   );
@@ -133,10 +140,7 @@ export function MockAction({ label, icon, left, top, width, height, onPress, tes
         styles.action,
         {
           position: 'absolute',
-          left: left * u,
-          top: top * u,
-          width: width * u,
-          height: height * u,
+          ...touchBox(left, top, width, height, u),
           borderRadius: radius * u,
           borderWidth: Math.max(1, 2.5 * u),
           flexDirection: direction === 'stack' ? 'column' : 'row',
@@ -173,7 +177,7 @@ export function MockPrimary({ label, left, top, width, height, onPress, testID, 
       onPress={onPress}
       style={[
         styles.primary,
-        { position: 'absolute', left: left * u, top: top * u, width: width * u, height: height * u, borderRadius: Math.min(width, height) * 0.36 * u, borderWidth: Math.max(1, 3 * u) },
+        { position: 'absolute', ...touchBox(left, top, width, height, u), borderRadius: Math.min(width, height) * 0.36 * u, borderWidth: Math.max(1, 3 * u) },
       ]}
     >
       <LinearGradient colors={['#9B5DF2', '#6A2DD1']} style={[StyleSheet.absoluteFill, { borderRadius: Math.min(width, height) * 0.36 * u }]} />

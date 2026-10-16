@@ -7,9 +7,8 @@ import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayou
 import { v3 } from '@/design-system/theme/colors';
 import { puzzleAdvance, puzzleLevel } from '@/domain/games/puzzle';
 import type { TalkiCategory, TalkiSettings, WordStats } from '@/domain/types';
-import { homeHref } from '@/domain/navigation/routes';
 import { useGoBack } from '@/hooks/useGoBack';
-import { useGuardedPush } from '@/hooks/useGuardedPush';
+import { useGoHome } from '@/hooks/useGoHome';
 import { wordVoiceService } from '@/services/voice';
 import { useProgressStore } from '@/state/progressStore';
 import { useSettingsStore } from '@/state/settingsStore';
@@ -65,17 +64,17 @@ function initialPuzzle(
 
 export function PuzzleScreen({ catId, seed }: PuzzleScreenProps) {
   const goBack = useGoBack();
-  const push = useGuardedPush();
+  const goHome = useGoHome();
   const session = useGameSession({ gameId: 'puzzle', requestedCatId: catId });
   const [boards, setBoards] = useState(0);
 
   useEffect(() => {
     if (session.failed) {
-      const t = setTimeout(() => push(homeHref), 400);
+      const t = setTimeout(goHome, 400);
       return () => clearTimeout(t);
     }
     return undefined;
-  }, [session.failed, push]);
+  }, [session.failed, goHome]);
 
   if (!session.ready || !session.category) {
     return (
@@ -86,7 +85,7 @@ export function PuzzleScreen({ catId, seed }: PuzzleScreenProps) {
         result={{ score: 0, total: 3 }}
         onBack={goBack}
         onReplay={session.restart}
-        onHome={() => push(homeHref)}
+        onHome={goHome}
         toast={session.toast}
         onDismissToast={session.dismissToast}
         celebrateMessage={null}
@@ -124,7 +123,7 @@ function PuzzlePlay({
   onBoardDone: () => void;
 }) {
   const goBack = useGoBack();
-  const push = useGuardedPush();
+  const goHome = useGoHome();
   const layout = useLandscapeLayout();
   const tokens = landscapeTokens(layout.deviceClass, layout.uiScale);
   const { stats, recordSeen, markLearned } = useProgressStore();
@@ -230,7 +229,7 @@ function PuzzlePlay({
       result={{ score: 0, total: 3 }}
       onBack={goBack}
       onReplay={session.restart}
-      onHome={() => push(homeHref)}
+      onHome={goHome}
       toast={session.toast}
       onDismissToast={session.dismissToast}
       celebrateMessage={null}
@@ -238,7 +237,7 @@ function PuzzlePlay({
       scoring={false}
     >
       {state.done ? (
-        <PuzzleDoneCard state={state} niqqud={settings.niqqud} onReplay={session.restart} onHome={() => push(homeHref)} />
+        <PuzzleDoneCard state={state} niqqud={settings.niqqud} onReplay={session.restart} onHome={goHome} />
       ) : (
         <View
           testID={testIds.puzzle.root}

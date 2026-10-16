@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { TalkiCard, TalkiHeading, TalkiProgress, TalkiText } from '@/design-system/components';
+import { TalkiHeading, TalkiProgress, TalkiText } from '@/design-system/components';
+import { ParentCard as TalkiCard } from '../components/ParentCard';
 import { v3 } from '@/design-system/theme/colors';
 import { categoryProgress, hardestWords } from '@/domain/parent/report';
 import { totalWords } from '@/domain/progress/totals';

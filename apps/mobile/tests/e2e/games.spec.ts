@@ -30,8 +30,8 @@ test.describe('Phase 21 Games hub', () => {
     await expect(hub.getByTestId(testIds.gamesMenu.title)).toBeVisible();
     await expect(hub.getByTestId(testIds.gamesMenu.grid)).toBeVisible();
     await expect(hub.getByTestId(testIds.gamesMenu.page(0))).toBeVisible();
-    await expect(hub.getByTestId(testIds.nav.sideStart)).toBeVisible();
-    await expect(hub.getByTestId(testIds.nav.sideEnd)).toBeVisible();
+    await expect(hub.getByTestId(testIds.nav.sideStart)).toHaveCount(0);
+    await expect(hub.getByTestId(testIds.nav.sideEnd)).toHaveCount(0);
     await expect(page.locator('[data-testid^="bottom-nav"]')).toHaveCount(0);
     await expect(hub.getByTestId(testIds.gamesMenu.pageIndicator)).toBeVisible();
 
@@ -76,18 +76,19 @@ test.describe('Phase 21 Games hub', () => {
     expect(GAME_IDS).toHaveLength(11);
   });
 
-  test('category chips and side nav still work', async ({ page }) => {
+  test('simplified hub returns Home and preserves access to the other hub', async ({ page }) => {
     await openGamesHub(page);
     const hub = page.getByTestId(testIds.gamesMenu.root);
-    await expect(hub.getByTestId(testIds.gamesMenu.chip('animals'))).toBeVisible();
+    await expect(hub.getByTestId(testIds.gamesMenu.chip('animals'))).toHaveCount(0);
     await expect(page.getByTestId(testIds.gamesMenu.chip('mine'))).toHaveCount(0);
 
-    await hub.getByTestId(testIds.nav.sideStart).click();
+    await hub.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
     await expect(page.getByTestId(testIds.home.root)).toBeVisible();
 
     await page.getByTestId(testIds.nav.sideEnd).click();
     await expect(page.getByTestId(testIds.gamesMenu.root)).toBeVisible();
-    await page.getByTestId(testIds.gamesMenu.root).getByTestId(testIds.nav.sideEnd).click();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
+    await page.getByTestId(testIds.home.root).getByTestId(testIds.nav.sideStart).click();
     await expect(page.getByTestId(testIds.practiceMenu.root)).toBeVisible();
   });
 

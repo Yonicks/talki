@@ -2,7 +2,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { TalkiText } from '@/design-system/components';
-import { landscapeTokens } from '@/design-system/landscape';
+import { LANDSCAPE_MIN_TOUCH, landscapeTokens } from '@/design-system/landscape';
 import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
 import { radii } from '@/design-system/theme/radii';
 import { shadowSm } from '@/design-system/theme/shadows';
@@ -220,7 +220,10 @@ function SortPlay({ session, seed }: { session: GameSession; seed?: number }) {
               style={[
                 styles.box,
                 shadowSm,
-                { minHeight: boxMin, flex: split ? undefined : 1 },
+                // The shared mock panel may be shorter than tablet tokens imply.
+                // Let stacked boxes share its available height without shrinking
+                // below the child touch target minimum.
+                { minHeight: split ? LANDSCAPE_MIN_TOUCH : boxMin, maxHeight: split ? boxMin : undefined, flex: 1 },
                 feedback === box.id && (box.id === state.correctCatId ? styles.ok : styles.bad),
               ]}
             >

@@ -24,20 +24,22 @@ test.describe('Phase 7 / 19 navigation spine', () => {
     await page.goBack();
     await expect(page.getByTestId(testIds.gamesMenu.root)).toBeVisible();
 
-    await page.getByTestId(testIds.nav.sideStart).click();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
     await expect(page.getByTestId(testIds.home.root)).toBeVisible();
   });
 
-  test('hub cycle uses replace — history does not unwind through hubs', async ({ page }) => {
+  test('hub Home buttons do not leave stale hubs in history', async ({ page }) => {
     await openApp(page);
     await expect(page.getByTestId(testIds.home.root)).toBeVisible();
 
-    // Home → Games → Practice → Home via side nav (replace semantics).
+    // Each simplified hub returns Home before opening the other hub.
     await page.getByTestId(testIds.nav.sideEnd).click();
     await expect(page.getByTestId(testIds.gamesMenu.root)).toBeVisible();
-    await page.getByTestId(testIds.nav.sideEnd).click();
-    await expect(page.getByTestId(testIds.practiceMenu.root)).toBeVisible();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
+    await expect(page.getByTestId(testIds.home.root)).toBeVisible();
     await page.getByTestId(testIds.nav.sideStart).click();
+    await expect(page.getByTestId(testIds.practiceMenu.root)).toBeVisible();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
     await expect(page.getByTestId(testIds.home.root)).toBeVisible();
 
     // After the cycle, push a detail and goBack must return Home — not Practice/Games.
@@ -70,7 +72,7 @@ test.describe('Phase 7 / 19 navigation spine', () => {
     await expect(page.getByTestId(testIds.game.shellRoot)).toBeVisible();
     await page.goBack();
     await expect(page.getByTestId(testIds.gamesMenu.root)).toBeVisible();
-    await page.getByTestId(testIds.nav.sideStart).click();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
     await expect(page.getByTestId(testIds.home.root)).toBeVisible();
 
     await page.getByTestId(testIds.nav.sideStart).click();
@@ -79,15 +81,15 @@ test.describe('Phase 7 / 19 navigation spine', () => {
     await expect(page.getByTestId(testIds.focus.card)).toBeVisible();
     await page.goBack();
     await expect(page.getByTestId(testIds.practiceMenu.root)).toBeVisible();
-    await page.getByTestId(testIds.nav.sideStart).click();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
     await expect(page.getByTestId(testIds.home.root)).toBeVisible();
   });
 
-  test('the games menu and practice menu are reachable and their cards route to a stub', async ({ page }) => {
+  test('the games menu and practice menu are reachable and their cards open games', async ({ page }) => {
     await openApp(page);
     await pushRoute(page, '/games');
     await expect(page.getByTestId(testIds.gamesMenu.root)).toBeVisible();
-    await expect(page.getByTestId(testIds.gamesMenu.chip('animals'))).toBeVisible();
+    await expect(page.getByTestId(testIds.gamesMenu.chip('animals'))).toHaveCount(0);
     await expect(page.getByTestId(testIds.gamesMenu.chip('mine'))).toHaveCount(0);
     await page.getByTestId(testIds.gamesMenu.card('quiz')).click();
     await expect(page.getByTestId(testIds.game.shellRoot)).toBeVisible();
