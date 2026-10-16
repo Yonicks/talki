@@ -35,7 +35,7 @@ async function gotoQuiz(page: Page, catId = 'animals'): Promise<void> {
 
 async function waitForQuizArt(page: Page): Promise<void> {
   await page.waitForFunction(() => {
-    const imgs = [...document.querySelectorAll('[data-testid="quiz-root"] img')] as HTMLImageElement[];
+    const imgs = [...document.querySelectorAll('[data-testid^="quiz-option-"] img')] as HTMLImageElement[];
     return imgs.length >= 4 && imgs.every((img) => img.complete && img.naturalWidth > 0);
   });
 }
