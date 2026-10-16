@@ -23,7 +23,7 @@ import type { CategoryId } from '@/domain/types';
 import { getCat } from '@/domain/vocabulary/allCats';
 import { plain } from '@/domain/vocabulary/niqqud';
 import { wordGridPages } from '@/domain/vocabulary/wordGridPages';
-import { useGoBack } from '@/hooks/useGoBack';
+import { useGoHome } from '@/hooks/useGoHome';
 import { useParentBrand } from '@/hooks/useParentBrand';
 import { useProgressStore } from '@/state/progressStore';
 import { useSettingsStore } from '@/state/settingsStore';
@@ -53,7 +53,8 @@ const PAGE_SIZE = REWARDS.rows[0].lefts.length + REWARDS.rows[1].lefts.length;
 function FilterChips({ active, onChange }: { active: 'all' | CategoryId; onChange: (key: 'all' | CategoryId) => void }) {
   const { u } = useMockUnits();
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.chipRow}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.chipRow}
+      style={{ minHeight: 48, transform: [{ translateY: -Math.max(0, (48 - 76 * u) / 2) }] }}>
       {stickerFilterKeys().map((key) => {
         const label = key === 'all' ? 'הכל' : plain(getCat(key)?.title ?? key);
         const on = active === key;
@@ -67,7 +68,7 @@ function FilterChips({ active, onChange }: { active: 'all' | CategoryId; onChang
             style={[
               styles.chip,
               on && styles.chipOn,
-              { minHeight: 67 * u, paddingHorizontal: 40 * u, borderRadius: 34 * u, marginEnd: 15 * u },
+              { minWidth: 48, minHeight: Math.max(48, 67 * u), paddingHorizontal: 40 * u, borderRadius: 34 * u, marginEnd: 15 * u },
             ]}
           >
             <Text style={{ fontFamily: fontFamily.body.bold, fontSize: 26 * u, color: mockInk, writingDirection: 'rtl' }}>{label}</Text>
@@ -84,7 +85,7 @@ function FilterChips({ active, onChange }: { active: 'all' | CategoryId; onChang
  * twelve-by-two sticker tile grid. All 24 stickers fit one page; filters narrow it.
  */
 export function StickersScreen() {
-  const goBack = useGoBack();
+  const goHome = useGoHome();
   const { learned, custom } = useProgressStore();
   const { settings, toggleMusic } = useSettingsStore();
   const parent = useParentBrand();
@@ -116,7 +117,7 @@ export function StickersScreen() {
         musicOn={settings.music}
         onToggleMusic={() => void toggleMusic()}
         backTestID={testIds.stickers.back}
-        onHome={goBack}
+        onHome={goHome}
         onBrandLongPress={parent.onBrandLongPress}
         onBrandShortPress={parent.onBrandShortPress}
       />
