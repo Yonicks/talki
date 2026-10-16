@@ -29,6 +29,23 @@ async function revealSticker(page: Page, index: number): Promise<void> {
 }
 
 test.describe('Phase 27 stickers / rewards', () => {
+  test('Home returns to a single Home from a hub and a direct rewards URL', async ({ page }) => {
+    await openApp(page);
+    await page.getByTestId(testIds.nav.sideEnd).click();
+    await expect(page.getByTestId(testIds.gamesMenu.root)).toBeVisible();
+    await page.getByTestId(testIds.nav.rewards).click();
+    await expect(page.getByTestId(testIds.stickers.root)).toBeVisible();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
+    await expect(page.getByTestId(testIds.home.root)).toHaveCount(1);
+    await expect(page.getByTestId(testIds.home.root)).toBeVisible();
+
+    await page.goto('/rewards?intro=0');
+    await expect(page.getByTestId(testIds.stickers.root)).toBeVisible();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
+    await expect(page.getByTestId(testIds.home.root)).toHaveCount(1);
+    await expect(page.getByTestId(testIds.home.root)).toBeVisible();
+  });
+
   test('24 stickers render greyed when locked; filters and counter work', async ({ page }) => {
     await openApp(page);
     await page.getByTestId(testIds.nav.rewards).click();
