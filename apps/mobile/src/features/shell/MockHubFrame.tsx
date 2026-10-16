@@ -20,6 +20,7 @@ import {
 import { gamesMenuHref, homeHref, practiceMenuHref, rewardsHref } from '@/domain/navigation/routes';
 import { useGuardedPush } from '@/hooks/useGuardedPush';
 import { useGuardedReplace } from '@/hooks/useGuardedReplace';
+import { useGoHome } from '@/hooks/useGoHome';
 import { testIds } from '@/testing/testIds';
 
 export type MockHubId = 'games' | 'practice';
@@ -80,6 +81,7 @@ export function MockHubFrame({
   const spec = HUB_SPEC[hub];
   const push = useGuardedPush();
   const replace = useGuardedReplace();
+  const goHome = useGoHome();
 
   return (
     <MockStage testID={testID} design={spec.design} withAd scene={landscapeScenes[spec.scene]}>
@@ -91,7 +93,7 @@ export function MockHubFrame({
         musicOn={musicOn}
         onToggleMusic={onToggleMusic}
         onPointsPress={() => push(rewardsHref)}
-        onHome={() => replace(homeHref)}
+        onHome={goHome}
         onBrandLongPress={onBrandLongPress}
         onBrandShortPress={onBrandShortPress}
       />
