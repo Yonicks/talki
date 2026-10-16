@@ -41,8 +41,8 @@ test.describe('Phase 22 Practice hub', () => {
     const hub = page.getByTestId(testIds.practiceMenu.root);
     await expect(hub.getByTestId(testIds.practiceMenu.title)).toBeVisible();
     await expect(hub.getByTestId(testIds.practiceMenu.grid)).toBeVisible();
-    await expect(hub.getByTestId(testIds.nav.sideStart)).toBeVisible();
-    await expect(hub.getByTestId(testIds.nav.sideEnd)).toBeVisible();
+    await expect(hub.getByTestId(testIds.nav.sideStart)).toHaveCount(0);
+    await expect(hub.getByTestId(testIds.nav.sideEnd)).toHaveCount(0);
     await expect(page.locator('[data-testid^="bottom-nav"]')).toHaveCount(0);
 
     for (const id of PRACTICE_IDS) {
@@ -66,18 +66,19 @@ test.describe('Phase 22 Practice hub', () => {
     }
   });
 
-  test('category chips and side nav still work', async ({ page }) => {
+  test('simplified hub returns Home and preserves access to the other hub', async ({ page }) => {
     await openPracticeHub(page);
     const hub = page.getByTestId(testIds.practiceMenu.root);
-    await expect(hub.getByTestId(testIds.practiceMenu.chip('animals'))).toBeVisible();
+    await expect(hub.getByTestId(testIds.practiceMenu.chip('animals'))).toHaveCount(0);
     await expect(page.getByTestId(testIds.practiceMenu.chip('mine'))).toHaveCount(0);
 
-    await hub.getByTestId(testIds.nav.sideStart).click();
+    await hub.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
     await expect(page.getByTestId(testIds.home.root)).toBeVisible();
 
     await page.getByTestId(testIds.nav.sideStart).click();
     await expect(page.getByTestId(testIds.practiceMenu.root)).toBeVisible();
-    await page.getByTestId(testIds.practiceMenu.root).getByTestId(testIds.nav.sideEnd).click();
+    await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
+    await page.getByTestId(testIds.home.root).getByTestId(testIds.nav.sideEnd).click();
     await expect(page.getByTestId(testIds.gamesMenu.root)).toBeVisible();
   });
 
