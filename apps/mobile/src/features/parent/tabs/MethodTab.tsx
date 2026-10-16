@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { TalkiCard, TalkiHeading, TalkiText } from '@/design-system/components';
+import { TalkiHeading, TalkiText } from '@/design-system/components';
+import { ParentCard as TalkiCard } from '../components/ParentCard';
 import { v3 } from '@/design-system/theme/colors';
 
 const ITEMS: [string, string, string][] = [
