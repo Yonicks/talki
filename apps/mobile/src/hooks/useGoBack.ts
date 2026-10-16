@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useRouter } from 'expo-router';
+import { homeHref } from '@/domain/navigation/routes';
 
 /**
  * The one sanctioned way a feature screen pops itself. Screens must not
@@ -11,5 +12,6 @@ export function useGoBack(): () => void {
   const router = useRouter();
   return useCallback(() => {
     if (router.canGoBack()) router.back();
+    else router.replace(homeHref);
   }, [router]);
 }
