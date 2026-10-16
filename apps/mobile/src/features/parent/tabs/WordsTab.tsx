@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { TalkiCard, TalkiHeading, TalkiText } from '@/design-system/components';
+import { TalkiHeading, TalkiText } from '@/design-system/components';
+import { ParentCard as TalkiCard } from '../components/ParentCard';
 import { landscapeTokens } from '@/design-system/landscape';
 import { useLandscapeLayout } from '@/design-system/responsive/useLandscapeLayout';
 import { v3 } from '@/design-system/theme/colors';
