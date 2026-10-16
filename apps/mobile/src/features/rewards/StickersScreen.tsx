@@ -82,7 +82,7 @@ function FilterChips({ active, onChange }: { active: 'all' | CategoryId; onChang
 /**
  * Rewards / stickers, drawn to the Sticker Meadow mock: painted scene with the
  * panel baked in, live title, counter, progress bar, filter chips and a
- * twelve-by-two sticker tile grid. All 24 stickers fit one page; filters narrow it.
+ * two-row sticker tile grid. All 24 stickers remain reachable through paging.
  */
 export function StickersScreen() {
   const goHome = useGoHome();
@@ -147,19 +147,25 @@ export function StickersScreen() {
       </MockBox>
 
       <MockBox {...g.grid} pointerEvents="box-none">
-        <StickerTiles items={activePage} baseIndex={baseIndex} learned={learned} custom={custom} />
+        <StickerTiles items={activePage} baseIndex={baseIndex} learned={learned} custom={custom} paged={pages.length > 1} />
       </MockBox>
       {pages.length > 1 ? (
-        <MockBox left={700} top={648} width={420} height={50} pointerEvents="box-none" style={styles.dots}>
-          <LandscapePageIndicator
-            testID={testIds.stickers.pageIndicator}
-            pageCount={pages.length}
-            activeIndex={safePage}
-            onSelect={setPageIndex}
-          />
-        </MockBox>
+        <RewardsPages pageCount={pages.length} activeIndex={safePage} onSelect={setPageIndex} />
       ) : null}
     </MockStage>
+  );
+}
+
+// The indicator has 48dp targets plus 4dp padding on each side vertically.
+// Reserve its real height; scaling the mock's 50-unit box clips it behind ads.
+const PAGE_CONTROL_HEIGHT = 56;
+
+function RewardsPages(props: { pageCount: number; activeIndex: number; onSelect: (page: number) => void }) {
+  const { u, stageH } = useMockUnits();
+  return (
+    <View pointerEvents="box-none" style={[styles.dots, { position: 'absolute', left: 700 * u, top: Math.min(648 * u, stageH - PAGE_CONTROL_HEIGHT), width: 420 * u, height: PAGE_CONTROL_HEIGHT }]}>
+      <LandscapePageIndicator testID={testIds.stickers.pageIndicator} {...props} />
+    </View>
   );
 }
 
@@ -168,14 +174,18 @@ function StickerTiles({
   baseIndex,
   learned,
   custom,
+  paged,
 }: {
   items: ReturnType<typeof filterStickers>;
   baseIndex: number;
   learned: ReadonlySet<string>;
   custom: Parameters<typeof stickerUnlocked>[2];
+  paged: boolean;
 }) {
-  const { u } = useMockUnits();
+  const { u, stageH } = useMockUnits();
   const g = REWARDS;
+  const pagerTop = Math.min(648 * u, stageH - PAGE_CONTROL_HEIGHT);
+  const rowScale = paged ? Math.min(1, (pagerTop - 8 - g.grid.top * u) / (g.grid.height * u)) : 1;
   return (
     <>
       {items.map((s, i) => {
@@ -198,14 +208,14 @@ function StickerTiles({
               {
                 // RTL reading order: the first sticker sits at the physical right.
                 left: (spec.lefts[col]! - 168) * u,
-                top: (spec.top - 400) * u,
+                top: (spec.top - 400) * u * rowScale,
                 width: g.tileW * u,
-                height: spec.h * u,
+                height: spec.h * u * rowScale,
                 borderRadius: 26 * u,
               },
             ]}
           >
-            {src ? <Image source={src} style={{ width: 78 * u, height: 78 * u, opacity: on ? 1 : 0.55 }} resizeMode="contain" /> : null}
+            {src ? <Image source={src} style={{ width: 78 * u, height: Math.min(78 * u, spec.h * u * rowScale - 4), opacity: on ? 1 : 0.55 }} resizeMode="contain" /> : null}
           </View>
         );
       })}
