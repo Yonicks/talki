@@ -36,7 +36,7 @@ export function MockBox({ left, top, width, height, radius, children, style, tes
   return (
     <Box
       testID={testID}
-      pointerEvents={pointerEvents}
+      pointerEvents={pointerEvents ?? (onPress ? 'auto' : 'box-none')}
       {...(onPress ? { onPress, accessibilityRole: 'button' as const, accessibilityLabel } : {})}
       style={[
         { position: 'absolute', left: left * u, top: top * u, width: width * u, height: height * u, borderRadius: radius ? radius * u : undefined },
