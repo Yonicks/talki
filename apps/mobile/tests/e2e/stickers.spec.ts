@@ -39,7 +39,10 @@ test.describe('Phase 27 stickers / rewards', () => {
     await expect(page.getByTestId(testIds.home.root)).toHaveCount(1);
     await expect(page.getByTestId(testIds.home.root)).toBeVisible();
 
-    await page.goto('/rewards?intro=0');
+    // expo serve has no SPA fallback. Set the initial route before the bundle
+    // boots to exercise a standalone Rewards stack without mocking navigation.
+    await page.addInitScript(() => history.replaceState(null, '', '/rewards?intro=0'));
+    await page.goto('/?intro=0');
     await expect(page.getByTestId(testIds.stickers.root)).toBeVisible();
     await page.getByRole('button', { name: 'חזרה לדף הבית', exact: true }).click();
     await expect(page.getByTestId(testIds.home.root)).toHaveCount(1);
