@@ -73,7 +73,9 @@ jobs:
 
       - name: E2E tests (Tier 2) — 8 viewports, functional
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.visual) }}
-        run: npm run e2e:functional
+        # Fail fast: a systemic break (like a removed hub control) otherwise burns
+        # over an hour retrying every remaining spec.
+        run: npm run e2e:functional -- --max-failures=40
 
       - name: E2E tests (Tier 2) — 8 viewports + pixel-diff
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.visual }}
@@ -99,8 +101,10 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      # Failures only: a green run has nothing to debug, and a mass failure used
+      # to upload a 3+ GB report (traces for hundreds of retried tests) per night.
       - name: Upload Playwright report
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report

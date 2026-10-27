@@ -42,6 +42,10 @@ A later phase plan is a durable scope/acceptance contract; it must not cause an 
 
 If the previous phase did not reach the exact exit status required by the active phase plan, the next phase stops BLOCKED/NO-GO.
 
+## Numbering note
+
+`phase-30-report.md` is the Landscape Home rebuild to the v3 mock (an extra work item run after Phase 29). It is not the cutover. The native cutover and Capacitor retirement are still defined by `phases/phase-30-plan.md` and have not started; they are blocked on `LANDSCAPE RELEASE GO` from Phase 29.
+
 ## Program gates
 
 ### Gate A — Foundation (after Phase 19)
