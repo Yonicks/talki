@@ -3,6 +3,8 @@
  * These are not library defaults — they are the shipping children's-app
  * configuration. Do not "improve" them from AdMob docs.
  */
+import { isGoogleSampleId, resolveBannerUnitId, type AdPlatform } from './adIds';
+
 export const CHILD_SAFETY_FLAGS = {
   tagForChildDirectedTreatment: true,
   maxAdContentRating: 'General',
@@ -12,25 +14,31 @@ export const CHILD_SAFETY_FLAGS = {
   margin: 0,
 } as const;
 
-/** Google SAMPLE banner unit — index.html 4095-4097. */
-export const TEST_BANNER_UNIT_ID = 'ca-app-pub-3940256099942544/6300978111';
+export { TEST_BANNER_UNIT_ID, TEST_IOS_BANNER_UNIT_ID } from './adIds';
 
 export const AD_FALLBACK_PX = 50;
 
+/** `process.env.EXPO_OS` is inlined by Expo at build time; undefined under Node (unit tests). */
+function currentAdPlatform(): AdPlatform | undefined {
+  const os = process.env.EXPO_OS;
+  return os === 'android' || os === 'ios' ? os : undefined;
+}
+
 /**
- * Real AdMob unit ids MUST be set via env before a store release.
+ * Real unit ids come from the EAS environment, one per platform
+ * (`EXPO_PUBLIC_ADMOB_BANNER_ID_ANDROID` / `_IOS`). The references must stay
+ * literal `process.env.EXPO_PUBLIC_*` so Metro can inline them.
  * Never commit a real ca-app-pub-… id that is not the Google sample.
  */
-export function bannerUnitId(): string {
-  const fromEnv = typeof process !== 'undefined' ? process.env.EXPO_PUBLIC_ADMOB_BANNER_ID : undefined;
-  if (fromEnv && fromEnv.length > 0 && fromEnv !== TEST_BANNER_UNIT_ID) {
-    return fromEnv;
-  }
-  return TEST_BANNER_UNIT_ID;
+export function bannerUnitId(platform: AdPlatform | undefined = currentAdPlatform()): string {
+  return resolveBannerUnitId(platform, {
+    bannerAndroid: process.env.EXPO_PUBLIC_ADMOB_BANNER_ID_ANDROID,
+    bannerIos: process.env.EXPO_PUBLIC_ADMOB_BANNER_ID_IOS,
+  });
 }
 
 export function isTestBannerId(id: string = bannerUnitId()): boolean {
-  return id === TEST_BANNER_UNIT_ID;
+  return isGoogleSampleId(id);
 }
 
 export const AD_REQUEST_LOG_PREFIX = 'Talki AdMob request';

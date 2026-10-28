@@ -20,7 +20,8 @@
     "production": {
       "autoIncrement": true,
       "env": {
-        "APP_VARIANT": "production"
+        "APP_VARIANT": "production",
+        "TALKI_REQUIRE_REAL_ADS": "1"
       }
     }
   },

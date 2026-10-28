@@ -4,10 +4,23 @@ Talki is a children's product (under 13). This document is what store review
 will ask for. Real AdMob unit ids must be set before a store release; they
 are **not** in this repository.
 
-**Where real ids go:** `EXPO_PUBLIC_ADMOB_BANNER_ID` at build time
-(`apps/mobile/src/services/ads/adConfig.ts` `bannerUnitId()`). Until that
-env var is set, the Google **sample** unit
-`ca-app-pub-3940256099942544/6300978111` is used.
+**Where real ids go:** AdMob ids are per platform and come from the EAS
+environment (`apps/mobile/src/services/ads/adIds.ts`):
+
+| Variable | Used for |
+|---|---|
+| `EXPO_PUBLIC_ADMOB_BANNER_ID_ANDROID` | Android banner unit (inlined at build) |
+| `EXPO_PUBLIC_ADMOB_BANNER_ID_IOS` | iOS banner unit (inlined at build) |
+| `ADMOB_ANDROID_APP_ID` | Android app id in the manifest (`app.config.ts`) |
+| `ADMOB_IOS_APP_ID` | iOS app id in Info.plist (`app.config.ts`) |
+
+Unset values fall back to Google's sample ids (Android banner
+`ca-app-pub-3940256099942544/6300978111`, iOS banner
+`.../2934735716`), so development and `preview` builds show test ads.
+The `production` EAS profile sets `TALKI_REQUIRE_REAL_ADS=1`, which makes
+`app.config.ts` fail the build if any of the four values is missing or still a
+Google sample. The superseded single `EXPO_PUBLIC_ADMOB_BANNER_ID` is no
+longer read.
 
 ## Ad configuration flags
 
